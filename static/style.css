@@ -100,7 +100,6 @@ body {
   padding: 20px;
   margin-left: 290px; /* Width of sidebar (250px) + padding (40px) */
   overflow-y: auto;
-  margin-bottom: 30px;
   background-color: var(--main-content-bg);
   transition: background-color 0.3s ease;
   min-height: calc(100vh);
@@ -114,13 +113,13 @@ body {
 
 .file-tree {
   list-style-type: none;
-  padding-left: 0;
+  padding-left: 0px;
   margin: 0;
 }
 
 .folder-contents {
   list-style-type: none;
-  padding-left: 0px;
+  padding-left: 10px;
   margin: 0;
   display: none; /* Hidden by default */
   transition: all 0.3s ease;
@@ -166,7 +165,7 @@ body {
 
 .file {
   margin: 2px 0;
-  padding-left: 10px;
+  padding-left: 21px;
 }
 
 .file-link {
