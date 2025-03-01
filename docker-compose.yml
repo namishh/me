@@ -6,13 +6,21 @@ services:
     container_name: personal
     ports:
       - "8080:8080"
-    volumes:
-      # Mount content directory for live editing
-      - ./content:/app/content
-      # Mount templates for live editing (optional)
-      - ./templates:/app/templates
-      # Mount static files for live editing (optional)
-      - ./static:/app/static
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src
+        - action: rebuild
+          path: Cargo.toml
+        - action: sync+restart
+          path: ./content
+          target: /app/content
+        - action: sync+restart
+          path: ./templates
+          target: /app/templates
+        - action: sync+restart
+          path: ./static
+          target: /app/static
     environment:
       - RUST_LOG=info
     restart: unless-stopped
