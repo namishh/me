@@ -89,6 +89,8 @@ fn markdown_to_html(content: &str) -> String {
     let mut code_lang = String::new();
     let mut code_content = String::new();
     let mut highlighter: Option<HighlightLines> = None;
+    let mut current_heading: Option<(u8, Vec<Event>)> = None; // (level, inner_events)
+
     let mut events = Vec::new();
 
     for event in parser {
@@ -125,11 +127,45 @@ fn markdown_to_html(content: &str) -> String {
                     events.push(Event::Html(format!("<pre><code>{}</code></pre>", output).into()));
                 }
             }
+            Event::Start(Tag::Heading { level, .. }) => {
+                current_heading = match level {
+                    pulldown_cmark::HeadingLevel::H1 =>  Some((1, Vec::new())),
+                    pulldown_cmark::HeadingLevel::H2 => Some((2, Vec::new())),
+                    pulldown_cmark::HeadingLevel::H3 => Some((3, Vec::new())),
+                    pulldown_cmark::HeadingLevel::H4 => Some((4, Vec::new())),
+                    _ => None
+                };
+            }
+            Event::End(TagEnd::Heading(_)) => {
+                if let Some((level, inner_events)) = current_heading.take() {
+                    let mut text_content = String::new();
+                    for e in &inner_events {
+                        if let Event::Text(t) = e {
+                            text_content.push_str(t);
+                        }
+                    }
+                    
+                    let slug = text_content
+                        .trim()
+                        .to_lowercase()
+                        .replace(' ', "-")
+                        .replace(|c: char| !c.is_alphanumeric() && c != '-', "");
+
+                    let mut inner_html = String::new();
+                    html::push_html(&mut inner_html, inner_events.into_iter());
+
+                    let heading_html = format!("<h{} id=\"{}\">{}</h{}>", 
+                        level, slug, inner_html, level);
+                    events.push(Event::Html(heading_html.into()));
+                }
+            }
             _ => {
                 if in_code_block {
                     if let Event::Text(text) = event {
                         code_content.push_str(&text);
                     }
+                } else if let Some((_, ref mut inner_events)) = current_heading {
+                    inner_events.push(event);
                 } else {
                     events.push(event);
                 }
