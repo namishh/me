@@ -1,0 +1,18 @@
+services:
+  website:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: personal
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount content directory for live editing
+      - ./content:/app/content
+      # Mount templates for live editing (optional)
+      - ./templates:/app/templates
+      # Mount static files for live editing (optional)
+      - ./static:/app/static
+    environment:
+      - RUST_LOG=info
+    restart: unless-stopped
