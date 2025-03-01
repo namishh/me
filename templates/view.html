@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}{{ file_path }}{% endblock title %}
+
+{% block content %}
+    <h1>{{ file_path }}</h1>
+    <div class="markdown-content">
+        <pre>{{ content }}</pre>
+    </div>
+{% endblock content %}

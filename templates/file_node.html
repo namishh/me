@@ -1,0 +1,16 @@
+<li class="{% if node.is_dir %}directory{% else %}file{% endif %}">
+    {% if node.is_dir %}
+        <div class="folder-label">
+            <span class="toggle-icon">▶</span>
+            <span class="folder-name">{{ node.name }}</span>
+        </div>
+        <ul class="folder-contents">
+            {% for child in node.children %}
+                {% set node = child %}
+                {% include "file_node.html" %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <a href="/{{ node.path }}" class="file-link">{{ node.name }}</a>
+    {% endif %}
+</li>

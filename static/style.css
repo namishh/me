@@ -1,10 +1,220 @@
-*{
-    background-color: #111;
-    color: #ccc;
-    font-family: Arial, sans-serif;
+:root {
+  /* Light mode variables */
+  --bg-color: #ffffff;
+  --sidebar-bg: #f5f5f5;
+  --main-content-bg: #ffffff;
+  --text-color: #333333;
+  --border-color: #dddddd;
+  --folder-hover: #e0e0e0;
+  --file-hover: #e8f0fe;
+  --file-active: #d2e3fc;
+  --markdown-bg: #f9f9f9;
+  --footer-bg: #f5f5f5;
+  --link-color: #0066cc;
+  --toggle-btn-bg: #ffffff;
+  --toggle-btn-border: #cccccc;
 }
 
-body{
-    margin: 0;
-    padding: 20px;
+[data-theme="dark"] {
+  /* Dark mode variables */
+  --bg-color: #1a1a1a;
+  --sidebar-bg: #2a2a2a;
+  --main-content-bg: #1a1a1a;
+  --text-color: #e0e0e0;
+  --border-color: #444444;
+  --folder-hover: #3a3a3a;
+  --file-hover: #3a3a3a;
+  --file-active: #4a4a4a;
+  --markdown-bg: #2a2a2a;
+  --footer-bg: #2a2a2a;
+  --link-color: #77aaff;
+  --toggle-btn-bg: #2a2a2a;
+  --toggle-btn-border: #444444;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container {
+  display: flex;
+  min-height: calc(100vh);
+  position: relative; /* For proper positioning of fixed sidebar */
+}
+
+.sidebar {
+  width: 250px;
+  height: 100vh; /* Full height */
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  padding: 10px;
+  position: fixed; /* Fixed position */
+  top: 0;
+  bottom: 0px; /* Account for footer height */
+  left: 0;
+  overflow-y: auto; /* Allow scrolling within sidebar if needed */
+  transition: background-color 0.3s ease;
+  z-index: 10;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.theme-toggle {
+  position: sticky;
+  bottom: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
+}
+
+.theme-btn {
+  background-color: var(--toggle-btn-bg);
+  color: var(--text-color);
+  border: 1px solid var(--toggle-btn-border);
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.theme-btn:hover {
+  background-color: var(--folder-hover);
+}
+
+.theme-icon {
+  margin-right: 8px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 290px; /* Width of sidebar (250px) + padding (40px) */
+  overflow-y: auto;
+  margin-bottom: 30px;
+  background-color: var(--main-content-bg);
+  transition: background-color 0.3s ease;
+  min-height: calc(100vh);
+}
+
+.file-explorer h3 {
+  margin-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.file-tree {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.folder-contents {
+  list-style-type: none;
+  padding-left: 0px;
+  margin: 0;
+  display: none; /* Hidden by default */
+  transition: all 0.3s ease;
+}
+
+.folder-open > .folder-contents {
+  display: block;
+}
+
+.directory {
+  margin: 4px 0;
+}
+
+.folder-label {
+  cursor: pointer;
+  padding: 8px;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.folder-label:hover {
+  background-color: var(--folder-hover);
+}
+
+.toggle-icon {
+  display: inline-block;
+  width: 16px;
+  transition: transform 0.3s ease;
+  margin-right: 8px;
+  font-size: 12px;
+}
+
+.folder-open > .folder-label > .toggle-icon {
+  transform: rotate(90deg);
+}
+
+.folder-name {
+  font-weight: 500;
+}
+
+.file {
+  margin: 2px 0;
+  padding-left: 10px;
+}
+
+.file-link {
+  color: var(--link-color);
+  text-decoration: none;
+  padding: 8px;
+  display: block;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.file-link:hover {
+  background-color: var(--file-hover);
+}
+
+.current-file {
+  background-color: var(--file-active);
+  font-weight: bold;
+}
+
+.markdown-content {
+  background-color: var(--markdown-bg);
+  padding: 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  line-height: 1.5;
+  transition: background-color 0.3s ease;
+}
+
+.markdown-content pre {
+  white-space: pre-wrap;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+#footer {
+  height: 50px;
+  background-color: var(--footer-bg);
+  border-top: 1px solid var(--border-color);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  transition: background-color 0.3s ease;
 }

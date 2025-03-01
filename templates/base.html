@@ -1,17 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     {% block head %}
     <link rel="stylesheet" href="/static/style.css" />
+    <script src="/static/explorer.js" defer></script>
     <title>{% block title %}{% endblock title %} - My Webpage</title>
     {% endblock head %}
 </head>
 <body>
-    <div id="content">{% block content %}{% endblock content %}</div>
-    <div id="footer">
-        {% block footer %}
-        &copy; Copyright 2024 by nam</a>.
-        {% endblock footer %}
+    <div class="container">
+        <div class="sidebar">
+            <div class="file-explorer">
+                <h3>Files</h3>
+                <ul class="file-tree">
+                    {% for node in file_tree %}
+                        {% include "file_node.html" %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="theme-toggle">
+                <button id="theme-toggle" class="theme-btn">
+                    <span id="theme-icon" class="theme-icon">🌙</span>
+                    <span id="theme-text">Dark Mode</span>
+                </button>
+            </div>
+        </div>
+        <div class="main-content">
+            <div id="content">{% block content %}{% endblock content %}</div>
+        </div>
     </div>
 </body>
 </html>
