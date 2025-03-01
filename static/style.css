@@ -33,12 +33,10 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
   color: var(--text-color);
   background-color: var(--bg-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -159,10 +157,6 @@ body {
   transform: rotate(90deg);
 }
 
-.folder-name {
-  font-weight: 500;
-}
-
 .file {
   margin: 2px 0;
   padding-left: 21px;
@@ -177,34 +171,9 @@ body {
   transition: background-color 0.2s ease;
 }
 
-.file-link:hover {
-  background-color: var(--file-hover);
-}
-
-.current-file {
-  background-color: var(--file-active);
-  font-weight: bold;
-}
-
 .markdown-content {
   padding: 15px;
   border-radius: 4px;
   line-height: 1.5;
-  transition: background-color 0.3s ease;
-}
-
-#footer {
-  height: 50px;
-  background-color: var(--footer-bg);
-  border-top: 1px solid var(--border-color);
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
   transition: background-color 0.3s ease;
 }
