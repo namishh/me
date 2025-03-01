@@ -7,7 +7,7 @@ author: Namish
 category: talk
 ---
 
-![peace](/peace.jpg)
+![peace](/static/peace.jpg)
 
 Being on the internet means, that you share things, and so do other people. Many people post cool stuff they are building on x, for example this [16yo kid](https://x.com/rcx86) making his own [gui assembly debugger](https://github.com/ZathuraDbg). Now while he is just sharing his achievements, many people older than him could potentially develop something called as impostor syndrome where they think they are never good enough. I scroll LinkedIn sometimes and see people winning hackathons left and right, and getting placed at good internships, even though I'm still in school I sometimes get this feeling I am not good enough. I do not blame these talented people on the internet, that would be dumb. Dealing with impostor syndrome to me is just about having a mindset.
 <br/>
@@ -42,4 +42,4 @@ This post was written in 5 minute intervals over a span of 4 days since I was tr
 1. [embracing impostor syndrome](https://kennethnym.com/blog/embracing-impostor-syndrome/)  by @kennethnym
 2. [Impostor Syndrome (x article)](https://x.com/alia0209/status/1845707732608835903) by @alia0209
 <br/>
-![ending](/youcanjustdostuff.jpg)
+![ending](/static/youcanjustdostuff.jpg)

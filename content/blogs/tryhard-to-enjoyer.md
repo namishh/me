@@ -6,7 +6,6 @@ author: Namish
 draft: false
 category: talks
 ---
-import { Tweet } from 'astro-embed';
 
 ![img](https://i.imgur.com/FHxHI33.png)
 <div align="center">kinda ragebaity, I know</div>
@@ -62,10 +61,3 @@ C geniunely made me love programming. The amount of things you can do with such 
 
 Right now, I am way beyond the Valley Of Despair, I am not a prodigy, I am not a 10x dev, I am not a _MERN stack guru_, I am just a guy who likes to program. Honestly, I would be on the middle of slope of englightenment, I am not a master of anything, I am not a beginner of anything, I am just a guy who likes to program. I am not a tryhard, I am an enjoyer.
 
-
-Update, The Primeagen, posted this on twitter, and I think it is very relevant to this post
-<br/>
-<div align="center">
-<Tweet id="https://x.com/ThePrimeagen/status/1829525317553393740"/>
-</div>
-<br/>

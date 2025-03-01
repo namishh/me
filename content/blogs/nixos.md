@@ -7,7 +7,7 @@ draft: false
 category: guide
 ---
 
-<img src="/nixwall.png" />
+<img src="/static/nixwall.png" />
 
 <a href="https://github.com/NixOS/nixos-artwork">wall from official nixos repo</a>
 
@@ -17,33 +17,36 @@ category: guide
 
 ## Table Of Contents
 
-1. [Intro](#intro)
-    + [Basic Nix Commands](#basic-nix-commands)
-2. [Flakes](#flakes)
-    + [Why flakes?](#why-flakes)
-    + [Enabling flakes](#enabling-flakes)
-    + [Basic Flake](#basic-flake)
-3. [Deriviations and overlays](#deriviations-and-overlays)
-    + [Deriviations](#deriviations)
-    + [Example Deriviations](#example-deriviations)
-    + [Overlays](#overlays)
-4. [Configuring the system](#configuring-the-system)
-    + [Shared Settings](#shared-settings)
-    + [System Specific configurations](#system-specific-configurations)
-5. [Home Manager](#home-manager)
-    + [Handling Colors](#handling-colors)
-    + [Xresources](#xresources)
-    + [Hyprland](#hyprland)
-    + [Waybar](#waybar)
-    + [Wezterm](#wezterm)
-    + [Dunst](#dunst)
-    + [ZSH](#zsh)
-    + [Music](#music)
-    + [Bonus - Creating Files](#bonus-creating-files)
-6. [Dynamic GTK Theming](#dynamic-gtk-theming)
-7. [Nix Shell](#nix-shell)
-8. [Conclusion](#conclusion)
-    + [Some sites and cool dotfiles](#some-sites-and-cool-dotfiles)
+- [Table Of Contents](#table-of-contents)
+- [Intro](#intro)
+  - [Basic Nix Commands](#basic-nix-commands)
+- [Flakes](#flakes)
+  - [Why flakes?](#why-flakes)
+  - [Enabling Flakes](#enabling-flakes)
+  - [Basic Flake](#basic-flake)
+- [Deriviations and overlays](#deriviations-and-overlays)
+  - [Deriviations](#deriviations)
+  - [Example Deriviations](#example-deriviations)
+  - [Overlays](#overlays)
+  - [Example Deriviations](#example-deriviations-1)
+  - [Overlays](#overlays-1)
+- [Configuring the system](#configuring-the-system)
+  - [Shared Settings](#shared-settings)
+  - [System Specific configurations](#system-specific-configurations)
+- [Home Manager](#home-manager)
+  - [Handling Colors](#handling-colors)
+  - [Xresources](#xresources)
+  - [Hyprland](#hyprland)
+  - [Waybar](#waybar)
+  - [Wezterm](#wezterm)
+  - [Dunst](#dunst)
+  - [ZSH](#zsh)
+  - [Music](#music)
+  - [Bonus - Creating Files](#bonus---creating-files)
+- [Dynamic GTK Theming](#dynamic-gtk-theming)
+- [Nix Shell](#nix-shell)
+- [Conclusion](#conclusion)
+  - [Some sites and cool dotfiles](#some-sites-and-cool-dotfiles)
 
 
 ## Intro

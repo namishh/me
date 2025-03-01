@@ -6,7 +6,7 @@ date: 09 Oct 2023
 author: Namish 
 category: talks
 ---
-<img src="/quizapp.png"/>
+<img src="/static/quizapp.png"/>
 [play it here, username and pass below](https://cyquest.vercel.app)
 
 

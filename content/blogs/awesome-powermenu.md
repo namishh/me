@@ -6,19 +6,20 @@ draft: false
 author: Namish 
 category: tutorial
 ---
-<img src="/lock.png"/> <br/>
+<img src="/static/lock.png"/> <br/>
 
 ## Table Of Contents
-1. [Requirements and Setup](#requirements-and-setup)
-2. [Defining Commands](#defining-commands)
-3. [Making A Simple Toggleable Display](#making-a-simple-toggleable-display)
-4. [Creating The Elements](#creating-the-elements)
-    + [Making all the buttons at once](#making-all-the-buttons-at-once)
-5. [Adding The Background Image](#adding-the-background-image)
-6. [Adding All The Elements Together](#adding-all-the-elements-together)
-7. [Listening For Keypresses](#listening-for-keypresses)
-    + [Controlling The Keygrabber](#controlling-the-keygrabber)
-8. [Final Code](#final-code)
+- [Table Of Contents](#table-of-contents)
+- [Requirements and Setup](#requirements-and-setup)
+- [Defining commands](#defining-commands)
+- [Making A Simple Toggleable Display](#making-a-simple-toggleable-display)
+- [Creating the elements](#creating-the-elements)
+  - [Making all the buttons at once](#making-all-the-buttons-at-once)
+- [Adding the background image](#adding-the-background-image)
+- [Adding all the elements together](#adding-all-the-elements-together)
+- [Listening For Keypresses](#listening-for-keypresses)
+  - [Controlling the keygrabber](#controlling-the-keygrabber)
+- [Final Code](#final-code)
 
 ## Requirements and Setup
 
