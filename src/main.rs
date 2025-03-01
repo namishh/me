@@ -11,7 +11,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(hello) // Register the route
     })
-    .bind("127.0.0.1:8080")? // Bind to localhost on port 8080
+    .bind("0.0.0.0:8080")? // Bind to localhost on port 8080
     .run()
     .await
 }
