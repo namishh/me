@@ -3,8 +3,18 @@
 {% block title %}{{ file_path }}{% endblock title %}
 
 {% block content %}
-    <h1>{{ file_path }}</h1>
-    <div class="markdown-content">
-        <pre>{{ content }}</pre>
-    </div>
+    <h1>{{title}}</h1>
+    <article>
+        {% if date %}<div class="date">{{ date }}</div>{% endif %}
+        {% if author %}<div class="author">By {{ author }}</div>{% endif %}
+        {% if category %}<div class="category">Category: {{ category }}</div>{% endif %}
+
+        <div class="markdown-content">
+        {{ content | safe }}
+        </div>
+        
+        {% if draft %}
+            <div class="draft-notice">⚠️ This is a draft post</div>
+        {% endif %}
+    </article>
 {% endblock content %}
