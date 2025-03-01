@@ -187,19 +187,10 @@ body {
 }
 
 .markdown-content {
-  background-color: var(--markdown-bg);
   padding: 15px;
-  border: 1px solid var(--border-color);
   border-radius: 4px;
   line-height: 1.5;
   transition: background-color 0.3s ease;
-}
-
-.markdown-content pre {
-  white-space: pre-wrap;
-  background-color: rgba(0, 0, 0, 0.05);
-  padding: 10px;
-  border-radius: 4px;
 }
 
 #footer {
