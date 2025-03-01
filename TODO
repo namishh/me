@@ -1,0 +1,11 @@
+- [x] add tailwind support (ASAP)
+- [ ] put internal links to all the headings, #, ##, ###, etc
+- [ ] a very cool pixely canvas effect
+- [ ] name of the blog in the side bar
+- [ ] table of contents on the right 
+  - [ ] make the table of contents a timeline like animated lines
+- [ ] add a search bar
+- [ ] crt effect
+- [ ] better syntax highlighting of code - try if we can have custom themes
+- [ ] light mode and dark mode
+- [ ] copy to clipboard button 
