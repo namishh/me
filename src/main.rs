@@ -2,7 +2,7 @@ use actix_web::{web, App, Error, HttpServer, Result, middleware, HttpResponse};
 use pulldown_cmark::{Parser, Options, html, Tag, TagEnd, CodeBlockKind, Event};
 use serde::{Deserialize, Serialize};
 use inkjet::{Highlighter, Language, formatter};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 use tera::Tera;
@@ -118,6 +118,66 @@ fn get_inkjet_language(lang_str: &str) -> Option<Language> {
     }
 }
 
+fn parse_highlighting_info(info_string: &str) -> (HashSet<usize>, HashSet<usize>, HashSet<usize>) {
+    let mut del_lines = HashSet::new();
+    let mut add_lines = HashSet::new();
+    let mut h_lines = HashSet::new();
+
+    let del_re = Regex::new(r"del=\{([^}]+)\}").ok();
+    let add_re = Regex::new(r"add=\{([^}]+)\}").ok();
+    let h_re = Regex::new(r"\{([^}]+)\}").ok();
+
+    let parse_ranges = |range_str: &str | -> HashSet<usize> {
+        let mut result = HashSet::new();
+        for part in range_str.split(',') {
+            let part = part.trim();
+            if part.contains('-') {
+                let range: Vec<&str> = part.split('-').collect();
+                if range.len() == 2 {
+                    if let (Ok(start), Ok(end)) = (range[0].trim().parse::<usize>(), range[1].trim().parse::<usize>()) {
+                        for i in start..=end {
+                            result.insert(i);
+                        }
+                    }
+                }
+            } else if let Ok(num) = part.parse::<usize>() {
+                result.insert(num);
+            }
+        }
+        result
+    };
+
+    if let Some(ref del_re) = del_re {
+        if let Some(captures) = del_re.captures(info_string) {
+            if let Some(ranges) = captures.get(1) {
+                del_lines = parse_ranges(ranges.as_str());
+            }
+        }
+    }
+
+   if let Some(ref add_re) = add_re {
+        if let Some(captures) = add_re.captures(info_string) {
+            if let Some(ranges) = captures.get(1) {
+                add_lines = parse_ranges(ranges.as_str());
+            }
+        }
+    }
+
+    if let Some(ref h_re) = h_re {
+        for captures in h_re.captures_iter(info_string) {
+            if let Some(range_match) = captures.get(1) {
+                let full_match = captures.get(0).unwrap().as_str();
+                if !full_match.starts_with("del=") && !full_match.starts_with("add=") {
+                    h_lines = parse_ranges(range_match.as_str());
+                }
+            }
+        }
+    }
+    
+
+    (del_lines, add_lines, h_lines)
+}
+
 fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> String {
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
@@ -128,6 +188,9 @@ fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> String {
     let mut current_language = None;
     let mut current_filename = None;
     let mut current_heading: Option<(u8, Vec<Event>)> = None; // (level, inner_events)
+
+    let mut current_highlighting: (HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
+        (HashSet::new(), HashSet::new(), HashSet::new()); // del, add, highlight
 
     let mut events = Vec::new();
 
@@ -143,6 +206,7 @@ fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> String {
                 let (lang, filename) = extract_language_and_filename(&lang_info);
                 current_language = lang;
                 current_filename = filename;
+                current_highlighting = parse_highlighting_info(&lang_info);
                 code_content.clear();
             }
             Event::Text(text) if in_code_block => {
@@ -151,41 +215,73 @@ fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> String {
             Event::End(TagEnd::CodeBlock) if in_code_block => {
                 in_code_block = false;
                 
-                let mut highlighted_html = String::new();
-                
-                if let Some(lang_str) = &current_language {
+                let highlighted_html = if let Some(lang_str) = &current_language {
                     if let Some(inkjet_lang) = get_inkjet_language(lang_str) {
-                        // Use Inkjet to highlight the code
                         match highlighter.highlight_to_string(inkjet_lang, &formatter::Html, &code_content) {
-                            Ok(html) => {
-                                highlighted_html = html;
-                            },
+                            Ok(html) => html,
                             Err(e) => {
                                 eprintln!("Error highlighting code: {}", e);
-                                highlighted_html = htmlescape::encode_minimal(&code_content);
+                                htmlescape::encode_minimal(&code_content)
                             }
                         }
                     } else {
-                        highlighted_html = htmlescape::encode_minimal(&code_content);
+                        htmlescape::encode_minimal(&code_content)
                     }
                 } else {
-                    highlighted_html = htmlescape::encode_minimal(&code_content);
-                }
+                    htmlescape::encode_minimal(&code_content)
+                };
+                
+                let lines: Vec<&str> = highlighted_html.lines().collect();
+                
+                let total_lines = lines.len();
+                let width_needed = if total_lines > 0 {
+                    total_lines.to_string().len()
+                } else {
+                    1
+                };
+                
+                let (del_lines, add_lines, highlight_lines) = &current_highlighting;
+                let line_numbered_html = lines
+                    .iter()
+                    .enumerate()
+                    .map(|(i, line)| {
+                        let line_num = i + 1;
+                        
+                        let mut line_class = String::new();
+                        if del_lines.contains(&line_num) {
+                            line_class = " class=\"highlight-del\"".to_string();
+                        } else if add_lines.contains(&line_num) {
+                            line_class = " class=\"highlight-add\"".to_string();
+                        } else if highlight_lines.contains(&line_num) {
+                            line_class = " class=\"highlight\"".to_string();
+                        }
+                        
+                        format!(
+                            "<span{line_class}><span class=\"line-number\">{:0width$}</span>{}</span>", 
+                            line_num, 
+                            line,
+                            width = width_needed,
+                            line_class = line_class
+                        )
+                    })
+                    .collect::<Vec<String>>()
+                    .join("\n");
                 
                 let code_html = if let Some(filename) = &current_filename {
                     format!(
                         "<div class=\"code-block\"><div class=\"code-filename\">{}</div><pre><code>{}</code></pre></div>", 
                         filename, 
-                        highlighted_html
+                        line_numbered_html
                     )
                 } else {
-                    format!("<pre><code>{}</code></pre>", highlighted_html)
+                    format!("<pre><code>{}</code></pre>", line_numbered_html)
                 };
                 
                 events.push(Event::Html(code_html.into()));
                 
                 current_language = None;
                 current_filename = None;
+                current_highlighting = (HashSet::new(), HashSet::new(), HashSet::new());
             }
             Event::Start(Tag::Heading { level, .. }) => {
                 current_heading = match level {
@@ -266,7 +362,6 @@ async fn view_markdown(
 
     // Check if the path is a file
     if !file_path.is_file() {
-        // Try appending .md
         let md_path = file_path.with_extension("md");
         if md_path.is_file() {
             file_path = md_path;
@@ -390,7 +485,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
-    .bind("0.0.0.0:8080")?
+    .bind("127.0.0.1:8080")?
     .run()
     .await
 }

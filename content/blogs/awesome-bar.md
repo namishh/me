@@ -25,6 +25,7 @@ This guide will mostly about awm's widgeting system, if you wanna learn about ot
 4. Edit the contents of theme/init.lua 
 
 <br/>
+
 ```lua title="theme/init.lua" del={10} add={6-7,11}
 -- Theme handling library
 local beautiful = require('beautiful')
