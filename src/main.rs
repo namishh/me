@@ -6,25 +6,37 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 use tera::Tera;
-use regex::Regex;
 use serde_json::Value as JsonValue;
 use serde_yaml;
+use regex::Regex;
 use std::env;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::sync::{Arc, Mutex, RwLock};
+use std::time::{Duration, Instant};
+use lazy_static::lazy_static;
+
+struct CachedFileTree {
+    tree: Vec<FileNode>,
+    last_updated: Instant,
+}
 
 struct AppState {
     tera: Tera,
-    highlighter: Highlighter,
+    highlighter: Arc<Mutex<Highlighter>>,
+    file_tree_cache: Arc<RwLock<CachedFileTree>>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 struct FileNode {
     name: String,
     path: String,
     is_dir: bool,
     children: Vec<FileNode>,
 }
+
+const CACHE_INVALIDATION_TIME: Duration = Duration::from_secs(300);
+
 fn build_file_tree(base: &Path, relative: &Path) -> Vec<FileNode> {
     let full_path = base.join(relative);
     let mut nodes = Vec::new();
@@ -123,6 +135,25 @@ fn build_file_tree(base: &Path, relative: &Path) -> Vec<FileNode> {
     nodes
 }
 
+fn get_file_tree(cache: &Arc<RwLock<CachedFileTree>>) -> Vec<FileNode> {
+    {
+        let cache_read = cache.read().unwrap();
+        if cache_read.last_updated.elapsed() < CACHE_INVALIDATION_TIME {
+            return cache_read.tree.clone();
+        }
+    }
+    
+    // Cache is stale, update it with a write lock
+    let base_path = Path::new("content");
+    let new_tree = build_file_tree(base_path, Path::new(""));
+    
+    let mut cache_write = cache.write().unwrap();
+    cache_write.tree = new_tree.clone();
+    cache_write.last_updated = Instant::now();
+    
+    new_tree
+}
+
 fn extract_language_and_filename(info_string: &str) -> (Option<String>, Option<String>) {
     let parts: Vec<&str> = info_string.split_whitespace().collect();
     
@@ -153,20 +184,28 @@ fn extract_language_and_filename(info_string: &str) -> (Option<String>, Option<S
     (language, filename)
 }
 
+lazy_static! {
+    static ref LANGUAGE_MAP: HashMap<&'static str, Language> = {
+        let mut m = HashMap::new();
+        m.insert("rust", Language::Rust);
+        m.insert("javascript", Language::Javascript);
+        m.insert("js", Language::Javascript);
+        m.insert("typescript", Language::Typescript);
+        m.insert("ts", Language::Typescript);
+        m.insert("python", Language::Python);
+        m.insert("py", Language::Python);
+        m.insert("css", Language::Css);
+        m.insert("html", Language::Html);
+        m.insert("lua", Language::Lua);
+        m.insert("jsx", Language::Jsx);
+        m.insert("tsx", Language::Tsx);
+        m.insert("zig", Language::Zig);
+        m
+    };
+}
+
 fn get_inkjet_language(lang_str: &str) -> Option<Language> {
-    match lang_str.to_lowercase().as_str() {
-        "rust" => Some(Language::Rust),
-        "javascript" | "js" => Some(Language::Javascript),
-        "typescript" | "ts" => Some(Language::Typescript),
-        "python" | "py" => Some(Language::Python),
-        "css" => Some(Language::Css),
-        "html" => Some(Language::Html),
-        "lua" => Some(Language::Lua),
-        "jsx" => Some(Language::Jsx),
-        "tsx" => Some(Language::Tsx),
-        "zig" => Some(Language::Zig),
-        _ => None,
-    }
+    LANGUAGE_MAP.get(lang_str.to_lowercase().as_str()).cloned()
 }
 
 fn parse_highlighting_info(info_string: &str) -> (HashSet<usize>, HashSet<usize>, HashSet<usize>) {
@@ -174,9 +213,11 @@ fn parse_highlighting_info(info_string: &str) -> (HashSet<usize>, HashSet<usize>
     let mut add_lines = HashSet::new();
     let mut h_lines = HashSet::new();
 
-    let del_re = Regex::new(r"del=\{([^}]+)\}").ok();
-    let add_re = Regex::new(r"add=\{([^}]+)\}").ok();
-    let h_re = Regex::new(r"\{([^}]+)\}").ok();
+    lazy_static! {
+        static ref DEL_RE: Regex = Regex::new(r"del=\{([^}]+)\}").unwrap();
+        static ref ADD_RE: Regex = Regex::new(r"add=\{([^}]+)\}").unwrap();
+        static ref H_RE: Regex = Regex::new(r"\{([^}]+)\}").unwrap();
+    }
 
     let parse_ranges = |range_str: &str | -> HashSet<usize> {
         let mut result = HashSet::new();
@@ -198,38 +239,31 @@ fn parse_highlighting_info(info_string: &str) -> (HashSet<usize>, HashSet<usize>
         result
     };
 
-    if let Some(ref del_re) = del_re {
-        if let Some(captures) = del_re.captures(info_string) {
-            if let Some(ranges) = captures.get(1) {
-                del_lines = parse_ranges(ranges.as_str());
-            }
+    if let Some(captures) = DEL_RE.captures(info_string) {
+        if let Some(ranges) = captures.get(1) {
+            del_lines = parse_ranges(ranges.as_str());
         }
     }
 
-   if let Some(ref add_re) = add_re {
-        if let Some(captures) = add_re.captures(info_string) {
-            if let Some(ranges) = captures.get(1) {
-                add_lines = parse_ranges(ranges.as_str());
-            }
+   if let Some(captures) = ADD_RE.captures(info_string) {
+        if let Some(ranges) = captures.get(1) {
+            add_lines = parse_ranges(ranges.as_str());
         }
     }
 
-    if let Some(ref h_re) = h_re {
-        for captures in h_re.captures_iter(info_string) {
-            if let Some(range_match) = captures.get(1) {
-                let full_match = captures.get(0).unwrap().as_str();
-                if !full_match.starts_with("del=") && !full_match.starts_with("add=") {
-                    h_lines = parse_ranges(range_match.as_str());
-                }
+    for captures in H_RE.captures_iter(info_string) {
+        if let Some(range_match) = captures.get(1) {
+            let full_match = captures.get(0).unwrap().as_str();
+            if !full_match.starts_with("del=") && !full_match.starts_with("add=") {
+                h_lines = parse_ranges(range_match.as_str());
             }
         }
     }
-    
 
     (del_lines, add_lines, h_lines)
 }
 
-fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> (String, Vec<(u8, String, String)>) {
+fn markdown_to_html(content: &str, highlighter: &Mutex<Highlighter>) -> (String, Vec<(u8, String, String)>) {
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
     let parser = Parser::new_ext(content, options);
@@ -270,7 +304,7 @@ fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> (String, Ve
                 
                 let highlighted_html = if let Some(lang_str) = &current_language {
                     if let Some(inkjet_lang) = get_inkjet_language(lang_str) {
-                        match highlighter.highlight_to_string(inkjet_lang, &formatter::Html, &code_content) {
+                        match highlighter.lock().unwrap().highlight_to_string(inkjet_lang, &formatter::Html, &code_content) {
                             Ok(html) => html,
                             Err(e) => {
                                 eprintln!("Error highlighting code: {}", e);
@@ -403,6 +437,36 @@ fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> (String, Ve
     (html_output, headings)
 }
 
+struct MarkdownCache {
+    entries: HashMap<String, (String, Vec<(u8, String, String)>, Instant)>,
+}
+
+impl MarkdownCache {
+    fn new() -> Self {
+        Self {
+            entries: HashMap::new(),
+        }
+    }
+
+    fn get(&mut self, path: &str) -> Option<(String, Vec<(u8, String, String)>)> {
+        if let Some((html, headings, timestamp)) = self.entries.get(path) {
+            if timestamp.elapsed() < CACHE_INVALIDATION_TIME {
+                return Some((html.clone(), headings.clone()));
+            }
+        }
+        None
+    }
+
+    fn set(&mut self, path: String, html: String, headings: Vec<(u8, String, String)>) {
+        self.entries.insert(path, (html, headings, Instant::now()));
+    }
+}
+
+lazy_static! {
+    static ref MARKDOWN_CACHE: Mutex<MarkdownCache> = Mutex::new(MarkdownCache::new());
+    static ref FRONTMATTER_REGEX: Regex = Regex::new(r"(?s)^-{3,}\s*\n(.*?)\n-{3,}\s*\n(.*)").unwrap();
+}
+
 async fn view_markdown(
     app_state: web::Data<AppState>,
     path: web::Path<(String,)>,
@@ -422,7 +486,6 @@ async fn view_markdown(
                 if index_path.is_file() {
                     file_path = index_path;
                 } else {
-                    // Render 404 template
                     let context = tera::Context::new();
                     let html = app_state.tera
                         .render("404.html", &context)
@@ -432,7 +495,6 @@ async fn view_markdown(
                         .body(html));
                 }
             } else {
-                // Render 404 template
                 let context = tera::Context::new();
                 let html = app_state.tera
                     .render("404.html", &context)
@@ -444,59 +506,80 @@ async fn view_markdown(
         }
     }
 
-    let raw_content = match fs::read_to_string(&file_path) {
-        Ok(content) => content,
-        Err(_) => {
-            let context = tera::Context::new();
-            let html = app_state.tera
-                .render("404.html", &context)
-                .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
-            return Ok(HttpResponse::NotFound()
-                .content_type("text/html")
-                .body(html));
-        }
+    let cache_key = file_path.to_string_lossy().to_string();
+    let cached_content = {
+        let mut cache = MARKDOWN_CACHE.lock().unwrap();
+        cache.get(&cache_key)
     };
 
-    let re = Regex::new(r"(?s)^-{3,}\s*\n(.*?)\n-{3,}\s*\n(.*)").unwrap();
-    let (mut frontmatter, body) = if let Some(caps) = re.captures(&raw_content) {
-        let yaml_str = caps.get(1).unwrap().as_str();
-        let content_part = caps.get(2).unwrap().as_str().trim_start();
-        let yaml: JsonValue = serde_yaml::from_str(yaml_str).unwrap_or_else(|e| {
-            eprintln!("Frontmatter parse error in {}: {}", path_param, e);
+    let (content_html, headings, frontmatter) = if let Some((html, headings)) = cached_content {
+        // Use cached content
+        let raw_content = fs::read_to_string(&file_path)
+            .map_err(|_| actix_web::error::ErrorInternalServerError("Could not read file"))?;
+        
+        let frontmatter = if let Some(caps) = FRONTMATTER_REGEX.captures(&raw_content) {
+            let yaml_str = caps.get(1).unwrap().as_str();
+            serde_yaml::from_str(yaml_str).unwrap_or_else(|e| {
+                eprintln!("Frontmatter parse error in {}: {}", path_param, e);
+                JsonValue::Null
+            })
+        } else {
+            eprintln!("No frontmatter found in {}", path_param);
             JsonValue::Null
-        });
-        (yaml, content_part)
+        };
+        
+        (html, headings, frontmatter)
     } else {
-        eprintln!("No frontmatter found in {}", path_param);
-        (JsonValue::Null, raw_content.as_str())
+        let raw_content = fs::read_to_string(&file_path)
+            .map_err(|_| actix_web::error::ErrorInternalServerError("Could not read file"))?;
+        
+        let (frontmatter, body) = if let Some(caps) = FRONTMATTER_REGEX.captures(&raw_content) {
+            let yaml_str = caps.get(1).unwrap().as_str();
+            let content_part = caps.get(2).unwrap().as_str().trim_start();
+            let yaml: JsonValue = serde_yaml::from_str(yaml_str).unwrap_or_else(|e| {
+                eprintln!("Frontmatter parse error in {}: {}", path_param, e);
+                JsonValue::Null
+            });
+            (yaml, content_part)
+        } else {
+            eprintln!("No frontmatter found in {}", path_param);
+            (JsonValue::Null, raw_content.as_str())
+        };
+
+        let (content_html, headings) = markdown_to_html(body, &app_state.highlighter);
+        
+        {
+            let mut cache = MARKDOWN_CACHE.lock().unwrap();
+            cache.set(cache_key, content_html.clone(), headings.clone());
+        }
+        
+        (content_html, headings, frontmatter)
     };
 
-    if let JsonValue::Object(ref mut map) = frontmatter {
+    let processed_frontmatter = if let JsonValue::Object(mut map) = frontmatter {
         if !map.contains_key("title") {
             eprintln!("Missing title in frontmatter for {}", path_param);
             map.insert("title".to_string(), JsonValue::String("Untitled".to_string()));
         }
+        JsonValue::Object(map)
     } else {
-        frontmatter = JsonValue::Object({
+        JsonValue::Object({
             let mut map = serde_json::Map::new();
             map.insert("title".to_string(), JsonValue::String("Untitled".to_string()));
             map
-        });
-    }
+        })
+    };
 
-    // Highlight code and process markdown
-    let mut highlighter = app_state.highlighter.clone();
-    let (content_html, headings) = markdown_to_html(body, &mut highlighter);
     let mut context = tera::Context::new();
     
-    if let JsonValue::Object(fm_map) = frontmatter {
+    if let JsonValue::Object(fm_map) = processed_frontmatter {
         for (key, value) in fm_map {
             context.insert(key, &value);
         }
     }
 
-    let base_path = Path::new("content");
-    let file_tree = build_file_tree(base_path, Path::new(""));
+    let file_tree = get_file_tree(&app_state.file_tree_cache);
+    
     context.insert("headings", &headings);
     context.insert("file_tree", &file_tree);
     context.insert("content", &content_html);
@@ -514,8 +597,7 @@ async fn index(
     app_state: web::Data<AppState>,
     _: web::Query<HashMap<String, String>>,
 ) -> Result<HttpResponse, Error> {
-    let base_path = Path::new("content");
-    let file_tree = build_file_tree(base_path, Path::new(""));
+    let file_tree = get_file_tree(&app_state.file_tree_cache);
 
     let mut context = tera::Context::new();
     context.insert("file_tree", &file_tree);
@@ -532,8 +614,7 @@ async fn resume(
     app_state: web::Data<AppState>,
     _: web::Query<HashMap<String, String>>,
 ) -> Result<HttpResponse, Error> {
-    let base_path = Path::new("content");
-    let file_tree = build_file_tree(base_path, Path::new(""));
+    let file_tree = get_file_tree(&app_state.file_tree_cache);
 
     let mut context = tera::Context::new();
     context.insert("file_tree", &file_tree);
@@ -548,7 +629,13 @@ async fn resume(
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let highlighter = Highlighter::new();
+    let highlighter = Arc::new(Mutex::new(Highlighter::new()));
+    let base_path = Path::new("content");
+    let initial_tree = build_file_tree(base_path, Path::new(""));
+    let file_tree_cache = Arc::new(RwLock::new(CachedFileTree {
+        tree: initial_tree,
+        last_updated: Instant::now(),
+    }));
 
     let mut address = "127.0.0.1:8080";
 
@@ -570,6 +657,7 @@ async fn main() -> std::io::Result<()> {
         let app_state = AppState {
             tera,
             highlighter: highlighter.clone(),
+            file_tree_cache: file_tree_cache.clone(),
         };
 
         App::new()

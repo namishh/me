@@ -1315,6 +1315,7 @@ dependencies = [
  "env_logger",
  "htmlescape",
  "inkjet",
+ "lazy_static",
  "once_cell",
  "pulldown-cmark",
  "regex",
