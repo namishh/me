@@ -9,8 +9,8 @@
 - [ ] crt effect
 - [ ] light mode and dark mode
 - [x] ocd commit: move /static/*.{png,jpg} to /static/images
-- [ ] codeblocks
-  - [ ] copy to clipboard button 
+- [x] codeblocks
+  - [x] copy to clipboard button 
   - [x] better syntax highlighting of code - try if we can have custom themes
   - [x] file name
   - [x] line numbers

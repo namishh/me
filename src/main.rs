@@ -310,7 +310,7 @@ fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> (String, Ve
                         }
                         
                         format!(
-                            "<span{line_class}><span class=\"line-number\">{:0width$}</span>{}</span>", 
+                            "<span{line_class}><span class=\"line-number\">{:0width$}</span><span class=\"code-line\">{}</span></span>", 
                             line_num, 
                             line,
                             width = width_needed,
@@ -319,16 +319,30 @@ fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> (String, Ve
                     })
                     .collect::<Vec<String>>()
                     .join("\n");
-                
-                let code_html = if let Some(filename) = &current_filename {
-                    format!(
-                        "<div class=\"code-block\"><div class=\"code-filename\">{}</div><pre><code>{}</code></pre></div>", 
-                        filename, 
-                        line_numbered_html
-                    )
-                } else {
-                    format!("<pre><code>{}</code></pre>", line_numbered_html)
-                };
+
+                    let code_html = if let Some(filename) = &current_filename {
+                        format!(
+                            r#"<div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-filename">{}</span>
+                                    <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code>{}</code></pre>
+                            </div>"#,
+                            filename,
+                            line_numbered_html
+                        )
+                    } else {
+                        format!(
+                            r#"<div class="code-block">
+                                <div class="code-header">
+                                    <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code>{}</code></pre>
+                            </div>"#,
+                            line_numbered_html
+                        )
+                    };
                 
                 events.push(Event::Html(code_html.into()));
                 
