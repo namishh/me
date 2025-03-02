@@ -6,7 +6,6 @@
   - [ ] make the table of contents a timeline like animated lines
 - [ ] add a search bar
 - [ ] crt effect
-- [ ] serve pdf files (resume)
 - [ ] light mode and dark mode
 - [x] ocd commit: move /static/*.{png,jpg} to /static/images
 - [ ] codeblocks
