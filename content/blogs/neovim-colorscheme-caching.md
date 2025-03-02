@@ -7,7 +7,7 @@ author: Namish
 category: talks
 ---
 
-![img](/static/caching.png)
+![img](/static/images/caching.png)
 [photos from my config](https://github.com/chadcat7/kodo)
 
 ## Why Do I Need This
@@ -338,7 +338,7 @@ You can run this by
 
 `Voila`, we are done!
 
-![img](/static/nvimonedark.png)
+![img](/static/images/nvimonedark.png)
 
 ## credits
 

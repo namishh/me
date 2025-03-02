@@ -7,7 +7,7 @@ author: Namish
 category: talks
 ---
 
-![astroheader.png](/static/astroheader.png)
+![astroheader.png](/static/images/astroheader.png)
 
 For a long time, I was considering to rewrite this website with something that was better than React. While the website worked fine, there were somethings that bugged me really much
 

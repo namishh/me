@@ -6,7 +6,7 @@ draft: false
 author: Namish 
 category: tutorial
 ---
-<img src="/static/lock.png"/> <br/>
+<img src="/static/images/lock.png"/> <br/>
 
 ## Table Of Contents
 - [Table Of Contents](#table-of-contents)

@@ -7,7 +7,7 @@ draft: false
 category: guide
 ---
 
-<img src="/static/nixwall.png" />
+<img src="/static/images/nixwall.png" />
 
 <a href="https://github.com/NixOS/nixos-artwork">wall from official nixos repo</a>
 

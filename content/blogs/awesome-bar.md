@@ -9,11 +9,11 @@ category: tutorial
 
 In this post, we will turn 
 
-![default eww](/static/awmdefault.png)
+![default eww](/static/images/awmdefault.png)
 
 into this 
 
-![wow](/static/awm1.png)
+![wow](/static/images/awm1.png)
 
 This guide will mostly about awm's widgeting system, if you wanna learn about other things about awm, check out [this guide by Stella](https://star.is-a.dev/projects/awmguide/).  I am assuming you are using awesome-git and know thebasics of lua. The code for this can be found in this [repo](https://github.com/chadcat7/awmguide). Let's just start with no bullshit.
 
@@ -97,7 +97,7 @@ return helpers
 
 And now if you will restart awm, you will get something bland and tiny like this 
 
-![eww](/static/awmbland.png)
+![eww](/static/images/awmbland.png)
 
 Looks bad, but a perfect canvas for us to work on.
 
@@ -664,7 +664,7 @@ return wibox.widget {
 Yup, that is basically it, it is that easy to create a systray. And from now I will leave it upto you to add these modules into the bar.
 
 This is how out bar looks right now.
-![right done](/static/awmbarright.png)
+![right done](/static/images/awmbarright.png)
 
 ## Left Side
 
@@ -828,7 +828,7 @@ Now you know a lot of things already, so I will be giving you the challenge to c
 
 If you successfully did it, we would be left with a bar like this: 
 
-![the bar](/static/awmbar.png)
+![the bar](/static/images/awmbar.png)
 
 ## Bonus: Titlebars
 

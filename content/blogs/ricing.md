@@ -8,7 +8,7 @@ category: guide
 ---
 import Callout from  "../components/Callout.astro"
 
-![freosan](/static/freosan.png)
+![freosan](/static/images/freosan.png)
 <br/>
 
 ## Table Of Contents
@@ -91,7 +91,7 @@ For this, its to preferred to use sans serif fonts like [Lexend](https://fonts.g
   [syndrizzle/hotfiles at fvwm](https://github.com/Syndrizzle/hotfiles/tree/fvwm)
 </div>
 
-![chadcat7/crystal](/static/crystal.png)
+![chadcat7/crystal](/static/images/crystal.png)
 <div align="center">
   [chadcat7/crystal at aura](https://github.com/chadcat7/crystal/tree/aura)
 </div>
@@ -202,7 +202,7 @@ Keep in mind that it is not always necessary to use a very artistic, beautiful w
 
 Or sometimes, just a plain color.
 
-![kizu](/static/kizu.png)
+![kizu](/static/images/kizu.png)
 <div align="center">
   old rice by [janleigh](https://github.com/janleigh/dotfiles)
 </div> 
