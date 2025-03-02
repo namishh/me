@@ -10,6 +10,8 @@ use regex::Regex;
 use serde_json::Value as JsonValue;
 use serde_yaml;
 use std::env;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 struct AppState {
     tera: Tera,
@@ -23,7 +25,6 @@ struct FileNode {
     is_dir: bool,
     children: Vec<FileNode>,
 }
-
 fn build_file_tree(base: &Path, relative: &Path) -> Vec<FileNode> {
     let full_path = base.join(relative);
     let mut nodes = Vec::new();
@@ -54,9 +55,58 @@ fn build_file_tree(base: &Path, relative: &Path) -> Vec<FileNode> {
                     children,
                 });
             } else if path.extension().map_or(false, |ext| ext == "md") {
+                let mut name = String::new();
+                let default_name = path
+                    .file_stem()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_string();
+
+                if let Ok(file) = File::open(&path) {
+                    let reader = BufReader::new(file);
+                    let mut in_frontmatter = false;
+                    let mut found_title = false;
+
+                    for line in reader.lines().filter_map(Result::ok) {
+                        let trimmed_line = line.trim();
+
+                        if trimmed_line == "---" {
+                            if in_frontmatter {
+                                break;
+                            } else {
+                                in_frontmatter = true;
+                                continue;
+                            }
+                        }
+
+                        if in_frontmatter {
+                            if let Some((key, value)) = trimmed_line.split_once(':') {
+                                let key = key.trim();
+                                if key == "title" {
+                                    name = value.trim().to_string();
+                                    found_title = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if !found_title || name.is_empty() {
+                        name = default_name.clone();
+                    }
+                } else {
+                    name = default_name.clone();
+                }
+
+                let trimmed_path = if path_str.ends_with(".md") {
+                    path_str[..path_str.len() - 3].to_string()
+                } else {
+                    path_str.clone()
+                };
+
                 nodes.push(FileNode {
-                    name: file_name,
-                    path: path_str.to_string()[..path_str.len() - 3].to_string(),
+                    name,
+                    path: trimmed_path,
                     is_dir,
                     children: Vec::new(),
                 });
@@ -179,7 +229,7 @@ fn parse_highlighting_info(info_string: &str) -> (HashSet<usize>, HashSet<usize>
     (del_lines, add_lines, h_lines)
 }
 
-fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> String {
+fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> (String, Vec<(u8, String, String)>) {
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
     let parser = Parser::new_ext(content, options);
@@ -189,6 +239,8 @@ fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> String {
     let mut current_language = None;
     let mut current_filename = None;
     let mut current_heading: Option<(u8, Vec<Event>)> = None; // (level, inner_events)
+
+    let mut headings = Vec::new(); // for the toc
 
     let mut current_highlighting: (HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
         (HashSet::new(), HashSet::new(), HashSet::new()); // del, add, highlight
@@ -308,6 +360,7 @@ fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> String {
                         .replace(' ', "-")
                         .replace(|c: char| !c.is_alphanumeric() && c != '-', "");
 
+                    headings.push((level, text_content.clone(), slug.clone()));
                     let mut inner_html = String::new();
                     html::push_html(&mut inner_html, inner_events.into_iter());
 
@@ -332,7 +385,8 @@ fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> String {
 
     let mut html_output = String::new();
     html::push_html(&mut html_output, events.into_iter());
-    html_output
+
+    (html_output, headings)
 }
 
 async fn index(
@@ -436,8 +490,7 @@ async fn view_markdown(
 
     // Highlight code and process markdown
     let mut highlighter = app_state.highlighter.clone();
-    let content_html = markdown_to_html(body, &mut highlighter);
-
+    let (content_html, headings) = markdown_to_html(body, &mut highlighter);
     let mut context = tera::Context::new();
     
     if let JsonValue::Object(fm_map) = frontmatter {
@@ -448,6 +501,7 @@ async fn view_markdown(
 
     let base_path = Path::new("content");
     let file_tree = build_file_tree(base_path, Path::new(""));
+    context.insert("headings", &headings);
     context.insert("file_tree", &file_tree);
     context.insert("content", &content_html);
     context.insert("file_path", &path_param);

@@ -1,8 +1,9 @@
 - [x] add tailwind support (ASAP)
 - [x] put internal links to all the headings, #, ##, ###, etc
 - [ ] a very cool pixely canvas effect
-- [ ] name of the blog in the side bar
+- [x] name of the blog in the side bar
 - [ ] table of contents on the right 
+  - [x] generate it automatically 
   - [ ] make the table of contents a timeline like animated lines
 - [ ] add a search bar
 - [ ] crt effect

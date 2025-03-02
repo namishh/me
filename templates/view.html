@@ -4,6 +4,18 @@
 
 {% block content %}
     <h1>{{title}}</h1>
+{% if headings %}
+<div class="table-of-contents">
+    <h3>Contents</h3>
+    <ul>
+        {% for heading in headings %}
+            <li class="toc-level-{{ heading.0 }}">
+                <a href="#{{ heading.2 }}">{{ heading.1 }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
     <article>
         {% if date %}<div class="date">{{ date }}</div>{% endif %}
         {% if author %}<div class="author">By {{ author }}</div>{% endif %}
