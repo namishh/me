@@ -403,24 +403,6 @@ fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> (String, Ve
     (html_output, headings)
 }
 
-async fn index(
-    app_state: web::Data<AppState>,
-    _: web::Query<HashMap<String, String>>,
-) -> Result<HttpResponse, Error> {
-    let base_path = Path::new("content");
-    let file_tree = build_file_tree(base_path, Path::new(""));
-
-    let mut context = tera::Context::new();
-    context.insert("file_tree", &file_tree);
-
-    let html = app_state.tera
-        .render("index.html", &context)
-        .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
-    Ok(HttpResponse::Ok()
-        .content_type("text/html")
-        .body(html))
-}
-
 async fn view_markdown(
     app_state: web::Data<AppState>,
     path: web::Path<(String,)>,
@@ -528,6 +510,42 @@ async fn view_markdown(
         .body(html))
 }
 
+async fn index(
+    app_state: web::Data<AppState>,
+    _: web::Query<HashMap<String, String>>,
+) -> Result<HttpResponse, Error> {
+    let base_path = Path::new("content");
+    let file_tree = build_file_tree(base_path, Path::new(""));
+
+    let mut context = tera::Context::new();
+    context.insert("file_tree", &file_tree);
+
+    let html = app_state.tera
+        .render("index.html", &context)
+        .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
+    Ok(HttpResponse::Ok()
+        .content_type("text/html")
+        .body(html))
+}
+
+async fn resume(
+    app_state: web::Data<AppState>,
+    _: web::Query<HashMap<String, String>>,
+) -> Result<HttpResponse, Error> {
+    let base_path = Path::new("content");
+    let file_tree = build_file_tree(base_path, Path::new(""));
+
+    let mut context = tera::Context::new();
+    context.insert("file_tree", &file_tree);
+
+    let html = app_state.tera
+        .render("resume.html", &context)
+        .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
+    Ok(HttpResponse::Ok()
+        .content_type("text/html")
+        .body(html))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let highlighter = Highlighter::new();
@@ -559,6 +577,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .service(actix_files::Files::new("/static", "./static").show_files_listing())
             .service(web::resource("/").route(web::get().to(index)))
+            .service(web::resource("/resume").route(web::get().to(resume)))
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
     .bind(address)?

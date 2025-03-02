@@ -32,24 +32,17 @@
 
 <script>
 function copyCode(button) {
-    // Find the code block associated with the clicked button
     const codeBlock = button.closest('.code-block').querySelector('code');
-    
-    // Select only the code lines (excluding line numbers)
     const codeLines = codeBlock.querySelectorAll('.code-line');
-    
-    // Extract the text content of each code line and join them with newlines
     const codeText = Array.from(codeLines)
         .map(line => line.innerText)
         .join('\n');
     
-    // Copy the text to the clipboard
     navigator.clipboard.writeText(codeText).then(() => {
-        // Provide feedback to the user
         button.textContent = 'Copied!';
         setTimeout(() => {
             button.textContent = 'Copy';
-        }, 2000); // Reset the button text after 2 seconds
+        }, 2000);
     }).catch((err) => {
         console.error('Failed to copy text: ', err);
         button.textContent = 'Failed';

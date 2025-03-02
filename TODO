@@ -7,7 +7,7 @@
   - [ ] make the table of contents a timeline like animated lines
 - [ ] add a search bar
 - [ ] crt effect
-- [ ] light mode and dark mode
+- [x] light mode and dark mode
 - [x] ocd commit: move /static/*.{png,jpg} to /static/images
 - [x] codeblocks
   - [x] copy to clipboard button 
@@ -15,3 +15,7 @@
   - [x] file name
   - [x] line numbers
   - [x] highlighting specific lines
+- [ ] meta
+  - [ ] metadata
+  - [ ] images
+  - [ ] generate images for blogs, notes, poems
