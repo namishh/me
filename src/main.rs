@@ -1,4 +1,4 @@
-use actix_web::{web, App, Error, HttpServer, Result, middleware, HttpResponse};
+use actix_web::{web, App, Error, HttpServer, Result, middleware, Responder, HttpResponse};
 use pulldown_cmark::{Parser, Options, html, Tag, TagEnd, CodeBlockKind, Event};
 use serde::{Deserialize, Serialize};
 use inkjet::{Highlighter, Language, formatter};
@@ -610,21 +610,20 @@ async fn index(
         .body(html))
 }
 
-async fn resume(
-    app_state: web::Data<AppState>,
-    _: web::Query<HashMap<String, String>>,
-) -> Result<HttpResponse, Error> {
-    let file_tree = get_file_tree(&app_state.file_tree_cache);
-
-    let mut context = tera::Context::new();
-    context.insert("file_tree", &file_tree);
-
-    let html = app_state.tera
-        .render("resume.html", &context)
-        .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
-    Ok(HttpResponse::Ok()
-        .content_type("text/html")
-        .body(html))
+async fn resume() -> impl Responder {
+    let pdf_path = "./static/pdfs/resume.pdf";
+    
+    match fs::read(pdf_path) {
+        Ok(content) => {
+            HttpResponse::Ok()
+                .content_type("application/pdf")
+                .append_header(("Content-Disposition", "inline"))
+                .body(content)
+        },
+        Err(_) => {
+            HttpResponse::NotFound().body("PDF not found")
+        }
+    }
 }
 
 #[actix_web::main]
@@ -665,7 +664,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .service(actix_files::Files::new("/static", "./static").show_files_listing())
             .service(web::resource("/").route(web::get().to(index)))
-            .service(web::resource("/resume").route(web::get().to(resume)))
+            .service(web::resource("/resume").route(web::get().to(resume)))  // New endpoint
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
     .bind(address)?

@@ -1,21 +1,26 @@
+## Frontend
 - [x] add tailwind support (ASAP)
-- [x] put internal links to all the headings, #, ##, ###, etc
+- [x] light mode and dark mode
 - [ ] a very cool pixely canvas effect
-- [x] name of the blog in the side bar
+- [ ] crt effect
 - [ ] table of contents on the right 
   - [x] generate it automatically 
   - [ ] make the table of contents a timeline like animated lines
-- [ ] add a search bar
-- [ ] crt effect
-- [x] light mode and dark mode
-- [x] ocd commit: move /static/*.{png,jpg} to /static/images
+
+
+## Backend
+- [x] fix resume redirects
+- [ ] meta
+  - [ ] metadata
+  - [ ] images
+  - [ ] generate images for blogs, notes, poems
 - [x] codeblocks
   - [x] copy to clipboard button 
   - [x] better syntax highlighting of code - try if we can have custom themes
   - [x] file name
   - [x] line numbers
   - [x] highlighting specific lines
-- [ ] meta
-  - [ ] metadata
-  - [ ] images
-  - [ ] generate images for blogs, notes, poems
+- [x] ocd commit: move /static/*.{png,jpg} to /static/images
+- [ ] add a search bar
+- [x] name of the blog in the side bar
+- [x] put internal links to all the headings, #, ##, ###, etc
