@@ -12,19 +12,13 @@ use regex::Regex;
 use std::env;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::sync::{Arc, Mutex, RwLock};
-use std::time::{Duration, Instant};
+use std::sync::{Arc, Mutex};
 use lazy_static::lazy_static;
-
-struct CachedFileTree {
-    tree: Vec<FileNode>,
-    last_updated: Instant,
-}
 
 struct AppState {
     tera: Tera,
     highlighter: Arc<Mutex<Highlighter>>,
-    file_tree_cache: Arc<RwLock<CachedFileTree>>,
+    file_tree: Arc<Vec<FileNode>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -34,8 +28,6 @@ struct FileNode {
     is_dir: bool,
     children: Vec<FileNode>,
 }
-
-const CACHE_INVALIDATION_TIME: Duration = Duration::from_secs(300);
 
 fn build_file_tree(base: &Path, relative: &Path) -> Vec<FileNode> {
     let full_path = base.join(relative);
@@ -135,23 +127,8 @@ fn build_file_tree(base: &Path, relative: &Path) -> Vec<FileNode> {
     nodes
 }
 
-fn get_file_tree(cache: &Arc<RwLock<CachedFileTree>>) -> Vec<FileNode> {
-    {
-        let cache_read = cache.read().unwrap();
-        if cache_read.last_updated.elapsed() < CACHE_INVALIDATION_TIME {
-            return cache_read.tree.clone();
-        }
-    }
-    
-    // Cache is stale, update it with a write lock
-    let base_path = Path::new("content");
-    let new_tree = build_file_tree(base_path, Path::new(""));
-    
-    let mut cache_write = cache.write().unwrap();
-    cache_write.tree = new_tree.clone();
-    cache_write.last_updated = Instant::now();
-    
-    new_tree
+fn get_file_tree(file_tree: &Arc<Vec<FileNode>>) -> Vec<FileNode> {
+    file_tree.as_ref().clone()
 }
 
 fn extract_language_and_filename(info_string: &str) -> (Option<String>, Option<String>) {
@@ -438,7 +415,7 @@ fn markdown_to_html(content: &str, highlighter: &Mutex<Highlighter>) -> (String,
 }
 
 struct MarkdownCache {
-    entries: HashMap<String, (String, Vec<(u8, String, String)>, Instant)>,
+    entries: HashMap<String, (String, Vec<(u8, String, String)>)>,
 }
 
 impl MarkdownCache {
@@ -448,17 +425,12 @@ impl MarkdownCache {
         }
     }
 
-    fn get(&mut self, path: &str) -> Option<(String, Vec<(u8, String, String)>)> {
-        if let Some((html, headings, timestamp)) = self.entries.get(path) {
-            if timestamp.elapsed() < CACHE_INVALIDATION_TIME {
-                return Some((html.clone(), headings.clone()));
-            }
-        }
-        None
+    fn get(&self, path: &str) -> Option<(String, Vec<(u8, String, String)>)> {
+        self.entries.get(path).map(|(html, headings)| (html.clone(), headings.clone()))
     }
 
     fn set(&mut self, path: String, html: String, headings: Vec<(u8, String, String)>) {
-        self.entries.insert(path, (html, headings, Instant::now()));
+        self.entries.insert(path, (html, headings));
     }
 }
 
@@ -508,7 +480,7 @@ async fn view_markdown(
 
     let cache_key = file_path.to_string_lossy().to_string();
     let cached_content = {
-        let mut cache = MARKDOWN_CACHE.lock().unwrap();
+        let cache = MARKDOWN_CACHE.lock().unwrap();
         cache.get(&cache_key)
     };
 
@@ -578,7 +550,7 @@ async fn view_markdown(
         }
     }
 
-    let file_tree = get_file_tree(&app_state.file_tree_cache);
+    let file_tree = get_file_tree(&app_state.file_tree);
     
     context.insert("headings", &headings);
     context.insert("file_tree", &file_tree);
@@ -597,7 +569,7 @@ async fn index(
     app_state: web::Data<AppState>,
     _: web::Query<HashMap<String, String>>,
 ) -> Result<HttpResponse, Error> {
-    let file_tree = get_file_tree(&app_state.file_tree_cache);
+    let file_tree = get_file_tree(&app_state.file_tree);
 
     let mut context = tera::Context::new();
     context.insert("file_tree", &file_tree);
@@ -630,11 +602,9 @@ async fn resume() -> impl Responder {
 async fn main() -> std::io::Result<()> {
     let highlighter = Arc::new(Mutex::new(Highlighter::new()));
     let base_path = Path::new("content");
+    
     let initial_tree = build_file_tree(base_path, Path::new(""));
-    let file_tree_cache = Arc::new(RwLock::new(CachedFileTree {
-        tree: initial_tree,
-        last_updated: Instant::now(),
-    }));
+    let file_tree = Arc::new(initial_tree);
 
     let mut address = "127.0.0.1:8080";
 
@@ -656,7 +626,7 @@ async fn main() -> std::io::Result<()> {
         let app_state = AppState {
             tera,
             highlighter: highlighter.clone(),
-            file_tree_cache: file_tree_cache.clone(),
+            file_tree: file_tree.clone(),
         };
 
         App::new()
@@ -664,7 +634,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .service(actix_files::Files::new("/static", "./static").show_files_listing())
             .service(web::resource("/").route(web::get().to(index)))
-            .service(web::resource("/resume").route(web::get().to(resume)))  // New endpoint
+            .service(web::resource("/resume").route(web::get().to(resume)))
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
     .bind(address)?
