@@ -23,4 +23,5 @@ services:
           target: /app/static
     environment:
       - RUST_LOG=info
+      - ENVIRONMENT=production
     restart: unless-stopped

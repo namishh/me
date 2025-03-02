@@ -9,6 +9,7 @@ use tera::Tera;
 use regex::Regex;
 use serde_json::Value as JsonValue;
 use serde_yaml;
+use std::env;
 
 struct AppState {
     tera: Tera,
@@ -461,8 +462,15 @@ async fn view_markdown(
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Create a new highlighter
     let highlighter = Highlighter::new();
+
+    let mut address = "127.0.0.1:8080";
+
+    if let Ok(arg) = env::var("ENVIRONMENT") {
+        if arg == "PRODUCTION" {
+            address = "0.0.0.0:8080"
+        }
+    }
 
     HttpServer::new(move || {
         let tera = match Tera::new("templates/**/*.html") {
@@ -485,7 +493,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
-    .bind("127.0.0.1:8080")?
+    .bind(address)?
     .run()
     .await
 }
