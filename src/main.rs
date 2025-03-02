@@ -1,26 +1,18 @@
 use actix_web::{web, App, Error, HttpServer, Result, middleware, HttpResponse};
 use pulldown_cmark::{Parser, Options, html, Tag, TagEnd, CodeBlockKind, Event};
 use serde::{Deserialize, Serialize};
-use syntect::easy::HighlightLines;
-use syntect::highlighting::ThemeSet;
-use syntect::html::{css_for_theme_with_class_style, ClassStyle, IncludeBackground};
-use syntect::parsing::SyntaxSet;
-use syntect::util::LinesWithEndings;
+use inkjet::{Highlighter, Language, formatter};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tera::Tera;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde_json::Value as JsonValue;
 use serde_yaml;
 
-static SYNTAX_SET: Lazy<SyntaxSet> = Lazy::new(SyntaxSet::load_defaults_newlines);
-static THEME_SET: Lazy<ThemeSet> = Lazy::new(ThemeSet::load_defaults);
-
 struct AppState {
     tera: Tera,
-    highlight_css: String,
+    highlighter: Highlighter,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -80,15 +72,61 @@ fn build_file_tree(base: &Path, relative: &Path) -> Vec<FileNode> {
     nodes
 }
 
-fn markdown_to_html(content: &str) -> String {
+fn extract_language_and_filename(info_string: &str) -> (Option<String>, Option<String>) {
+    let parts: Vec<&str> = info_string.split_whitespace().collect();
+    
+    let language = if !parts.is_empty() {
+        Some(parts[0].to_string())
+    } else {
+        None
+    };
+    
+    // title="example.html"
+    let filename = parts.iter()
+        .find(|part| part.starts_with("title="))
+        .and_then(|part| {
+            let eq_pos = part.find('=').unwrap_or(0);
+            if eq_pos < part.len() - 1 {
+                let value = &part[eq_pos + 1..];
+                if (value.starts_with('"') && value.ends_with('"')) || 
+                   (value.starts_with('\'') && value.ends_with('\'')) {
+                    Some(value[1..value.len()-1].to_string())
+                } else {
+                    Some(value.to_string())
+                }
+            } else {
+                None
+            }
+        });
+    
+    (language, filename)
+}
+
+fn get_inkjet_language(lang_str: &str) -> Option<Language> {
+    match lang_str.to_lowercase().as_str() {
+        "rust" => Some(Language::Rust),
+        "javascript" | "js" => Some(Language::Javascript),
+        "typescript" | "ts" => Some(Language::Typescript),
+        "python" | "py" => Some(Language::Python),
+        "css" => Some(Language::Css),
+        "html" => Some(Language::Html),
+        "lua" => Some(Language::Lua),
+        "jsx" => Some(Language::Jsx),
+        "tsx" => Some(Language::Tsx),
+        "zig" => Some(Language::Zig),
+        _ => None,
+    }
+}
+
+fn markdown_to_html(content: &str, highlighter: &mut Highlighter) -> String {
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
     let parser = Parser::new_ext(content, options);
 
     let mut in_code_block = false;
-    let mut code_lang = String::new();
     let mut code_content = String::new();
-    let mut highlighter: Option<HighlightLines> = None;
+    let mut current_language = None;
+    let mut current_filename = None;
     let mut current_heading: Option<(u8, Vec<Event>)> = None; // (level, inner_events)
 
     let mut events = Vec::new();
@@ -97,16 +135,14 @@ fn markdown_to_html(content: &str) -> String {
         match event {
             Event::Start(Tag::CodeBlock(kind)) => {
                 in_code_block = true;
-                code_lang = match kind {
+                let lang_info = match kind {
                     CodeBlockKind::Fenced(lang) => lang.to_string(),
                     _ => String::new(),
                 };
-                let syntax = SYNTAX_SET.find_syntax_by_token(&code_lang)
-                    .unwrap_or_else(|| SYNTAX_SET.find_syntax_plain_text());
-                highlighter = Some(HighlightLines::new(
-                    syntax,
-                    &THEME_SET.themes["base16-ocean.dark"],
-                ));
+                
+                let (lang, filename) = extract_language_and_filename(&lang_info);
+                current_language = lang;
+                current_filename = filename;
                 code_content.clear();
             }
             Event::Text(text) if in_code_block => {
@@ -114,18 +150,42 @@ fn markdown_to_html(content: &str) -> String {
             }
             Event::End(TagEnd::CodeBlock) if in_code_block => {
                 in_code_block = false;
-                if let Some(mut h) = highlighter.take() {
-                    let mut output = String::new();
-                    for line in LinesWithEndings::from(&code_content) {
-                        let regions = h.highlight_line(line, &SYNTAX_SET).unwrap();
-                        let html_line = syntect::html::styled_line_to_highlighted_html(
-                            &regions,
-                            IncludeBackground::No,
-                        ).expect("Failed to convert line to HTML");
-                        output.push_str(&html_line);
+                
+                let mut highlighted_html = String::new();
+                
+                if let Some(lang_str) = &current_language {
+                    if let Some(inkjet_lang) = get_inkjet_language(lang_str) {
+                        // Use Inkjet to highlight the code
+                        match highlighter.highlight_to_string(inkjet_lang, &formatter::Html, &code_content) {
+                            Ok(html) => {
+                                highlighted_html = html;
+                            },
+                            Err(e) => {
+                                eprintln!("Error highlighting code: {}", e);
+                                highlighted_html = htmlescape::encode_minimal(&code_content);
+                            }
+                        }
+                    } else {
+                        highlighted_html = htmlescape::encode_minimal(&code_content);
                     }
-                    events.push(Event::Html(format!("<pre><code>{}</code></pre>", output).into()));
+                } else {
+                    highlighted_html = htmlescape::encode_minimal(&code_content);
                 }
+                
+                let code_html = if let Some(filename) = &current_filename {
+                    format!(
+                        "<div class=\"code-block\"><div class=\"code-filename\">{}</div><pre><code>{}</code></pre></div>", 
+                        filename, 
+                        highlighted_html
+                    )
+                } else {
+                    format!("<pre><code>{}</code></pre>", highlighted_html)
+                };
+                
+                events.push(Event::Html(code_html.into()));
+                
+                current_language = None;
+                current_filename = None;
             }
             Event::Start(Tag::Heading { level, .. }) => {
                 current_heading = match level {
@@ -211,7 +271,6 @@ async fn view_markdown(
         if md_path.is_file() {
             file_path = md_path;
         } else {
-            // Check if it's a directory and has an index.md
             if file_path.is_dir() {
                 let index_path = file_path.join("index.md");
                 if index_path.is_file() {
@@ -279,7 +338,9 @@ async fn view_markdown(
         });
     }
 
-    let content_html = markdown_to_html(body);
+    // Highlight code and process markdown
+    let mut highlighter = app_state.highlighter.clone();
+    let content_html = markdown_to_html(body, &mut highlighter);
 
     let mut context = tera::Context::new();
     
@@ -294,7 +355,6 @@ async fn view_markdown(
     context.insert("file_tree", &file_tree);
     context.insert("content", &content_html);
     context.insert("file_path", &path_param);
-    context.insert("highlight_css", &app_state.highlight_css);
 
     let html = app_state.tera
         .render("view.html", &context)
@@ -306,10 +366,8 @@ async fn view_markdown(
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let highlight_css = css_for_theme_with_class_style(
-        &THEME_SET.themes["base16-ocean.dark"],
-        ClassStyle::Spaced,
-    ).unwrap();
+    // Create a new highlighter
+    let highlighter = Highlighter::new();
 
     HttpServer::new(move || {
         let tera = match Tera::new("templates/**/*.html") {
@@ -322,7 +380,7 @@ async fn main() -> std::io::Result<()> {
 
         let app_state = AppState {
             tera,
-            highlight_css: highlight_css.clone(),
+            highlighter: highlighter.clone(),
         };
 
         App::new()
