@@ -13,9 +13,9 @@
 
 ## Backend
 - [x] fix resume redirects
-- [ ] meta
+- [x] meta
   - [x] generate images for blogs, notes, poems (imageproc)
-  - [ ] generate image for main page
+  - [x] generate image for main page
 - [ ] images
   - [ ] generate images for a given tweet -> https://react-tweet.vercel.app/api/tweet/{tweet_id}
 - [x] codeblocks

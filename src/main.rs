@@ -722,9 +722,116 @@ async fn generate_og_image(
             image::imageops::FilterType::Lanczos3
         );
         let avatar_rgba = resized_avatar.to_rgba8();
+        
         for y in 0..avatar_size {
             for x in 0..avatar_size {
-                if (avatar_x + x) < 1200 && (avatar_y + y) < 630 {
+                let center_x = avatar_size as f32 / 2.0;
+                let center_y = avatar_size as f32 / 2.0;
+                let distance = ((x as f32 - center_x).powi(2) + (y as f32 - center_y).powi(2)).sqrt();
+                
+                if distance <= center_x && (avatar_x + x) < 1200 && (avatar_y + y) < 630 {
+                    let avatar_pixel = avatar_rgba.get_pixel(x as u32, y as u32);
+                    img.put_pixel(
+                        (avatar_x + x) as u32, 
+                        (avatar_y + y) as u32, 
+                        *avatar_pixel
+                    );
+                }
+            }
+        }
+    }
+
+    let dynamic_img = DynamicImage::ImageRgba8(img);
+    let mut bytes = Vec::new();
+    image::codecs::png::PngEncoder::new(&mut bytes)
+        .write_image(
+            &dynamic_img.to_rgba8().into_raw(),
+            dynamic_img.width(),
+            dynamic_img.height(),
+            image::ExtendedColorType::Rgba8,
+        )
+        .expect("Failed to encode image");
+        
+    Ok(HttpResponse::Ok()
+        .content_type("image/png")
+        .body(bytes))
+}
+
+async fn generate_web_og_image(
+    app_state: web::Data<AppState>,
+    path: web::Path<(String,)>,
+) -> Result<HttpResponse, Error> {
+    let path_segment = &path.0;
+    
+    let (title, subtitle) = match path_segment.as_str() {
+        "index" => ("namishh", "personal website and garden"),
+        "about" => ("namishh", "learn more about me"),
+        "stuff" => ("namishh", "stuff i have built"),
+        _ => return Ok(HttpResponse::NotFound().body("Invalid web path"))
+    };
+    
+    let current_dir = std::env::current_dir()
+        .map_err(|_| actix_web::error::ErrorInternalServerError("Could not get current directory"))?;
+    
+    let bg_image_path = current_dir.join("static/_priv/og/others.png");
+    
+    let mut img = if let Ok(bg_img) = image::open(&bg_image_path) {
+        let resized_bg = bg_img.resize_to_fill(1200, 630, image::imageops::FilterType::Lanczos3);
+        resized_bg.to_rgba8()
+    } else {
+        let mut fallback = ImageBuffer::new(1200, 630);
+        for (x, _, pixel) in fallback.enumerate_pixels_mut() {
+            let gradient = (x as f32 / 1200.0 * 30.0) as u8;
+            *pixel = Rgba([30 + gradient, 30 + gradient, 50 + gradient, 255]);
+        }
+        fallback
+    };
+
+    let title_font = &*app_state.title_font;
+    let path_font = &*app_state.path_font;
+
+    let title_scale = PxScale { x: 120.0, y: 120.0 };
+    drawing::draw_text_mut(
+        &mut img,
+        Rgba([255, 255, 255, 255]),
+        100,
+        200,
+        title_scale,
+        title_font,
+        title,
+    );
+    
+    let subtitle_scale = PxScale { x: 48.0, y: 48.0 };
+    drawing::draw_text_mut(
+        &mut img,
+        Rgba([240, 240, 240, 255]),
+        100,
+        320,
+        subtitle_scale,
+        path_font,
+        subtitle,
+    );
+    
+    let avatar_size = 150;
+    let avatar_x = 1200 - avatar_size - 80;
+    let avatar_y = 80;
+    
+    let avatar_lock = app_state.avatar.read().await;
+    if let Some(avatar_img) = &*avatar_lock {
+        let resized_avatar = avatar_img.resize_exact(
+            avatar_size as u32, 
+            avatar_size as u32, 
+            image::imageops::FilterType::Lanczos3
+        );
+        let avatar_rgba = resized_avatar.to_rgba8();
+        
+        for y in 0..avatar_size {
+            for x in 0..avatar_size {
+                let center_x = avatar_size as f32 / 2.0;
+                let center_y = avatar_size as f32 / 2.0;
+                let distance = ((x as f32 - center_x).powi(2) + (y as f32 - center_y).powi(2)).sqrt();
+                
+                if distance <= center_x && (avatar_x + x) < 1200 && (avatar_y + y) < 630 {
                     let avatar_pixel = avatar_rgba.get_pixel(x as u32, y as u32);
                     img.put_pixel(
                         (avatar_x + x) as u32, 
@@ -803,6 +910,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/resume").route(web::get().to(resume)))
             .service(web::resource("/og/content/{path:.*}").route(web::get().to(generate_og_image)))
+            .service(web::resource("/og/web/{path:.*}").route(web::get().to(generate_web_og_image)))
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
     .bind(address)?

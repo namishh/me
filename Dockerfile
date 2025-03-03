@@ -1,8 +1,7 @@
 FROM rust:1.85-slim-bookworm AS builder
 
-# Install Node.js and npm
 RUN apt-get update && \
-    apt-get install -y curl build-essential && \
+    apt-get install -y curl pkg-config build-essential && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs
 
