@@ -10,7 +10,7 @@ use image::load_from_memory;
 
 use crate::state::AppState;
 use crate::file_tree::build_file_tree;
-use crate::handlers::{index, view_markdown, resume, generate_og_image, generate_web_og};
+use crate::handlers::{index, view_markdown, resume, generate_og_image, generate_web_og, generate_tweet_image};
 use crate::templates::init_tera;
 
 mod state;
@@ -20,7 +20,7 @@ mod markdown;
 mod cache;
 mod handlers;
 mod templates;
-// mod tweet;
+mod tweet;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -30,11 +30,11 @@ async fn main() -> std::io::Result<()> {
     let initial_tree = build_file_tree(base_path, Path::new(""));
     let file_tree = Arc::new(initial_tree);
 
-    let title_font_data: &'static [u8] = include_bytes!("../static/_priv/fonts/Outfit-ExtraBold.ttf");
+    let title_font_data: &'static [u8] = include_bytes!("../static/_priv/fonts/InterE.ttf");
     let title_font = FontRef::try_from_slice(title_font_data).expect("Error loading title font");
     let title_font_arc = Arc::new(title_font);
 
-    let path_font_data: &'static [u8] = include_bytes!("../static/_priv/fonts/Outfit-Medium.ttf");
+    let path_font_data: &'static [u8] = include_bytes!("../static/_priv/fonts/InterM.ttf");
     let path_font = FontRef::try_from_slice(path_font_data).expect("Error loading path font");
     let path_font_arc = Arc::new(path_font);
 
@@ -63,11 +63,12 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(app_state))
             .wrap(middleware::Logger::default())
-            .service(actix_files::Files::new("/static", "./static").show_files_listing())
+            .service(actix_files::Files::new("/static", "./static"))
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/resume").route(web::get().to(resume)))
             .service(web::resource("/og/content/{path:.*}").route(web::get().to(generate_og_image)))
             .service(web::resource("/og/web/{path:.*}").route(web::get().to(generate_web_og)))
+            .service(web::resource("/tweet/{path:.*}").route(web::get().to(generate_tweet_image)))
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
     .bind(address)?

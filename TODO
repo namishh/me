@@ -27,4 +27,5 @@
 - [x] ocd commit: move /static/*.{png,jpg} to /static/images
 - [ ] add a search bar
 - [x] name of the blog in the side bar
+- [ ] implement 404 pages
 - [x] put internal links to all the headings, #, ##, ###, etc

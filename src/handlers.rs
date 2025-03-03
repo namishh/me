@@ -9,6 +9,7 @@ use tera::Context;
 use serde_json::Value as JsonValue;
 use std::collections::HashMap;
 use crate::image_generator::{generate_content_og_image, generate_web_og_image};
+use crate::tweet::generate_tweet;
 
 pub async fn index(
     app_state: web::Data<AppState>,
@@ -110,6 +111,20 @@ pub async fn view_markdown(
     Ok(HttpResponse::Ok().content_type("text/html").body(html))
 }
 
+pub async fn generate_tweet_image( 
+    app_state: web::Data<AppState>,
+    path: web::Path<(String,)>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let title_font = &*app_state.title_font;
+    let path_font: &ab_glyph::FontRef<'_> = &*app_state.path_font;
+    let id = &path.0;
+
+    let image_bytes = generate_tweet(id, title_font, path_font).await.expect("Failed to generate tweet image");
+
+    // Return the HTTP response
+    Ok(HttpResponse::Ok().content_type("image/png").body(image_bytes))
+}
+
 pub async fn resume() -> impl Responder {
     let pdf_path = "./static/pdfs/resume.pdf";
     match fs::read(pdf_path) {
@@ -169,7 +184,7 @@ let dir_path = file_path
 
     // Get fonts and avatar from app state
     let title_font = &*app_state.title_font;
-    let path_font = &*app_state.path_font;
+    let path_font: &ab_glyph::FontRef<'_> = &*app_state.path_font;
     let avatar_lock = app_state.avatar.read().await;
     let avatar = avatar_lock.as_ref().cloned();
 
