@@ -6,13 +6,11 @@ draft: false
 author: Namish 
 category: talk
 ---
-import { Tweet } from 'astro-embed';
 
 I recently saw this tweet on x dot com.
 
-<div class="dark" align="center"> 
-<Tweet id="https://x.com/aindrelasaha_/status/1873031483394556055"/>
-</div>
+![img](/tweet/1873031483394556055)
+
 
 For those who do not know, the OP means programming is a [rat race](https://en.wikipedia.org/wiki/Rat_race) like the JEE exam (for my non-Indian audience, JEE is an extremely competitive college entrance exam), and calling out youtubers // influencers who are in the active process of making this an even more evident rat race, just to extract a few extra bucks. 
 
@@ -52,6 +50,9 @@ The beauty of our computer science is that you can just... wander off into rando
 <br/>
 And maybe, who KNOWS? Maybe that random blog you read on optimizing caches helps you in your job as well. Or maybe it won't. Either way, you had fun learning it, and that's what matters.
 
+Here is a tweet that sums it up well:
+
+![img](/tweet/1829525317553393740)
 
 #### Credits
 1. [quantinium](https://x.com/quantinium_dev) and [oblivious](https://x.com/c25519x) for proof reading and helping with grammar.

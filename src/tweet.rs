@@ -125,20 +125,34 @@ fn circle_crop(img: &DynamicImage) -> DynamicImage {
     let center_x = size as f32 / 2.0;
     let center_y = size as f32 / 2.0;
     let radius = size as f32 / 2.0;
-    
+    let aa_band = 1.0;
+
     for y in 0..size {
         for x in 0..size {
             let dx = x as f32 - center_x;
             let dy = y as f32 - center_y;
             let distance = (dx * dx + dy * dy).sqrt();
             
-            if distance <= radius {
-                let source_x = (x as f32 * width as f32 / size as f32) as u32;
-                let source_y = (y as f32 * height as f32 / size as f32) as u32;
+            let source_x = (x as f32 * width as f32 / size as f32) as u32;
+            let source_y = (y as f32 * height as f32 / size as f32) as u32;
+            
+            if source_x < width && source_y < height {
+                let source_pixel = img.get_pixel(source_x, source_y);
                 
-                if source_x < width && source_y < height {
-                    let pixel = img.get_pixel(source_x, source_y);
-                    result.put_pixel(x, y, pixel);
+                let alpha = if distance <= radius - aa_band {
+                    1.0
+                } else if distance <= radius + aa_band {
+                    (radius + aa_band - distance) / (2.0 * aa_band)
+                } else {
+                    0.0 
+                };
+                
+                if alpha > 0.0 {
+                    let r = (source_pixel[0] as f32 * alpha) as u8;
+                    let g = (source_pixel[1] as f32 * alpha) as u8;
+                    let b = (source_pixel[2] as f32 * alpha) as u8;
+                    let a = (source_pixel[3] as f32 * alpha) as u8;
+                    result.put_pixel(x, y, Rgba([r, g, b, a]));
                 }
             }
         }

@@ -16,8 +16,8 @@
 - [x] meta
   - [x] generate images for blogs, notes, poems (imageproc)
   - [x] generate image for main page
-- [ ] images
-  - [ ] generate images for a given tweet -> https://react-tweet.vercel.app/api/tweet/{tweet_id}
+- [x] images
+  - [x] generate images for a given tweet -> https://react-tweet.vercel.app/api/tweet/{tweet_id}
 - [x] codeblocks
   - [x] copy to clipboard button 
   - [x] better syntax highlighting of code - try if we can have custom themes
