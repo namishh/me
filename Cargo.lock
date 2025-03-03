@@ -595,7 +595,9 @@ checksum = "1a7964611d71df112cb1730f2ee67324fcf4d0fc6606acbbe9bfe06df124637c"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
+ "js-sys",
  "num-traits",
+ "wasm-bindgen",
  "windows-link",
 ]
 
@@ -2025,6 +2027,7 @@ dependencies = [
  "actix-files",
  "actix-rt",
  "actix-web",
+ "chrono",
  "env_logger",
  "htmlescape",
  "image",
