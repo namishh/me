@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     {% block head %}
     <script>
-        (function() {
+        (function () {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
     </script>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/png"
+        href="https://github.com/namishh.png" />
     <script src="/static/explorer.js" defer></script>
+    {% block meta %}{% endblock meta %}
     <title>{% block title %}{% endblock title %} | namishh.me</title>
     {% endblock head %}
 </head>
@@ -22,12 +26,13 @@
                     <h3 class="text-lg font-semibold mb-3">Files</h3>
                     <ul class="file-tree">
                         {% for node in file_tree %}
-                            {% include "file_node.html" %}
+                        {% include "file_node.html" %}
                         {% endfor %}
                     </ul>
                 </div>
                 <div class="theme-toggle mt-6">
-                    <button id="theme-toggle" class="theme-btn flex items-center px-3 py-2 border rounded dark:border-neutral-600 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors">
+                    <button id="theme-toggle"
+                        class="theme-btn flex items-center px-3 py-2 border rounded dark:border-neutral-600 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors">
                         <span id="theme-text">Dark Mode</span>
                     </button>
                 </div>
@@ -38,4 +43,5 @@
         </div>
     </div>
 </body>
+
 </html>

@@ -14,6 +14,9 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::sync::{Arc, Mutex};
 use lazy_static::lazy_static;
+use image::{DynamicImage, ImageBuffer, ImageEncoder, Rgba};
+use imageproc::drawing;
+use ab_glyph::{FontRef, PxScale}; 
 
 struct AppState {
     tera: Tera,
@@ -598,6 +601,196 @@ async fn resume() -> impl Responder {
     }
 }
 
+async fn generate_og_image(
+    _app_state: web::Data<AppState>,
+    path: web::Path<(String,)>,
+) -> Result<HttpResponse, Error> {
+    let path_param = &path.0;
+    let base_path = PathBuf::from("content");
+    let mut file_path = base_path.join(path_param);
+
+    if !file_path.is_file() {
+        let md_path = file_path.with_extension("md");
+        if md_path.is_file() {
+            file_path = md_path;
+        } else if file_path.is_dir() {
+            let index_path = file_path.join("index.md");
+            if index_path.is_file() {
+                file_path = index_path;
+            } else {
+                return Ok(HttpResponse::NotFound().body("Content not found"));
+            }
+        } else {
+            return Ok(HttpResponse::NotFound().body("Content not found"));
+        }
+    }
+
+    let raw_content = fs::read_to_string(&file_path)
+        .map_err(|_| actix_web::error::ErrorInternalServerError("Could not read file"))?;
+    
+    let title = if let Some(caps) = FRONTMATTER_REGEX.captures(&raw_content) {
+        let yaml_str = caps.get(1).unwrap().as_str();
+        if let Ok(yaml) = serde_yaml::from_str::<JsonValue>(yaml_str) {
+            if let Some(title) = yaml.get("title") {
+                if let Some(title_str) = title.as_str() {
+                    title_str.to_string()
+                } else {
+                    file_path.file_stem().unwrap_or_default().to_string_lossy().to_string()
+                }
+            } else {
+                file_path.file_stem().unwrap_or_default().to_string_lossy().to_string()
+            }
+        } else {
+            file_path.file_stem().unwrap_or_default().to_string_lossy().to_string()
+        }
+    } else {
+        file_path.file_stem().unwrap_or_default().to_string_lossy().to_string()
+    };
+
+    let dir_path = file_path
+        .parent()
+        .and_then(|p| p.strip_prefix(&base_path).ok())
+        .map(|p| p.to_string_lossy().to_string())
+        .unwrap_or_else(|| String::from("/"));
+    
+    let current_dir = std::env::current_dir()
+        .map_err(|_| actix_web::error::ErrorInternalServerError("Could not get current directory"))?;
+    
+    let bg_image_path = if path_param.starts_with("notes/") || dir_path.starts_with("notes") {
+        current_dir.join("static/_priv/og/notes.jpg")
+    } else if path_param.starts_with("blog/") || dir_path.starts_with("blog") {
+        current_dir.join("static/_priv/og/blog.jpg")
+    } else if path_param.starts_with("poems/") || dir_path.starts_with("poems") {
+        current_dir.join("static/_priv/og/poems.jpg")
+    } else {
+        current_dir.join("static/_priv/og/notes.jpg")
+    };
+
+    let mut img = ImageBuffer::new(1200, 630);
+    
+    for pixel in img.pixels_mut() {
+        *pixel = Rgba([40, 40, 40, 255]);
+    }
+    
+    let bg_result = image::open(&bg_image_path);
+    
+    println!("Attempting to load background from: {:?}", bg_image_path);
+    
+    if let Ok(bg_img) = bg_result {
+        println!("Successfully loaded background image");
+        
+        let resized_bg = bg_img.resize_to_fill(1200, 630, image::imageops::FilterType::Lanczos3);
+        
+        let blurred_bg = resized_bg.blur(5.0);
+        
+        let darkened = blurred_bg.to_rgba8();
+        for y in 0..630 {
+            for x in 0..1200 {
+                if x < darkened.width() && y < darkened.height() {
+                    let mut pixel = *darkened.get_pixel(x, y);
+                    // Reduce brightness by 40%
+                    pixel[0] = (pixel[0] as f32 * 0.6) as u8;
+                    pixel[1] = (pixel[1] as f32 * 0.6) as u8;
+                    pixel[2] = (pixel[2] as f32 * 0.6) as u8;
+                    img.put_pixel(x, y, pixel);
+                }
+            }
+        }
+    } else {
+        println!("Failed to load background image: {:?}", bg_result.err());
+    }
+    
+    let title_font_data = include_bytes!("../static/_priv/fonts/Outfit-ExtraBold.ttf");
+    let title_font = FontRef::try_from_slice(title_font_data).expect("Error loading title font");
+    
+    let path_font_data = include_bytes!("../static/_priv/fonts/Outfit-Medium.ttf");
+    let path_font = FontRef::try_from_slice(path_font_data).expect("Error loading path font");
+
+    let text_color = Rgba([255, 255, 255, 255]);
+    
+    let title_scale = if title.len() > 30 {
+        PxScale { x: 72.0, y: 72.0 }
+    } else if title.len() > 20 {
+        PxScale { x: 86.0, y: 86.0 }
+    } else {
+        PxScale { x: 96.0, y: 96.0 } 
+    };
+
+    drawing::draw_text_mut(
+        &mut img,
+        text_color,
+        100, 
+        200, 
+        title_scale,
+        &title_font,
+        &title,
+    );
+    
+    let path_scale = PxScale { x: 36.0, y: 36.0 };
+    let path_text = format!("/{}", dir_path);
+    
+    drawing::draw_text_mut(
+        &mut img,
+        Rgba([240, 240, 240, 255]), 
+        100,
+        500,
+        path_scale,
+        &path_font,
+        &path_text,
+    );
+    
+    let avatar_url = "https://github.com/namishh.png";
+    let avatar_size = 50;
+    let avatar_x = 1200 - avatar_size - 30; // 30px margin from right
+    let avatar_y = 630 - avatar_size - 30;  // 30px margin from bottom
+    
+    let avatar_result = reqwest::get(avatar_url).await;
+    
+    if let Ok(response) = avatar_result {
+        if response.status().is_success() {
+            if let Ok(bytes) = response.bytes().await {
+                if let Ok(avatar_img) = image::load_from_memory(&bytes) {
+                    let resized_avatar = avatar_img.resize_exact(
+                        avatar_size as u32, 
+                        avatar_size as u32, 
+                        image::imageops::FilterType::Lanczos3
+                    );
+                    
+                    let avatar_rgba = resized_avatar.to_rgba8();
+                    
+                    for y in 0..avatar_size {
+                        for x in 0..avatar_size {
+                            if (avatar_x + x as usize) < 1200 && (avatar_y + y as usize) < 630 {
+                                let avatar_pixel = avatar_rgba.get_pixel(x as u32, y as u32);
+                                img.put_pixel(
+                                    (avatar_x + x) as u32, 
+                                    (avatar_y + y) as u32, 
+                                    *avatar_pixel
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    let dynamic_img = DynamicImage::ImageRgba8(img);
+    let mut bytes = Vec::new();
+    image::codecs::png::PngEncoder::new(&mut bytes)
+        .write_image(
+            &dynamic_img.to_rgba8().into_raw(),
+            dynamic_img.width(),
+            dynamic_img.height(),
+            image::ExtendedColorType::Rgba8,
+        )
+        .expect("Failed to encode image");
+        
+    Ok(HttpResponse::Ok()
+        .content_type("image/png")
+        .body(bytes))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let highlighter = Arc::new(Mutex::new(Highlighter::new()));
@@ -635,6 +828,7 @@ async fn main() -> std::io::Result<()> {
             .service(actix_files::Files::new("/static", "./static").show_files_listing())
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/resume").route(web::get().to(resume)))
+            .service(web::resource("/og/{path:.*}").route(web::get().to(generate_og_image)))
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
     .bind(address)?

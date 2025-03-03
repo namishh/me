@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{%block meta%}
+<meta property="og:image" content="/og/{{file_path}}">
+{% endblock meta%}
+
 {% block title %}{{ title }}{% endblock title %}
 
 {% block content %}
