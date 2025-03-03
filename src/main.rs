@@ -16,12 +16,17 @@ use std::sync::{Arc, Mutex};
 use lazy_static::lazy_static;
 use image::{DynamicImage, ImageBuffer, ImageEncoder, Rgba};
 use imageproc::drawing;
-use ab_glyph::{FontRef, PxScale}; 
+use ab_glyph::{FontRef, PxScale};
+use std::time::Duration;
+use tokio::time;
 
 struct AppState {
     tera: Tera,
     highlighter: Arc<Mutex<Highlighter>>,
     file_tree: Arc<Vec<FileNode>>,
+    title_font: Arc<FontRef<'static>>,
+    path_font: Arc<FontRef<'static>>,
+    avatar: Arc<tokio::sync::RwLock<Option<DynamicImage>>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -143,7 +148,6 @@ fn extract_language_and_filename(info_string: &str) -> (Option<String>, Option<S
         None
     };
     
-    // title="example.html"
     let filename = parts.iter()
         .find(|part| part.starts_with("title="))
         .and_then(|part| {
@@ -199,7 +203,7 @@ fn parse_highlighting_info(info_string: &str) -> (HashSet<usize>, HashSet<usize>
         static ref H_RE: Regex = Regex::new(r"\{([^}]+)\}").unwrap();
     }
 
-    let parse_ranges = |range_str: &str | -> HashSet<usize> {
+    let parse_ranges = |range_str: &str| -> HashSet<usize> {
         let mut result = HashSet::new();
         for part in range_str.split(',') {
             let part = part.trim();
@@ -225,7 +229,7 @@ fn parse_highlighting_info(info_string: &str) -> (HashSet<usize>, HashSet<usize>
         }
     }
 
-   if let Some(captures) = ADD_RE.captures(info_string) {
+    if let Some(captures) = ADD_RE.captures(info_string) {
         if let Some(ranges) = captures.get(1) {
             add_lines = parse_ranges(ranges.as_str());
         }
@@ -252,12 +256,11 @@ fn markdown_to_html(content: &str, highlighter: &Mutex<Highlighter>) -> (String,
     let mut code_content = String::new();
     let mut current_language = None;
     let mut current_filename = None;
-    let mut current_heading: Option<(u8, Vec<Event>)> = None; // (level, inner_events)
+    let mut current_heading: Option<(u8, Vec<Event>)> = None;
 
-    let mut headings = Vec::new(); // for the toc
-
+    let mut headings = Vec::new();
     let mut current_highlighting: (HashSet<usize>, HashSet<usize>, HashSet<usize>) = 
-        (HashSet::new(), HashSet::new(), HashSet::new()); // del, add, highlight
+        (HashSet::new(), HashSet::new(), HashSet::new());
 
     let mut events = Vec::new();
 
@@ -299,7 +302,6 @@ fn markdown_to_html(content: &str, highlighter: &Mutex<Highlighter>) -> (String,
                 };
                 
                 let lines: Vec<&str> = highlighted_html.lines().collect();
-                
                 let total_lines = lines.len();
                 let width_needed = if total_lines > 0 {
                     total_lines.to_string().len()
@@ -313,7 +315,6 @@ fn markdown_to_html(content: &str, highlighter: &Mutex<Highlighter>) -> (String,
                     .enumerate()
                     .map(|(i, line)| {
                         let line_num = i + 1;
-                        
                         let mut line_class = String::new();
                         if del_lines.contains(&line_num) {
                             line_class = " class=\"highlight-del\"".to_string();
@@ -334,29 +335,29 @@ fn markdown_to_html(content: &str, highlighter: &Mutex<Highlighter>) -> (String,
                     .collect::<Vec<String>>()
                     .join("\n");
 
-                    let code_html = if let Some(filename) = &current_filename {
-                        format!(
-                            r#"<div class="code-block">
-                                <div class="code-header">
-                                    <span class="code-filename">{}</span>
-                                    <button class="copy-button" onclick="copyCode(this)">Copy</button>
-                                </div>
-                                <pre><code>{}</code></pre>
-                            </div>"#,
-                            filename,
-                            line_numbered_html
-                        )
-                    } else {
-                        format!(
-                            r#"<div class="code-block">
-                                <div class="code-header">
-                                    <button class="copy-button" onclick="copyCode(this)">Copy</button>
-                                </div>
-                                <pre><code>{}</code></pre>
-                            </div>"#,
-                            line_numbered_html
-                        )
-                    };
+                let code_html = if let Some(filename) = &current_filename {
+                    format!(
+                        r#"<div class="code-block">
+                            <div class="code-header">
+                                <span class="code-filename">{}</span>
+                                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                            </div>
+                            <pre><code>{}</code></pre>
+                        </div>"#,
+                        filename,
+                        line_numbered_html
+                    )
+                } else {
+                    format!(
+                        r#"<div class="code-block">
+                            <div class="code-header">
+                                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                            </div>
+                            <pre><code>{}</code></pre>
+                        </div>"#,
+                        line_numbered_html
+                    )
+                };
                 
                 events.push(Event::Html(code_html.into()));
                 
@@ -366,7 +367,7 @@ fn markdown_to_html(content: &str, highlighter: &Mutex<Highlighter>) -> (String,
             }
             Event::Start(Tag::Heading { level, .. }) => {
                 current_heading = match level {
-                    pulldown_cmark::HeadingLevel::H1 =>  Some((1, Vec::new())),
+                    pulldown_cmark::HeadingLevel::H1 => Some((1, Vec::new())),
                     pulldown_cmark::HeadingLevel::H2 => Some((2, Vec::new())),
                     pulldown_cmark::HeadingLevel::H3 => Some((3, Vec::new())),
                     pulldown_cmark::HeadingLevel::H4 => Some((4, Vec::new())),
@@ -450,25 +451,14 @@ async fn view_markdown(
     let base_path = PathBuf::from("content");
     let mut file_path = base_path.join(path_param);
 
-    // Check if the path is a file
     if !file_path.is_file() {
         let md_path = file_path.with_extension("md");
         if md_path.is_file() {
             file_path = md_path;
-        } else {
-            if file_path.is_dir() {
-                let index_path = file_path.join("index.md");
-                if index_path.is_file() {
-                    file_path = index_path;
-                } else {
-                    let context = tera::Context::new();
-                    let html = app_state.tera
-                        .render("404.html", &context)
-                        .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
-                    return Ok(HttpResponse::NotFound()
-                        .content_type("text/html")
-                        .body(html));
-                }
+        } else if file_path.is_dir() {
+            let index_path = file_path.join("index.md");
+            if index_path.is_file() {
+                file_path = index_path;
             } else {
                 let context = tera::Context::new();
                 let html = app_state.tera
@@ -478,6 +468,14 @@ async fn view_markdown(
                     .content_type("text/html")
                     .body(html));
             }
+        } else {
+            let context = tera::Context::new();
+            let html = app_state.tera
+                .render("404.html", &context)
+                .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
+            return Ok(HttpResponse::NotFound()
+                .content_type("text/html")
+                .body(html));
         }
     }
 
@@ -488,7 +486,6 @@ async fn view_markdown(
     };
 
     let (content_html, headings, frontmatter) = if let Some((html, headings)) = cached_content {
-        // Use cached content
         let raw_content = fs::read_to_string(&file_path)
             .map_err(|_| actix_web::error::ErrorInternalServerError("Could not read file"))?;
         
@@ -602,7 +599,7 @@ async fn resume() -> impl Responder {
 }
 
 async fn generate_og_image(
-    _app_state: web::Data<AppState>,
+    app_state: web::Data<AppState>,
     path: web::Path<(String,)>,
 ) -> Result<HttpResponse, Error> {
     let path_param = &path.0;
@@ -657,54 +654,28 @@ async fn generate_og_image(
         .map_err(|_| actix_web::error::ErrorInternalServerError("Could not get current directory"))?;
     
     let bg_image_path = if path_param.starts_with("notes/") || dir_path.starts_with("notes") {
-        current_dir.join("static/_priv/og/notes.jpg")
+        current_dir.join("static/_priv/og/notes.png")
     } else if path_param.starts_with("blog/") || dir_path.starts_with("blog") {
-        current_dir.join("static/_priv/og/blog.jpg")
+        current_dir.join("static/_priv/og/blog.png")
     } else if path_param.starts_with("poems/") || dir_path.starts_with("poems") {
-        current_dir.join("static/_priv/og/poems.jpg")
+        current_dir.join("static/_priv/og/poems.png")
     } else {
-        current_dir.join("static/_priv/og/notes.jpg")
+        current_dir.join("static/_priv/og/notes.png")
     };
 
-    let mut img = ImageBuffer::new(1200, 630);
-    
-    for pixel in img.pixels_mut() {
-        *pixel = Rgba([40, 40, 40, 255]);
-    }
-    
-    let bg_result = image::open(&bg_image_path);
-    
-    println!("Attempting to load background from: {:?}", bg_image_path);
-    
-    if let Ok(bg_img) = bg_result {
-        println!("Successfully loaded background image");
-        
+    let mut img = if let Ok(bg_img) = image::open(&bg_image_path) {
         let resized_bg = bg_img.resize_to_fill(1200, 630, image::imageops::FilterType::Lanczos3);
-        
-        let blurred_bg = resized_bg.blur(5.0);
-        
-        let darkened = blurred_bg.to_rgba8();
-        for y in 0..630 {
-            for x in 0..1200 {
-                if x < darkened.width() && y < darkened.height() {
-                    let mut pixel = *darkened.get_pixel(x, y);
-                    // Reduce brightness by 40%
-                    pixel[0] = (pixel[0] as f32 * 0.6) as u8;
-                    pixel[1] = (pixel[1] as f32 * 0.6) as u8;
-                    pixel[2] = (pixel[2] as f32 * 0.6) as u8;
-                    img.put_pixel(x, y, pixel);
-                }
-            }
-        }
+        resized_bg.to_rgba8()
     } else {
-        println!("Failed to load background image: {:?}", bg_result.err());
-    }
-    
-    let title_font_data = include_bytes!("../static/_priv/fonts/Outfit-ExtraBold.ttf");
-    let title_font = FontRef::try_from_slice(title_font_data).expect("Error loading title font");
-    
-    let path_font_data = include_bytes!("../static/_priv/fonts/Outfit-Medium.ttf");
-    let path_font = FontRef::try_from_slice(path_font_data).expect("Error loading path font");
+        let mut fallback = ImageBuffer::new(1200, 630);
+        for pixel in fallback.pixels_mut() {
+            *pixel = Rgba([40, 40, 40, 255]);
+        }
+        fallback
+    };
+
+    let title_font = &*app_state.title_font;
+    let path_font = &*app_state.path_font;
 
     let text_color = Rgba([255, 255, 255, 255]);
     
@@ -722,7 +693,7 @@ async fn generate_og_image(
         100, 
         200, 
         title_scale,
-        &title_font,
+        title_font,
         &title,
     );
     
@@ -735,46 +706,36 @@ async fn generate_og_image(
         100,
         500,
         path_scale,
-        &path_font,
+        path_font,
         &path_text,
     );
     
-    let avatar_url = "https://github.com/namishh.png";
     let avatar_size = 50;
-    let avatar_x = 1200 - avatar_size - 30; // 30px margin from right
-    let avatar_y = 630 - avatar_size - 30;  // 30px margin from bottom
+    let avatar_x = 1200 - avatar_size - 30;
+    let avatar_y = 630 - avatar_size - 30;
     
-    let avatar_result = reqwest::get(avatar_url).await;
-    
-    if let Ok(response) = avatar_result {
-        if response.status().is_success() {
-            if let Ok(bytes) = response.bytes().await {
-                if let Ok(avatar_img) = image::load_from_memory(&bytes) {
-                    let resized_avatar = avatar_img.resize_exact(
-                        avatar_size as u32, 
-                        avatar_size as u32, 
-                        image::imageops::FilterType::Lanczos3
+    let avatar_lock = app_state.avatar.read().await;
+    if let Some(avatar_img) = &*avatar_lock {
+        let resized_avatar = avatar_img.resize_exact(
+            avatar_size as u32, 
+            avatar_size as u32, 
+            image::imageops::FilterType::Lanczos3
+        );
+        let avatar_rgba = resized_avatar.to_rgba8();
+        for y in 0..avatar_size {
+            for x in 0..avatar_size {
+                if (avatar_x + x) < 1200 && (avatar_y + y) < 630 {
+                    let avatar_pixel = avatar_rgba.get_pixel(x as u32, y as u32);
+                    img.put_pixel(
+                        (avatar_x + x) as u32, 
+                        (avatar_y + y) as u32, 
+                        *avatar_pixel
                     );
-                    
-                    let avatar_rgba = resized_avatar.to_rgba8();
-                    
-                    for y in 0..avatar_size {
-                        for x in 0..avatar_size {
-                            if (avatar_x + x as usize) < 1200 && (avatar_y + y as usize) < 630 {
-                                let avatar_pixel = avatar_rgba.get_pixel(x as u32, y as u32);
-                                img.put_pixel(
-                                    (avatar_x + x) as u32, 
-                                    (avatar_y + y) as u32, 
-                                    *avatar_pixel
-                                );
-                            }
-                        }
-                    }
                 }
             }
         }
     }
-    
+
     let dynamic_img = DynamicImage::ImageRgba8(img);
     let mut bytes = Vec::new();
     image::codecs::png::PngEncoder::new(&mut bytes)
@@ -799,15 +760,25 @@ async fn main() -> std::io::Result<()> {
     let initial_tree = build_file_tree(base_path, Path::new(""));
     let file_tree = Arc::new(initial_tree);
 
-    let mut address = "127.0.0.1:8080";
+    let title_font_data: &'static [u8] = include_bytes!("../static/_priv/fonts/Outfit-ExtraBold.ttf");
+    let title_font = FontRef::try_from_slice(title_font_data).expect("Error loading title font");
+    let title_font_arc = Arc::new(title_font);
 
+    let path_font_data: &'static [u8] = include_bytes!("../static/_priv/fonts/Outfit-Medium.ttf");
+    let path_font = FontRef::try_from_slice(path_font_data).expect("Error loading path font");
+    let path_font_arc = Arc::new(path_font);
+
+    let avatar = Arc::new(tokio::sync::RwLock::new(None));
+    let avatar_for_closure = avatar.clone();
+
+    let mut address = "127.0.0.1:8080";
     if let Ok(arg) = env::var("ENVIRONMENT") {
         if arg == "PRODUCTION" {
-            address = "0.0.0.0:8080"
+            address = "0.0.0.0:8080";
         }
     }
 
-    HttpServer::new(move || {
+    let server = HttpServer::new(move || {
         let tera = match Tera::new("templates/**/*.html") {
             Ok(t) => t,
             Err(e) => {
@@ -820,6 +791,9 @@ async fn main() -> std::io::Result<()> {
             tera,
             highlighter: highlighter.clone(),
             file_tree: file_tree.clone(),
+            title_font: title_font_arc.clone(),
+            path_font: path_font_arc.clone(),
+            avatar: avatar_for_closure.clone(),
         };
 
         App::new()
@@ -828,10 +802,40 @@ async fn main() -> std::io::Result<()> {
             .service(actix_files::Files::new("/static", "./static").show_files_listing())
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/resume").route(web::get().to(resume)))
-            .service(web::resource("/og/{path:.*}").route(web::get().to(generate_og_image)))
+            .service(web::resource("/og/content/{path:.*}").route(web::get().to(generate_og_image)))
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
     .bind(address)?
-    .run()
-    .await
+    .run();
+
+    actix_rt::spawn(async move {
+        let fetch_avatar = || async {
+            if let Ok(response) = reqwest::get("https://github.com/namishh.png").await {
+                if response.status().is_success() {
+                    if let Ok(bytes) = response.bytes().await {
+                        if let Ok(img) = image::load_from_memory(&bytes) {
+                            return Some(img);
+                        }
+                    }
+                }
+            }
+            None
+        };
+
+        if let Some(img) = fetch_avatar().await {
+            let mut avatar_lock = avatar.write().await;
+            *avatar_lock = Some(img);
+        }
+
+        let mut interval = time::interval(Duration::from_secs(600));
+        loop {
+            interval.tick().await;
+            if let Some(img) = fetch_avatar().await {
+                let mut avatar_lock = avatar.write().await;
+                *avatar_lock = Some(img);
+            }
+        }
+    });
+
+    server.await
 }

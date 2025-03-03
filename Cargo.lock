@@ -128,6 +128,7 @@ version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "24eda4e2a6e042aa4e55ac438a2ae052d3b5da0ecf83d7411e1a368946925208"
 dependencies = [
+ "actix-macros",
  "futures-core",
  "tokio",
 ]
@@ -2022,6 +2023,7 @@ version = "0.1.0"
 dependencies = [
  "ab_glyph",
  "actix-files",
+ "actix-rt",
  "actix-web",
  "env_logger",
  "htmlescape",
@@ -2038,6 +2040,7 @@ dependencies = [
  "serde_yaml",
  "syntect",
  "tera",
+ "tokio",
 ]
 
 [[package]]
