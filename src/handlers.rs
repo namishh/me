@@ -10,6 +10,9 @@ use serde_json::Value as JsonValue;
 use std::collections::HashMap;
 use crate::image_generator::{generate_content_og_image, generate_web_og_image};
 use crate::tweet::generate_tweet;
+use serde::Deserialize;
+use crate::search::search_content;
+
 
 pub async fn index(
     app_state: web::Data<AppState>,
@@ -227,4 +230,21 @@ pub async fn generate_web_og(
 
     // Return the HTTP response
     Ok(HttpResponse::Ok().content_type("image/png").body(image_bytes))
+}
+
+#[derive(Deserialize)]
+pub struct SearchQuery {
+    q: String,
+}
+
+pub async fn search(
+    query: web::Query<SearchQuery>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let search_term = &query.q;
+    
+    let results = search_content(search_term);
+    
+    Ok(HttpResponse::Ok()
+        .content_type("application/json")
+        .json(results))
 }

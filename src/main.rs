@@ -1,4 +1,5 @@
 use actix_web::{web, App, HttpServer, middleware};
+use search::initialize_search_index;
 use std::sync::{Arc, Mutex};
 use std::path::Path;
 use ab_glyph::FontRef;
@@ -10,9 +11,8 @@ use image::load_from_memory;
 
 use crate::state::AppState;
 use crate::file_tree::build_file_tree;
-use crate::handlers::{index, view_markdown, resume, generate_og_image, generate_web_og, generate_tweet_image};
+use crate::handlers::{index, view_markdown, resume, generate_og_image, generate_web_og, generate_tweet_image, search};
 use crate::templates::init_tera;
-
 use crate::rss::rss_feed;
 
 mod state;
@@ -24,6 +24,7 @@ mod handlers;
 mod rss;
 mod templates;
 mod tweet;
+mod search;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -32,6 +33,8 @@ async fn main() -> std::io::Result<()> {
     let base_path = Path::new("content");
     let initial_tree = build_file_tree(base_path, Path::new(""));
     let file_tree = Arc::new(initial_tree);
+
+    initialize_search_index(base_path)?;
 
     let title_font_data: &'static [u8] = include_bytes!("../static/_priv/fonts/InterE.ttf");
     let title_font = FontRef::try_from_slice(title_font_data).expect("Error loading title font");
@@ -73,6 +76,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/og/web/{path:.*}").route(web::get().to(generate_web_og)))
             .service(web::resource("/tweet/{path:.*}").route(web::get().to(generate_tweet_image)))
             .service(web::resource("/rss.xml").route(web::get().to(rss_feed))) 
+            .service(web::resource("/api/search").route(web::get().to(search))) 
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
     .bind(address)?
