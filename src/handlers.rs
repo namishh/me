@@ -32,6 +32,8 @@ pub async fn view_markdown(
     let base_path = PathBuf::from("content");
     let mut file_path = base_path.join(path_param);
 
+    let file_tree = get_file_tree(&app_state.file_tree);
+
     if !file_path.is_file() {
         let md_path = file_path.with_extension("md");
         if md_path.is_file() {
@@ -41,17 +43,25 @@ pub async fn view_markdown(
             if index_path.is_file() {
                 file_path = index_path;
             } else {
-                let context = Context::new();
+                let mut context = Context::new();
+                context.insert("file_tree", &file_tree);
                 let html = app_state.tera
                     .render("404.html", &context)
-                    .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
+                    .map_err(|e| {
+                        eprintln!("Tera error: {:?}", e);
+                        actix_web::error::ErrorInternalServerError("Template rendering failed")
+                    })?;
                 return Ok(HttpResponse::NotFound().content_type("text/html").body(html));
             }
         } else {
-            let context = Context::new();
+            let mut context = Context::new();
+            context.insert("file_tree", &file_tree);
             let html = app_state.tera
                 .render("404.html", &context)
-                .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
+                .map_err(|e| {
+                    eprintln!("Tera error: {:?}", e);
+                    actix_web::error::ErrorInternalServerError("Template rendering failed")
+                })?;
             return Ok(HttpResponse::NotFound().content_type("text/html").body(html));
         }
     }
@@ -99,7 +109,6 @@ pub async fn view_markdown(
             context.insert(key, &value);
         }
     }
-    let file_tree = get_file_tree(&app_state.file_tree);
     context.insert("headings", &headings);
     context.insert("file_tree", &file_tree);
     context.insert("content", &content_html);

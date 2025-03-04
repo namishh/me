@@ -335,7 +335,7 @@ fn clean_text(name: &str) -> String {
     name.chars()
         .filter(|c| {
             c.is_ascii_alphanumeric() || 
-            [' ', '@', '#', '_', '-', '.', '(', ')', '[', ']', '{', '}', ':', ';', '<', '>', ',', '/', '\\', '`', '~', '$', '@', '%'].contains(c) // Allowed symbols
+            [' ', '@', '#', '_', '-', '.', '(', ')', '[', ']', '{', '}', ':', ';', '<', '>', ',', '/', '\\', '`', '~', '$', '@', '%', '\n'].contains(c) // Allowed symbols
         })
         .collect()
 }
@@ -555,7 +555,7 @@ pub async fn generate_tweet(id: &str, title_font: &FontRef<'_>, path_font: &Font
     let tweet_text_y = profile_y + profile_size + 20;
     let text_end_y = draw_wrapped_text(
         &mut dynamic_image,
-        &clean_text(&tweet_data.tweet_text), 
+        &tweet_data.tweet_text, 
         x0 + padding,
         tweet_text_y,
         content_width,

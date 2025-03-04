@@ -13,12 +13,15 @@ use crate::file_tree::build_file_tree;
 use crate::handlers::{index, view_markdown, resume, generate_og_image, generate_web_og, generate_tweet_image};
 use crate::templates::init_tera;
 
+use crate::rss::rss_feed;
+
 mod state;
 mod image_generator;
 mod file_tree;
 mod markdown;
 mod cache;
 mod handlers;
+mod rss;
 mod templates;
 mod tweet;
 
@@ -69,6 +72,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/og/content/{path:.*}").route(web::get().to(generate_og_image)))
             .service(web::resource("/og/web/{path:.*}").route(web::get().to(generate_web_og)))
             .service(web::resource("/tweet/{path:.*}").route(web::get().to(generate_tweet_image)))
+            .service(web::resource("/rss.xml").route(web::get().to(rss_feed))) 
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
     .bind(address)?
