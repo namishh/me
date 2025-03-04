@@ -30,3 +30,4 @@
 - [x] implement 404 pages
 - [x] put internal links to all the headings, #, ##, ###, etc
 - [x] rss feed
+- [x] dockerize this shit

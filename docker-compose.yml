@@ -1,27 +1,15 @@
 services:
-  website:
-    build:
+  web:
+    build: 
       context: .
       dockerfile: Dockerfile
-    container_name: personal
     ports:
       - "8080:8080"
-    develop:
-      watch:
-        - action: rebuild
-          path: ./src
-        - action: rebuild
-          path: Cargo.toml
-        - action: sync+restart
-          path: ./content
-          target: /app/content
-        - action: sync+restart
-          path: ./templates
-          target: /app/templates
-        - action: sync+restart
-          path: ./static
-          target: /app/static
     environment:
-      - RUST_LOG=info
-      - ENVIRONMENT=production
+      - ENVIRONMENT=PRODUCTION
+    volumes:
+      # Optional: Persist content and static files
+      - ./content:/app/content
+      - ./static:/app/static
+      - ./templates:/app/templates
     restart: unless-stopped

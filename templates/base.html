@@ -9,6 +9,9 @@
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/png"
         href="https://github.com/namishh.png" />
@@ -18,13 +21,12 @@
     {% endblock head %}
 </head>
 
-<body class="dark:bg-neutral-950 dark:text-neutral-200 bg-neutral-50 text-neutral-900">
-    <div class="container mx-auto">
-        <div class="flex flex-row">
-            <div class="sidebar w-128 p-4 border-r dark:border-neutral-700">
+<body class="dark:bg-neutral-950 font-normal dark:text-neutral-200 bg-neutral-50 flex w-screen min-h-screen justify-center text-neutral-900">
+            <!-- <div class="sidebar top-0 left-0 fixed bg-green-500 p-4 border-r dark:border-neutral-700">
                 <div class="file-explorer">
                     <h3 class="text-lg font-semibold mb-3">Files</h3>
                     <ul class="file-tree">
+
                         {% for node in file_tree %}
                         {% include "file_node.html" %}
                         {% endfor %}
@@ -36,12 +38,14 @@
                         <span id="theme-text">Dark Mode</span>
                     </button>
                 </div>
-            </div>
-            <div class="main-content flex-grow p-4">
+            </div> -->
+
+            <div class="bg-blue-300 md:w-2/3 w-full lg:w-1/2  my-8  p-4">
+                <div class="navbar flex w-full justify-between">
+                   <img src="https://github.com/namishh.png" alt="" class="h-10 w-10"> 
+                </div>
                 <div id="content">{% block content %}{% endblock content %}</div>
             </div>
-        </div>
-    </div>
 </body>
 
 </html>
