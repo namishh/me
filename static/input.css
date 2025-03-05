@@ -1,4 +1,5 @@
 @import "tailwindcss" source("../templates");
+@source "../static/projects.js";
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {  --font-normal: "Inter", "sans-serif"; }

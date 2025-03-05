@@ -3,10 +3,8 @@
 {% block head %}
     {{ super() }}
     <script src="/static/gol.js" defer></script>
+    <script src="/static/projects.js" defer></script>
 {% endblock head %}
 {% block content %}
-    <h1>Index</h1>
-    <p class="text-blue-200">
-        projects page
-    </p>
+    <div id="projects-container"></div>
 {% endblock content %}

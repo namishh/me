@@ -9,7 +9,7 @@
   - [ ] metadata
   - [ ] images
 - [ ] 404 page
-- [ ] projects page
+- [x] projects page
 
 ## Backend
 - [x] fix resume redirects
@@ -34,7 +34,6 @@
 
 
 ### commands to run it locally
-
 
 ```
 npx @tailwindcss/cli -i ./static/input.css -o ./static/style.css --watch

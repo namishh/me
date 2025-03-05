@@ -70,7 +70,7 @@ function initializeGrid() {
         function drawGrid() {
             const theme = document.documentElement.getAttribute('data-theme');
             const deadColor = theme === 'dark' ? '#000000' : '#f0f0f0';
-            const liveColor = theme === 'dark' ? '#cccccc' : '#000000';
+            const liveColor = theme === 'dark' ? '#cccccc' : '#222222';
             const gridLineColor = theme === 'dark' ? '#222222' : '#e0e0e0';
             const borderColor = theme === 'dark' ? '#444444' : '#d0d0d0';
 
