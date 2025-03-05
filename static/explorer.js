@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded', function() {
-    document.addEventListener('click', function(event) {
+document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('click', function (event) {
         const folderLabel = event.target.closest('.folder-label');
         
         if (folderLabel) {
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
+
     function setupThemeToggle(toggleElementId) {
         const themeToggleBtn = document.getElementById(toggleElementId);
         if (themeToggleBtn) {
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
             htmlElement.setAttribute('data-theme', savedTheme);
             updateThemeUI(savedTheme, themeToggleBtn);
             
-            themeToggleBtn.addEventListener('click', function() {
+            themeToggleBtn.addEventListener('click', function () {
                 const currentTheme = htmlElement.getAttribute('data-theme');
                 const newTheme = currentTheme === 'light' ? 'dark' : 'light';
                 
@@ -44,11 +44,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function updateThemeUI(theme, toggleBtn) {
         if (theme === 'dark') {
-            toggleBtn.classList.add('ph-sun');
             toggleBtn.classList.remove('ph-moon-stars');
+            toggleBtn.classList.add('ph-sun');
         } else {
-            toggleBtn.classList.add('ph-moon-stars');
             toggleBtn.classList.remove('ph-sun');
+            toggleBtn.classList.add('ph-moon-stars');
         }
     }
     
@@ -60,12 +60,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     
     if (mobileMenuToggle && sidebar && sidebarOverlay) {
-        mobileMenuToggle.addEventListener('click', function() {
+        mobileMenuToggle.addEventListener('click', function () {
             sidebar.classList.toggle('open');
             sidebarOverlay.classList.toggle('open');
         });
         
-        sidebarOverlay.addEventListener('click', function() {
+        sidebarOverlay.addEventListener('click', function () {
             sidebar.classList.remove('open');
             sidebarOverlay.classList.remove('open');
         });
@@ -73,33 +73,37 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function expandToCurrentFile() {
         const currentPath = window.location.pathname;
+        const fileLinks = document.querySelectorAll('.file-link');
         
-        const activeFileLink = Array.from(document.querySelectorAll('.file-link')).find(
-            link => link.getAttribute('href') === currentPath
-        );
+        const activeFileLink = Array.from(fileLinks).find(link => {
+            const href = link.getAttribute('href');
+            return href === currentPath || (href.endsWith('/') && currentPath === href.slice(0, -1));
+        });
         
         if (activeFileLink) {
-            activeFileLink.classList.add('text-blue-500', 'font-medium');
+            fileLinks.forEach(link => {
+                link.classList.remove('font-bold');
+            });
             
-            let parent = activeFileLink.closest('.directory');
-            while (parent) {
-                const folderContents = parent.querySelector('.folder-contents');
+            activeFileLink.classList.add('font-bold');
+            
+            let parentDirectory = activeFileLink.closest('.directory');
+            while (parentDirectory) {
+                const folderContents = parentDirectory.querySelector('.folder-contents');
+                const toggleIcon = parentDirectory.querySelector('.toggle-icon');
+                
                 if (folderContents) {
                     folderContents.classList.remove('hidden');
                     folderContents.classList.add('block');
                 }
                 
-                const toggleIcon = parent.querySelector('.toggle-icon');
                 if (toggleIcon) {
                     toggleIcon.classList.add('rotate-90');
+                    toggleIcon.classList.remove('rotate-0'); 
                 }
                 
-                parent = parent.parentElement.closest('.directory');
+                parentDirectory = parentDirectory.parentElement.closest('.directory');
             }
-            
-            setTimeout(() => {
-                activeFileLink.scrollIntoView({ block: 'center', behavior: 'smooth' });
-            }, 300);
         }
     }
     

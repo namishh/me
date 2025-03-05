@@ -32,9 +32,19 @@ const projects = [
         "type": "Good Projects",
         "array": [
             {
+                name: "ascendant",
+                desc: "wip 2d club penguin card jutsu style game made with rayilb",
+                tech: ["zig", "raylib"],
+            },
+            {
                 name: "holmes",
                 desc: "0 js, 100% golang and templ batteries included starter kit for  crypt hunts",
                 tech: ["templ", "golang"],
+            },
+            {
+                name: "me",
+                desc: "my own personal static site generator written in rust. for this site",
+                tech: ["rust", "actix"],
             },
             {
                 name: "pixie",
