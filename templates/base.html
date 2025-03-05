@@ -19,6 +19,7 @@
     <link rel="icon" type="image/png" href="https://github.com/namishh.png" />
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
     <script src="/static/explorer.js" defer></script>
+    <script src="/static/search.js" defer></script>
     {% block meta %}{% endblock meta %}
     <title>{% block title %}{% endblock title %} | namishh</title>
     <style type="text/css">
@@ -30,6 +31,16 @@
         .sidebar::-webkit-scrollbar {
             display: none;
         }
+
+        .search-scroll {
+            scrollbar-width: none;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .search-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
 
         @media (max-width: 1024px) {
             .sidebar {
@@ -76,7 +87,10 @@
         <div class="file-explorer mt-2">
             <div class="flex mobile-top-section lg:hidden justify-between px-4 items-center gap-4">
                 <a href="/stuff" class="text-n mb-1">projects</a>
-                <i id="mobile-theme-toggle" class="ph-fill cursor-pointer ph-sun"></i>
+                <div class="flex items-center gap-4">
+                    <i class="search-toggle ph ph-magnifying-glass cursor-pointer"></i>
+                    <i id="mobile-theme-toggle" class="ph-fill cursor-pointer ph-sun"></i>
+                </div>
             </div>
             <ul class="file-tree overflow-y-auto text-n">
                 {% for node in file_tree %}
@@ -95,6 +109,7 @@
             <div class="lg:flex items-center gap-4">
                 <a class="hidden lg:block" href="/stuff">projects</a>
                 <i id="theme-toggle" class="ph-fill hidden lg:block cursor-pointer text-xl ph-sun"></i>
+                <i class="search-toggle ph ph-magnifying-glass hidden lg:block cursor-pointer text-xl"></i>
                 <i id="mobile-menu-toggle" class="ph-thin cursor-pointer text-xl ph-list lg:hidden mr-4"></i>
             </div>
         </div>
@@ -106,6 +121,20 @@
             <p>built with <a href="https://actix.rs" target="_blank" class="link">actix</a></p>
         </div>
     </div>
+
+<div id="search-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white dark:bg-neutral-900 p-4  w-full max-w-xl">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">Search</h2>
+            <i id="close-search" class="ph ph-x cursor-pointer text-xl"></i>
+        </div>
+        <div class="flex gap-2 mb-4">
+            <input type="text" id="search-input" class="flex-grow p-2 border-[1px] focus:outline-none outline-none w-4/5 border-neutral-300 dark:border-neutral-600" placeholder="Search...">
+            <button id="search-button" class="bg-black cursor-pointer w-1/5 text-white dark:text-neutral-950 p-2 dark:bg-neutral-100 text-n">Search</button>
+        </div>
+        <div id="search-results" class="max-h-128 search-scroll overflow-x-hidden overflow-y-auto"></div>
+    </div>
+</div>
 </body>
 
 </html>
