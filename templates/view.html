@@ -1,4 +1,8 @@
 {% extends "base.html" %}
+{% block title %}{{ title }}{% endblock title %}
+{% block head %}
+    {{ super() }}
+{% endblock head %}
 {% block meta %}
     <meta property="og:title" content="{{title}} | nam" />
     <meta property="og:url" content="https://namishh.me/stuff" />
@@ -8,7 +12,6 @@
     <meta name="twitter:title" content="{{title}} | nam ">
     <meta name="twitter:image" content="https://namishh.me/og/content/{{file_path}}">
 {% endblock meta %}
-{% block title %}{{ title }}{% endblock title %}
 {% block content %}
     <h1 class="text-2xl md:text-3xl font-bold mb-4">{{title}}</h1>
     <article>
