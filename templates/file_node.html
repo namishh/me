@@ -1,6 +1,6 @@
 <li class="{% if node.is_dir %}directory mb-1{% else %}file mb-1{% endif %}">
     {% if node.is_dir %}
-        <div class="folder-label flex items-center cursor-pointer text-neutral-600 dark:text-neutral-200  rounded py-1">
+        <div class="folder-label flex items-center cursor-pointer text-neutral-600 dark:text-neutral-200 py-1">
             <span class="toggle-icon transform transition-transform duration-200 mr-1"><i class="ph ph-caret-right"></i></span>
             <span class="folder-name text-sm">{{ node.name }}</span>
         </div>

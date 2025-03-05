@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <p class="normal-text  text-sm mb-4">${project.desc}</p>
                                         <div class="flex flex-wrap gap-2">
                                             ${project.tech.map(tech => `
-                                                <span class="font-mono dark:text-neutral-200 text-neutral-600 bg-neutral-200 dark:bg-neutral-800 text-xs px-2 py-1 rounded">${tech}</span>
+                                                <span class="font-mono dark:text-neutral-200 text-neutral-600 bg-neutral-200 dark:bg-neutral-800 text-xs px-2 py-1">${tech}</span>
                                             `).join('')}
                                         </div>
                                     </div>
