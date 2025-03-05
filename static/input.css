@@ -2,3 +2,19 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {  --font-normal: "Inter", "sans-serif"; }
+
+.underlined {
+    @apply text-neutral-500 dark:text-neutral-100 underline underline-offset-4;
+}
+
+.normal-text {
+    @apply text-neutral-600 dark:text-neutral-400;
+}
+
+.link {
+    @apply transition text-neutral-600 dark:text-neutral-400 hover:text-neutral-500 dark:hover:text-neutral-50 underline underline-offset-4;
+}
+
+.text-n {
+    @apply md:text-[16px] text-[14px];
+}

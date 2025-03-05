@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     const themeToggleBtn = document.getElementById('theme-toggle');
+    console.log(themeToggleBtn);
     if (themeToggleBtn) {
-        const themeText = document.getElementById('theme-text');
         const htmlElement = document.documentElement;
         
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -42,9 +42,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         function updateThemeUI(theme) {
             if (theme === 'dark') {
-                themeText.textContent = 'Light Mode';
+                themeToggleBtn.classList.add('ph-sun');
+                themeToggleBtn.classList.remove('ph-moon-stars');
             } else {
-                themeText.textContent = 'Dark Mode';
+                themeToggleBtn.classList.add('ph-moon-stars');
+                themeToggleBtn.classList.remove('ph-sun');
             }
         }
     }

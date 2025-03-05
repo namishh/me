@@ -15,13 +15,14 @@
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/png"
         href="https://github.com/namishh.png" />
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
     <script src="/static/explorer.js" defer></script>
     {% block meta %}{% endblock meta %}
-    <title>{% block title %}{% endblock title %} | namishh.me</title>
+    <title>{% block title %}{% endblock title %} | namishh</title>
     {% endblock head %}
 </head>
 
-<body class="dark:bg-neutral-950 font-normal dark:text-neutral-200 bg-neutral-50 flex w-screen min-h-screen justify-center text-neutral-900">
+<body class="dark:bg-neutral-950 font-normal dark:text-neutral-200 bg-neutral-100 flex w-screen min-h-screen justify-center text-neutral-900">
             <!-- <div class="sidebar top-0 left-0 fixed bg-green-500 p-4 border-r dark:border-neutral-700">
                 <div class="file-explorer">
                     <h3 class="text-lg font-semibold mb-3">Files</h3>
@@ -40,11 +41,22 @@
                 </div>
             </div> -->
 
-            <div class="bg-blue-300 md:w-2/3 w-full lg:w-1/2  my-8  p-4">
-                <div class="navbar flex w-full justify-between">
-                   <img src="https://github.com/namishh.png" alt="" class="h-10 w-10"> 
+            <div class="md:w-2/3 min-h-screen flex flex-col w-full lg:w-[47%] px-4 py-8">
+                <div class="navbar mb-4 items-center flex w-full justify-between">
+                    <div class="flex items-center gap-4">
+                        <img src="https://github.com/namishh.png" alt="" class="h-10 w-10"> 
+                        <a href="/" class="font-bold text-xl">namishh</a>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <a href="/stuff">projects</a>
+                        <i id="theme-toggle" class="ph-fill cursor-pointer text-xl ph-sun"></i>                     
+                    </div>
+                </div> 
+                <div id="content" class="grow">{% block content %}{% endblock content %}</div>
+                <div class="footer text-neutral-600 text-sm dark:text-neutral-400 flex justify-between">
+                    <p>made out of boredom </p>
+                    <p>built with <a href="https://actix.rs" target="_blank" class="link">actix</a></p>
                 </div>
-                <div id="content">{% block content %}{% endblock content %}</div>
             </div>
 </body>
 

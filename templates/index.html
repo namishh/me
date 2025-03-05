@@ -1,13 +1,66 @@
 {% extends "base.html" %}
-{% block title %}Index{% endblock title %}
+{% block title %}index{% endblock title %}
 {% block head %}
     {{ super() }}
     <style type="text/css">
     </style>
 {% endblock head %}
+{% block meta %}
+    <meta name="description" content="namishh's personal website">
+{% endblock meta %}
 {% block content %}
-    <h1>Index</h1>
-    <p class="text-blue-200">
-        hello world!
-    </p>
+<p class="text-n normal-text">hey there! i like <span class="underlined">nixos</span>, <span class="underlined">neovim</span> and <span class="underlined">minimalism</span>.</p>
+<p class="text-n normal-text mt-4">i live in the cli, probably programming. i code mostly for the web but transitioning more towards <span class="underlined">zig</span> and <span class="underlined">rust</span>.</p>
+<p class="text-n normal-text mt-4">currently hacking around at <a href="https://flora.tf" target="_blank" class="link">flora</a>. open to new roles from <span class="underlined">summer 2025.</span> </p>
+
+<div class="flex gap-5 mt-4">
+    <a href="/resume" target="_blank" class="underlined"><i class="ph-thin ph-file"></i> resume</a>
+    <a href="https://github.com/namishh" target="_blank" class="underlined"><i class="ph-thin ph-github-logo"></i> github</a>
+    <a href="https://x.com/namishh_" target="_blank" class="underlined"><i class="ph-thin ph-x-logo"></i> x dot com</a>
+</div>
+
+<div class="mt-6 text-n normal-text">some projects <i class="ph-fill ph-arrow-right"></i></div>
+<div class="flex flex-wrap w-full">
+    <div class="pr-2 py-2 w-1/2">
+        <a href="https://github.com/namishh/ascendant" class="container flex flex-col">
+            <img src="/static/images/ascendant.png" alt="ascendant" class="w-full">
+            <p class="text-n text-neutral-600 dark:text-neutral-200">ascendant</p>
+            <p class="text-sm normal-text">a wip 2d card game inspired by club penguin jutsu in zig</p>
+        </a>
+    </div>
+    <div class="pl-2 py-2 w-1/2">
+        <a href="https://github.com/namishh/pixie" class="container flex flex-col">
+            <img src="/static/images/pixie.png" alt="ascendant" class="w-full">
+            <p class="text-n text-neutral-600 dark:text-neutral-200">pixie</p>
+            <p class="text-sm normal-text">very barebones and simple lightroom like editor with nextjs and rust wasm</p>
+        </a>
+    </div>
+</div>
+<p class="text-n normal-text mt-4"><a href="https://github.com/namishh/holmes" class="link">holmes</a> - starter kit for making your own cryptic hunts in golang</p>
+<p class="text-n normal-text mt-2"><a href="https://github.com/namishh/biotrack" class="link">biotrack</a> - health tracker and logger made in golang</p>
+<p class="text-n normal-text mt-2"><a href="https://github.com/namishh/shawty" class="link">shawty</a> - url shortner made entirely in c and htmx</p>
+<div class="mt-6 text-n normal-text">cool people <i class="ph-fill ph-arrow-right"></i></div>
+<p class="text-n normal-text mt-2">here are some of my <span class="underlined">cool friends</span>, do checkout their stuff</p>
+
+<div class="mt-4 mb-6 flex gap-2">
+    <a href="https://ni5arga.me">
+        <img src="https://github.com/ni5arga.png" alt="ni5arga" class="h-10 w-10">
+    </a>
+    <a href="https://rex.wf">
+        <img src="https://github.com/rexdotsh.png" alt="rex" class="h-10 w-10">
+    </a>
+    <a href="https://quantinium.dev">
+        <img src="https://github.com/quantinium03.png" alt="quant" class="h-10 w-10">
+    </a>
+    <a href="https://rv178.is-a.dev">
+        <img src="https://github.com/rv178.png" alt="rv" class="h-10 w-10">
+    </a>
+    <a href="https://arjunaditya.xyz/">
+        <img src="https://github.com/nermalcat69.png" alt="arjun" class="h-10 w-10">
+    </a>
+    <a href="https://github.com/Darkkal44">
+        <img src="https://github.com/Darkkal44.png" alt="darkall" class="h-10 w-10">
+    </a>
+</div>
+
 {% endblock content %}
