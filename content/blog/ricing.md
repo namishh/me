@@ -6,7 +6,6 @@ author: Namish
 draft: false
 category: guide 
 ---
-import Callout from  "../components/Callout.astro"
 
 ![freosan](/static/images/freosan.png)
 <br/>

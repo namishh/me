@@ -27,20 +27,6 @@ pub async fn index(
     Ok(HttpResponse::Ok().content_type("text/html").body(html))
 }
 
-
-pub async fn about(
-    app_state: web::Data<AppState>,
-    _: web::Query<HashMap<String, String>>,
-) -> Result<HttpResponse, actix_web::Error> {
-    let file_tree = get_file_tree(&app_state.file_tree);
-    let mut context = Context::new();
-    context.insert("file_tree", &file_tree);
-    let html = app_state.tera
-        .render("about.html", &context)
-        .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
-    Ok(HttpResponse::Ok().content_type("text/html").body(html))
-}
-
 pub async fn projects(
     app_state: web::Data<AppState>,
     _: web::Query<HashMap<String, String>>,

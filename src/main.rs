@@ -11,7 +11,7 @@ use image::load_from_memory;
 
 use crate::state::AppState;
 use crate::file_tree::build_file_tree;
-use crate::handlers::{index, about, projects, view_markdown, resume, generate_og_image, generate_web_og, generate_tweet_image, search};
+use crate::handlers::{index, projects, view_markdown, resume, generate_og_image, generate_web_og, generate_tweet_image, search};
 use crate::templates::init_tera;
 use crate::rss::rss_feed;
 
@@ -71,7 +71,6 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .service(actix_files::Files::new("/static", "./static"))
             .service(web::resource("/").route(web::get().to(index)))
-            .service(web::resource("/about").route(web::get().to(about)))
             .service(web::resource("/stuff").route(web::get().to(projects)))
             .service(web::resource("/resume").route(web::get().to(resume)))
             .service(web::resource("/og/content/{path:.*}").route(web::get().to(generate_og_image)))

@@ -11,44 +11,6 @@ category: guide
 
 <a href="https://github.com/NixOS/nixos-artwork">wall from official nixos repo</a>
 
-<br/>
-
-<br/>
-
-## Table Of Contents
-
-- [Table Of Contents](#table-of-contents)
-- [Intro](#intro)
-  - [Basic Nix Commands](#basic-nix-commands)
-- [Flakes](#flakes)
-  - [Why flakes?](#why-flakes)
-  - [Enabling Flakes](#enabling-flakes)
-  - [Basic Flake](#basic-flake)
-- [Deriviations and overlays](#deriviations-and-overlays)
-  - [Deriviations](#deriviations)
-  - [Example Deriviations](#example-deriviations)
-  - [Overlays](#overlays)
-  - [Example Deriviations](#example-deriviations-1)
-  - [Overlays](#overlays-1)
-- [Configuring the system](#configuring-the-system)
-  - [Shared Settings](#shared-settings)
-  - [System Specific configurations](#system-specific-configurations)
-- [Home Manager](#home-manager)
-  - [Handling Colors](#handling-colors)
-  - [Xresources](#xresources)
-  - [Hyprland](#hyprland)
-  - [Waybar](#waybar)
-  - [Wezterm](#wezterm)
-  - [Dunst](#dunst)
-  - [ZSH](#zsh)
-  - [Music](#music)
-  - [Bonus - Creating Files](#bonus---creating-files)
-- [Dynamic GTK Theming](#dynamic-gtk-theming)
-- [Nix Shell](#nix-shell)
-- [Conclusion](#conclusion)
-  - [Some sites and cool dotfiles](#some-sites-and-cool-dotfiles)
-
-
 ## Intro
 
 Nixos is not your regular distro. Its "immutable" and "reproducible" and all that, things that most the of arch linux elites ignore before jumping into the nixos hype train. Instead of configuring your programs through `~/.config/appname` files, we do it through `.nix` files.  Instead of starting and stopping services with `systemctl`, we do it through `.nix` files. Instead of installing programs via a package manager, we do it through, you guessed it, `.nix` files. Most of the linux youtubers and average users do not fully explore nixos before going back to their old distro. They just configure their stuff in a big and ugly `configuration.nix` file. This blog will try to get you working `hyprland` on a `flake` powered nixos setup.
@@ -207,6 +169,7 @@ installPhase = ''
 ```
 
 + Dependencies: You declare the dependencies required to build and run the software. Nix will ensure that these dependencies are available during the build process
+ 
 ```
 buildInputs = with pkgs;[ gcc autoconf ];
 ```
@@ -219,6 +182,7 @@ meta = with lib; {
   license = licenses.mit;
 };
 ```
+
 ### Example Deriviations
 
 ```nix
@@ -258,8 +222,7 @@ buildPythonPackage rec {
 }
 
 ```
-<br/>
-<br/>
+
 ```nix
 { lib, fetchFromGitHub, rustPlatform, pkgs }:
 rustPlatform.buildRustPackage rec {
@@ -336,7 +299,8 @@ We can even use our deriviations to create an overlay
     lutgen = prev.callPackage ../derivs/lutgen.nix { };
   };
 ```
-### Example Deriviations
+
+### Some more examples 
 
 ```nix
 { lib, buildPythonPackage, fetchFromGitHub, pkgs, ... }:

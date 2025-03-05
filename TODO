@@ -1,15 +1,15 @@
 ## Frontend
 - [x] add tailwind support (ASAP)
 - [x] light mode and dark mode
-- [ ] a very cool pixely canvas effect
-- [ ] crt effect
-- [ ] table of contents on the right 
+- [ ] a very cool pixely canvas effect -- see where i can add gol
+- [x] table of contents on the right 
   - [x] generate it automatically 
-  - [ ] make the table of contents a timeline like animated lines
+  - [x] make the table of contents a timeline like animated lines
 - [ ] meta
   - [ ] metadata
   - [ ] images
-
+- [ ] 404 page
+- [ ] projects page
 
 ## Backend
 - [x] fix resume redirects
