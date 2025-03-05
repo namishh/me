@@ -7,9 +7,9 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block content %}
-    <h1>{{title}}</h1>
+    <h1 class="text-2xl md:text-3xl font-bold mb-4">{{title}}</h1>
 {% if headings %}
-<div class="table-of-contents">
+<!-- <div class="table-of-contents">
     <h3>Contents</h3>
     <ul>
         {% for heading in headings %}
@@ -18,12 +18,9 @@
             </li>
         {% endfor %}
     </ul>
-</div>
+</div> -->
 {% endif %}
     <article>
-        {% if date %}<div class="date">{{ date }}</div>{% endif %}
-        {% if author %}<div class="author">By {{ author }}</div>{% endif %}
-        {% if category %}<div class="category">Category: {{ category }}</div>{% endif %}
 
         <div class="markdown-content">
         {{ content | safe }}
@@ -32,6 +29,10 @@
         {% if draft %}
             <div class="draft-notice">⚠️ This is a draft post</div>
         {% endif %}
+
+
+        {% if date %}<div class="date text-right mt-4 text-sm">{{ date }}</div>{% endif %}
+        {% if author %}<div class="author text-right mb-6">By {{ author }}</div>{% endif %}
     </article>
 
 <script>
@@ -43,13 +44,7 @@ function copyCode(button) {
         .join('\n');
     
     navigator.clipboard.writeText(codeText).then(() => {
-        button.textContent = 'Copied!';
-        setTimeout(() => {
-            button.textContent = 'Copy';
-        }, 2000);
     }).catch((err) => {
-        console.error('Failed to copy text: ', err);
-        button.textContent = 'Failed';
     });
 }
 </script>

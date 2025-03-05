@@ -1,5 +1,5 @@
 ---
-title: How To Not Suck At Making Quizzes
+title: Noob Making a Quiz App 
 description: All the things that went wrong while making a shitty website for a serious quiz
 draft: false
 date: 09 Oct 2023

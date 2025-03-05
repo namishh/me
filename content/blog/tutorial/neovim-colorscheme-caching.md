@@ -1,6 +1,6 @@
 ---
 draft: false
-title: Easy Neovim Colorscheme Caching
+title: Neovim Theme Caching
 description: Easily Learn How To Create Custom Colorschmes With Caching
 date: 05 Sep 2023
 author: Namish 

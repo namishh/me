@@ -8,19 +8,6 @@ category: tutorial
 ---
 <img src="/static/images/lock.png"/> <br/>
 
-## Table Of Contents
-- [Table Of Contents](#table-of-contents)
-- [Requirements and Setup](#requirements-and-setup)
-- [Defining commands](#defining-commands)
-- [Making A Simple Toggleable Display](#making-a-simple-toggleable-display)
-- [Creating the elements](#creating-the-elements)
-  - [Making all the buttons at once](#making-all-the-buttons-at-once)
-- [Adding the background image](#adding-the-background-image)
-- [Adding all the elements together](#adding-all-the-elements-together)
-- [Listening For Keypresses](#listening-for-keypresses)
-  - [Controlling the keygrabber](#controlling-the-keygrabber)
-- [Final Code](#final-code)
-
 ## Requirements and Setup
 
 **NOTE** - This tutorial was made considering you have a basic experience is `lua`

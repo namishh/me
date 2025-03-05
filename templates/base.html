@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
-
 <head>
     {% block head %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
         (function () {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -11,53 +11,94 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
-    <link rel="icon" type="image/png"
-        href="https://github.com/namishh.png" />
+    <link rel="icon" type="image/png" href="https://github.com/namishh.png" />
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
     <script src="/static/explorer.js" defer></script>
     {% block meta %}{% endblock meta %}
     <title>{% block title %}{% endblock title %} | namishh</title>
+    <style type="text/css">
+        .sidebar {
+            scrollbar-width: none;
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar::-webkit-scrollbar {
+            display: none;
+        }
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -288px;
+                z-index: 50;
+                height: 100vh;
+                transform: translateX(0);
+                transition: transform 0.3s ease-in-out;
+            }
+            .sidebar.open {
+                transform: translateX(288px);
+            }
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 40;
+            }
+            .sidebar-overlay.open {
+                display: block;
+            }
+        }
+    </style>
     {% endblock head %}
 </head>
-
-<body class="dark:bg-neutral-950 font-normal dark:text-neutral-200 bg-neutral-100 flex w-screen min-h-screen justify-center text-neutral-900">
-            <!-- <div class="sidebar top-0 left-0 fixed bg-green-500 p-4 border-r dark:border-neutral-700">
-                <div class="file-explorer">
-                    <h3 class="text-lg font-semibold mb-3">Files</h3>
-                    <ul class="file-tree">
-
-                        {% for node in file_tree %}
-                        {% include "file_node.html" %}
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="theme-toggle mt-6">
-                    <button id="theme-toggle"
-                        class="theme-btn flex items-center px-3 py-2 border rounded dark:border-neutral-600 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors">
-                        <span id="theme-text">Dark Mode</span>
-                    </button>
-                </div>
-            </div> -->
-
-            <div class="md:w-2/3 min-h-screen flex flex-col w-full lg:w-[47%] px-4 py-8">
-                <div class="navbar mb-4 items-center flex w-full justify-between">
-                    <div class="flex items-center gap-4">
-                        <img src="https://github.com/namishh.png" alt="" class="h-10 w-10"> 
-                        <a href="/" class="font-bold text-xl">namishh</a>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <a href="/stuff">projects</a>
-                        <i id="theme-toggle" class="ph-fill cursor-pointer text-xl ph-sun"></i>                     
-                    </div>
-                </div> 
-                <div id="content" class="grow">{% block content %}{% endblock content %}</div>
-                <div class="footer text-neutral-600 text-sm dark:text-neutral-400 flex justify-between">
-                    <p>made out of boredom </p>
-                    <p>built with <a href="https://actix.rs" target="_blank" class="link">actix</a></p>
-                </div>
+<body
+    class="dark:bg-neutral-950 font-normal dark:text-neutral-200 bg-neutral-100 flex w-screen min-h-screen justify-center text-neutral-900">
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+    
+    <div
+        id="sidebar"
+        class="sidebar h-screen w-72 overflow-y-auto top-0 left-0 fixed bg-neutral-200 dark:bg-neutral-900 p-2 border-r border-neutral-400 dark:border-neutral-700">
+        <div class="mobile-top-section lg:hidden flex justify-between items-center mb-4">
+        </div>
+        <div class="file-explorer mt-2">
+            <div class="flex mobile-top-section lg:hidden justify-between px-4 items-center gap-4">
+                <a href="/stuff"class="text-n mb-1">projects</a>
+                <i id="mobile-theme-toggle" class="ph-fill cursor-pointer ph-sun"></i>
             </div>
+            <ul class="file-tree overflow-y-auto text-n">
+                {% for node in file_tree %}
+                {% include "file_node.html" %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <div class="md:w-2/3 min-h-screen flex flex-col w-full lg:w-[47%] px-4 py-8">
+        <div class="navbar mb-4 items-center flex w-full justify-between">
+            <div class="flex items-center gap-4">
+                <img src="https://github.com/namishh.png" alt="" class="h-10 w-10">
+                <a href="/" class="font-bold text-xl">namishh</a>
+            </div>
+            <div class="lg:flex items-center gap-4">
+                <a class="hidden lg:block" href="/stuff">projects</a>
+                <i id="theme-toggle" class="ph-fill hidden lg:block cursor-pointer text-xl ph-sun"></i>
+                <i id="mobile-menu-toggle" class="ph-thin cursor-pointer text-xl ph-list lg:hidden mr-4"></i>
+            </div>
+        </div>
+        
+        <div id="content" class="grow">{% block content %}{% endblock content %}</div>
+        
+        <div class="footer text-neutral-600 text-sm dark:text-neutral-400 flex justify-between">
+            <p>made out of boredom </p>
+            <p>built with <a href="https://actix.rs" target="_blank" class="link">actix</a></p>
+        </div>
+    </div>
 </body>
-
 </html>

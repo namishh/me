@@ -37,6 +37,7 @@ And just do things dude. Your time and efforts would eventually win. You might s
 
 <br/>
 ### Ending
+
 This post was written in 5 minute intervals over a span of 4 days since I was travelling, so I apologise if my writing was a bit choppy. While researching over this, I found 2 other posts by fairly famous tpot people:
 
 1. [embracing impostor syndrome](https://kennethnym.com/blog/embracing-impostor-syndrome/)  by @kennethnym

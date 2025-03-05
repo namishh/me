@@ -1,17 +1,18 @@
 <li class="{% if node.is_dir %}directory mb-1{% else %}file mb-1{% endif %}">
     {% if node.is_dir %}
-        <div class="folder-label flex items-center cursor-pointer hover:bg-neutral-200 dark:hover:bg-neutral-800 rounded px-2 py-1">
-            <span class="toggle-icon transform transition-transform duration-200 mr-1">></span>
-            <span class="folder-name">{{ node.name }}</span>
+        <div class="folder-label flex items-center cursor-pointer text-neutral-600 dark:text-neutral-200  rounded py-1">
+            <span class="toggle-icon transform transition-transform duration-200 mr-1"><i class="ph ph-caret-right"></i></span>
+            <span class="folder-name text-sm">{{ node.name }}</span>
         </div>
-        <ul class="folder-contents ml-4 hidden">
+        <ul class="folder-contents ml-2 hidden">
             {% for child in node.children %}
                 {% set node = child %}
                 {% include "file_node.html" %}
             {% endfor %}
         </ul>
     {% else %}
-        <a href="/{{ node.path }}" class="file-link flex items-center hover:bg-neutral-200 dark:hover:bg-neutral-800 rounded px-2 py-1">
+        <a href="/{{ node.path }}" class="file-link py-1.5 text-sm flex items-center dark:text-neutral-400 dark:hover:text-neutral-200 transition text-neutral-600 hover:text-neutral-500">
+    
             {{ node.name }}
         </a>
     {% endif %}
