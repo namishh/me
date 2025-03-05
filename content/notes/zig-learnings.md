@@ -7,7 +7,7 @@ This is a collection of my learnings about Zig. I am still a very newb in low le
 
 ### Optional Type 
 
-An optional type in Zig is a way to represent a value that might or might not exist. It’s like a box that can either contain something (a value of type `T`) or be empty `(null)`. For example:
+An optional type in Zig is a way to represent a value that might or might not exist. It's like a box that can either contain something (a value of type `T`) or be empty `(null)`. For example:
 
 + If `T` is an integer `(i32)`, then `?i32` means "this could be an integer or nothing."
 + If `T` is a pointer `(*u8)`, then `?*u8` means "this could be a pointer or nothing."

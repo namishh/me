@@ -1,7 +1,7 @@
 ## Frontend
 - [x] add tailwind support (ASAP)
 - [x] light mode and dark mode
-- [ ] a very cool pixely canvas effect -- see where i can add gol
+- [x] a very cool pixely canvas effect -- see where i can add gol
 - [x] table of contents on the right 
   - [x] generate it automatically 
   - [x] make the table of contents a timeline like animated lines
