@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block meta %}
-<meta property="og:image" content="/og/content/{{file_path}}">
+    <meta property="og:title" content="{{title}} | nam" />
+    <meta property="og:url" content="https://namishh.me/stuff" />
+    <meta property="og:image" content="https://namishh.me/og/content/{{file_path}}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:type" content="article" />
+    <meta name="twitter:title" content="{{title}} | nam ">
+    <meta name="twitter:image" content="https://namishh.me/og/content/{{file_path}}">
 {% endblock meta %}
 {% block title %}{{ title }}{% endblock title %}
 {% block content %}

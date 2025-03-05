@@ -5,10 +5,10 @@
 - [x] table of contents on the right 
   - [x] generate it automatically 
   - [x] make the table of contents a timeline like animated lines
-- [ ] meta
-  - [ ] metadata
-  - [ ] images
-- [ ] 404 page
+- [x] meta
+  - [x] metadata
+  - [x] images
+- [x] 404 page
 - [x] projects page
 
 ## Backend

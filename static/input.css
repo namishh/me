@@ -2,7 +2,7 @@
 @source "../static/projects.js";
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
-@theme {  --font-normal: "Inter", "sans-serif"; }
+@theme {  --font-normal: "Inter", "sans-serif"; --font-mono: "Geist Mono", monospace }
 
 html {
   scroll-behavior: smooth;

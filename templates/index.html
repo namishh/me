@@ -5,7 +5,16 @@
     <script src="/static/gol.js" defer></script>
 {% endblock head %}
 {% block meta %}
-    <meta name="description" content="namishh's personal website">
+    <meta property="og:title" content="nam's site" />
+    <meta property="og:url" content="https://namishh.me/" />
+    <meta property="og:image" content="https://namishh.me/og/web/index" />
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:type" content="article" />
+    <meta property="og:description" content="personal garden and website">
+
+    <meta property="twitter:description" content="personal garden and website">
+    <meta name="twitter:title" content="nam's site">
+    <meta property="twitter:image" content="https://namishh.me/og/web/index" />
 {% endblock meta %}
 {% block content %}
 <p class="text-n normal-text">hey there! i like <span class="underlined">nixos</span>, <span class="underlined">neovim</span> and <span class="underlined">minimalism</span>.</p>
