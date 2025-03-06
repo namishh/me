@@ -1,15 +1,11 @@
 services:
   web:
-    build: 
+    container_name: namish-personal-website
+    build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "4321:8080"
     environment:
       - ENVIRONMENT=PRODUCTION
-    volumes:
-      # Optional: Persist content and static files
-      - ./content:/app/content
-      - ./static:/app/static
-      - ./templates:/app/templates
     restart: unless-stopped
