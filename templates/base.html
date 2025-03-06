@@ -6,8 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
         (function () {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+                let theme = localStorage.getItem('theme');
+                if (!theme) {
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    theme = prefersDark ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,7 +81,7 @@
 </head>
 
 <body
-    class="dark:bg-neutral-950 font-normal dark:text-neutral-200 bg-neutral-100 flex w-screen min-h-screen justify-center text-neutral-900">
+    class="dark:bg-neutral-950 font-normal overflow-x-hidden dark:text-neutral-200 bg-neutral-100 flex w-screen min-h-screen justify-center text-neutral-900">
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
     <div id="sidebar"

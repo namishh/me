@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (themeToggleBtn) {
             const htmlElement = document.documentElement;
             
-            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedTheme = localStorage.getItem('theme') || 'dark';
             htmlElement.setAttribute('data-theme', savedTheme);
             updateThemeUI(savedTheme, themeToggleBtn);
             
