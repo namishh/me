@@ -15,14 +15,14 @@
 <div class="w-full">
     <h1 class="text-2xl font-bold mb-6">Search</h1>
     
-    <form action="/search" method="get" class="mb-8">
+    <form action="/search" method="get" class="mb-4">
         <div class="flex gap-2">
             <input type="text" name="q" value="{{ query | default(value='') }}"
                 class="flex-grow p-2 border-[1px] w-5/6 focus:outline-none outline-none border-neutral-300 dark:border-neutral-600"
                 placeholder="rust...">
             <button type="submit"
                 class="bg-black cursor-pointer flex justify-center items-center w-1/6 text-white dark:text-neutral-950 p-2 dark:bg-neutral-100 text-n">
-                <span class="lg:block hidden">Search</span>
+                <span class="lg:block hidden text-sm font-mono">Search</span>
                 <span class="lg:hidden block">
                     <i class="search-toggle ph mt-2 ph-magnifying-glass cursor-pointer text-xl"></i>
                 </span>
@@ -32,8 +32,8 @@
 
     {% if has_query %}
         {% if results and results | length > 0 %}
-            <div class="mb-4">
-                <p class="text-neutral-600 dark:text-neutral-400 mb-4">Found {{ results | length }} result{% if results | length != 1 %}s{% endif %} for "{{ query }}"</p>
+            <div class="my-4">
+                <p class="text-neutral-600 dark:text-neutral-400 mb-4">Found results in {{ results | length }} pages {% if results | length != 1 %}s{% endif %} for "{{ query }}"</p>
                 
                 {% for item in results %}
                 <div class="mb-6">
@@ -50,12 +50,12 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="p-4 bg-neutral-200 text-sm font-mono text-neutral-600 dark:text-neutral-400 dark:bg-neutral-800 mb-4">
+            <div class="p-4 bg-neutral-200 text-sm font-mono text-neutral-600 dark:text-neutral-400 dark:bg-neutral-800 my-4">
                 <p>No results found for "{{ query }}".</p>
             </div>
         {% endif %}
     {% else %}
-        <div class="p-4 bg-neutral-200 text-sm font-mono text-neutral-600 dark:text-neutral-400 dark:bg-neutral-800">
+        <div class="p-4 bg-neutral-200 text-sm font-mono text-neutral-600 my-4 dark:text-neutral-400 dark:bg-neutral-800">
             <p>Enter a search term above to find content on this site.</p>
         </div>
     {% endif %}
