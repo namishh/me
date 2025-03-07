@@ -33,7 +33,7 @@
     {% if has_query %}
         {% if results and results | length > 0 %}
             <div class="my-4">
-                <p class="text-neutral-600 dark:text-neutral-400 mb-4">Found results in {{ results | length }} pages {% if results | length != 1 %}s{% endif %} for "{{ query }}"</p>
+                <p class="text-neutral-600 dark:text-neutral-400 mb-4">Found results in {{ results | length }} page{% if results | length != 1 %}s{% endif %} for "{{ query }}"</p>
                 
                 {% for item in results %}
                 <div class="mb-6">
