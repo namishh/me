@@ -178,14 +178,7 @@ fn extract_all_contexts(content: &str, lowercase_content: &str, base_url: &str, 
                 .find(|c| c == '.' || c == '!' || c == '?')
                 .unwrap_or_else(|| context_size.min(lowercase_content.len() - abs_pos - query.len()));
         
-        let mut result = content[start_pos..end_pos].trim().to_string();
-        
-        if start_pos > 0 {
-            result = format!("...{}", result);
-        }
-        if end_pos < content.len() {
-            result = format!("{}...", result);
-        }
+        let result = content[start_pos..end_pos].trim().to_string();
         
         let context_url = match last_heading {
             Some(heading) => format!("{}#{}", base_url, heading),

@@ -40,7 +40,7 @@
   - [x] use requestAnimationFrame
   - [x] pause the game when the tab is not active
 - [ ] search
-  - [ ] fix the search bar
+  - [x] fix the search bar
   - [ ] maybe make search results rendered markdown
 - [x] make it so 0 javascript for projects page
 

@@ -41,6 +41,38 @@ pub async fn projects(
     Ok(HttpResponse::Ok().content_type("text/html").body(html))
 }
 
+#[derive(Deserialize)]
+pub struct SearchQuery {
+    #[serde(default)]
+    q: String,
+}
+
+
+pub async fn search_page(
+    app_state: web::Data<AppState>,
+    query: web::Query<SearchQuery>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let file_tree = get_file_tree(&app_state.file_tree);
+    let mut context = Context::new();
+    
+    context.insert("file_tree", &file_tree);
+    
+    if !query.q.is_empty() {
+        let results = search_content(&query.q);
+        context.insert("results", &results);
+        context.insert("query", &query.q);
+        context.insert("has_query", &true);
+    } else {
+        context.insert("has_query", &false);
+    }
+    
+    let html = app_state.tera
+        .render("search.html", &context)
+        .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
+    
+    Ok(HttpResponse::Ok().content_type("text/html").body(html))
+}
+
 pub async fn view_markdown(
     app_state: web::Data<AppState>,
     path: web::Path<(String,)>,
@@ -244,11 +276,6 @@ pub async fn generate_web_og(
 
     // Return the HTTP response
     Ok(HttpResponse::Ok().content_type("image/png").body(image_bytes))
-}
-
-#[derive(Deserialize)]
-pub struct SearchQuery {
-    q: String,
 }
 
 pub async fn search(
