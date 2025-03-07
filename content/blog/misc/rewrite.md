@@ -19,7 +19,7 @@ Now I have worked with Rust before in a [small project](https://github.com/namis
 
 ## Basic Setup
 
-The server is with [actix](https://actix.rs) as it was the only one I had heard of. I used [tera](https://keats.github.io/tera/docs/) for templating which is just very much like jinja2. For styling I, ofcourse, used [tailwind](https://tailwindcss.com/) because there is no way I am going back to write CSS in a pimal way in 2025.
+The server is with [actix](https://actix.rs) as it was the only one I had heard of. I used [tera](https://keats.github.io/tera/docs/) for templating which is just very much like jinja2. For styling I, ofcourse, used [tailwind](https://tailwindcss.com/) because there is no way I am going back to writing CSS in a primal way in 2025.
 
 ## What Is New // Better?
 
@@ -102,7 +102,7 @@ Each tweet has an id for example `1897239052862276089` and using vercel's react-
 
 ### Smaller Changes
 
-1. Dynamic file tree, I no more have make it so that all the files are in the same directory. Now I can have subdirectories and it will work.
+1. Dynamic file tree, So now I can have subdirectories and arrange my writings better instead of dumping them in a single folder.
 2. Added conways game of life all pages except the pages that are blogs / poems / notes.
 3. Added a minimal table of contents minimap to the right of the page.
 4. Added a search bar to the left sidebar
@@ -116,4 +116,4 @@ Fun and frustrating. At the same time. I had to learn a lot of new things, like 
 
 I get why rust is objectively better, and I REALLY do want to continue learning it. I have a lot of projects in zig that are planned to be done, so maybe I can do a couple of them in rust. I was really dependent on llms to get this project done, which I really do not like doing. 
 
-But, atleast my code is blazingly fast.
+But, atleast my code *seems to be* blazingly fast.
