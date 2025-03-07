@@ -62,7 +62,7 @@ pub fn get_projects() -> Vec<ProjectCategory> {
                 },
                 Project {
                     name: "me".to_string(),
-                    desc: "my own personal static site generator written in rust. for this site".to_string(),
+                    desc: "my own personal blazingly fast website written in rust".to_string(),
                     tech: vec!["rust".to_string(), "actix".to_string()],
                     link: None,
                 },
