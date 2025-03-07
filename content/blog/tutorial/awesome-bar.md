@@ -916,7 +916,7 @@ end
 
 Restart the WM and you get some rather good looking titlebars! And your basic tutorial is complete.
 
-![sexy](/static/awm1.png)
+![sexy](/static/images/awm1.png)
 
 This could be a series but these are very time consuming and energy draining tasks. But it could be one series.
 Thanks for reading this, I hope it made your awesome journey easier.

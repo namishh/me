@@ -14,6 +14,7 @@ use crate::handlers::{index, projects, search_page, view_markdown, resume, gener
 use crate::templates::init_tera;
 use crate::rss::rss_feed;
 use crate::search::initialize_search_index;
+use crate::middle::CacheControlMiddleware;
 
 mod state;
 mod image_generator;
@@ -25,6 +26,7 @@ mod rss;
 mod templates;
 mod tweet;
 mod search;
+mod middle;
 mod projects;
 
 #[actix_web::main]
@@ -70,7 +72,12 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(app_state))
             .wrap(middleware::Logger::default())
-            .service(actix_files::Files::new("/static", "./static"))
+            .wrap(CacheControlMiddleware)
+            .service(
+                actix_files::Files::new("/static", "./static")
+                    .use_last_modified(true)
+                    .use_etag(true)
+            )
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/stuff").route(web::get().to(projects)))
             .service(web::resource("/resume").route(web::get().to(resume)))
@@ -104,8 +111,7 @@ async fn main() -> std::io::Result<()> {
             *avatar_lock = Some(img);
         }
 
-        // update my avatar every 10 minutes
-        let mut interval = time::interval(Duration::from_secs(600));
+        let mut interval = time::interval(Duration::from_secs(60 * 60));
         loop {
             interval.tick().await;
             if let Some(img) = fetch_avatar().await {

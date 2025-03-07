@@ -38,7 +38,10 @@ pub async fn projects(
     let html = app_state.tera
         .render("projects.html", &context)
         .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
-    Ok(HttpResponse::Ok().content_type("text/html").body(html))
+    Ok(HttpResponse::Ok()
+        .insert_header((actix_web::http::header::CACHE_CONTROL, "public, max-age=60"))
+        .content_type("text/html")
+        .body(html))
 }
 
 #[derive(Deserialize)]
@@ -70,7 +73,10 @@ pub async fn search_page(
         .render("search.html", &context)
         .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
     
-    Ok(HttpResponse::Ok().content_type("text/html").body(html))
+    Ok(HttpResponse::Ok()
+        .insert_header((actix_web::http::header::CACHE_CONTROL, "public, max-age=60"))
+        .content_type("text/html")
+        .body(html))
 }
 
 pub async fn view_markdown(
@@ -116,12 +122,12 @@ pub async fn view_markdown(
     }
 
     let cache_key = file_path.to_string_lossy().to_string();
-    let cached_content = {
-        let cache = MARKDOWN_CACHE.lock().unwrap();
-        cache.get(&cache_key)
-    };
-
-    let (content_html, headings, frontmatter) = if let Some((html, headings)) = cached_content {
+    let current_modified = fs::metadata(&file_path)
+        .map_err(|_| actix_web::error::ErrorInternalServerError("Could not get file metadata"))?
+        .modified()
+        .map_err(|_| actix_web::error::ErrorInternalServerError("Could not get last modified time"))?;
+    let mut cache = MARKDOWN_CACHE.lock().unwrap();
+    let (content_html, headings, frontmatter) = if let Some((html, headings)) = cache.get_if_fresh(&cache_key, current_modified) {
         let raw_content = fs::read_to_string(&file_path)
             .map_err(|_| actix_web::error::ErrorInternalServerError("Could not read file"))?;
         let (frontmatter, _) = extract_frontmatter(&raw_content);
@@ -131,10 +137,7 @@ pub async fn view_markdown(
             .map_err(|_| actix_web::error::ErrorInternalServerError("Could not read file"))?;
         let (frontmatter, body) = extract_frontmatter(&raw_content);
         let (content_html, headings) = markdown_to_html(body, &app_state.highlighter);
-        {
-            let mut cache = MARKDOWN_CACHE.lock().unwrap();
-            cache.set(cache_key, content_html.clone(), headings.clone());
-        }
+        cache.set(cache_key.clone(), current_modified, content_html.clone(), headings.clone());
         (content_html, headings, frontmatter)
     };
 
@@ -166,7 +169,13 @@ pub async fn view_markdown(
     let html = app_state.tera
         .render("view.html", &context)
         .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
-    Ok(HttpResponse::Ok().content_type("text/html").body(html))
+
+    let last_modified_header = actix_web::http::header::LastModified(current_modified.into());
+    Ok(HttpResponse::Ok()
+        .insert_header((actix_web::http::header::CACHE_CONTROL, "public, max-age=0"))
+        .insert_header((actix_web::http::header::LAST_MODIFIED, last_modified_header))
+        .content_type("text/html")
+        .body(html))
 }
 
 pub async fn generate_tweet_image( 
@@ -194,6 +203,20 @@ pub async fn resume() -> impl Responder {
     }
 }
 
+pub async fn search(
+    query: web::Query<SearchQuery>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let search_term = &query.q;
+    
+    let results = search_content(search_term);
+    
+    Ok(HttpResponse::Ok()
+        .content_type("application/json")
+        .json(results))
+}
+
+
+
 pub async fn generate_og_image(
     app_state: web::Data<AppState>,
     path: web::Path<(String,)>,
@@ -218,7 +241,7 @@ pub async fn generate_og_image(
         }
     }
 
-    let raw_content = fs::read_to_string(&file_path)
+    let raw_content = std::fs::read_to_string(&file_path)
         .map_err(|_| actix_web::error::ErrorInternalServerError("Could not read file"))?;
     let title = if let Some(caps) = crate::markdown::FRONTMATTER_REGEX.captures(&raw_content) {
         let yaml_str = caps.get(1).unwrap().as_str();
@@ -234,23 +257,23 @@ pub async fn generate_og_image(
     } else {
         file_path.file_stem().unwrap_or_default().to_string_lossy().to_string()
     };
-let dir_path = file_path
+    let dir_path = file_path
         .parent()
         .and_then(|p| p.strip_prefix(&base_path).ok())
         .map(|p| p.to_string_lossy().to_string())
         .unwrap_or_else(|| String::from("/"));
 
-    // Get fonts and avatar from app state
     let title_font = &*app_state.title_font;
-    let path_font: &ab_glyph::FontRef<'_> = &*app_state.path_font;
+    let path_font = &*app_state.path_font;
     let avatar_lock = app_state.avatar.read().await;
     let avatar = avatar_lock.as_ref().cloned();
 
-    // Call the image generation function
     let image_bytes = generate_content_og_image(&title, &dir_path, title_font, path_font, &avatar);
 
-    // Return the HTTP response
-    Ok(HttpResponse::Ok().content_type("image/png").body(image_bytes))
+    Ok(HttpResponse::Ok()
+        .insert_header((actix_web::http::header::CACHE_CONTROL, "public, max-age=3600"))
+        .content_type("image/png")
+        .body(image_bytes))
 }
 
 pub async fn generate_web_og(
@@ -265,27 +288,15 @@ pub async fn generate_web_og(
         _ => return Ok(HttpResponse::NotFound().body("Invalid web path")),
     };
 
-    // Get fonts and avatar from app state
     let title_font = &*app_state.title_font;
     let path_font = &*app_state.path_font;
     let avatar_lock = app_state.avatar.read().await;
     let avatar = avatar_lock.as_ref().cloned();
 
-    // Call the image generation function
     let image_bytes = generate_web_og_image(title, subtitle, title_font, path_font, &avatar);
 
-    // Return the HTTP response
-    Ok(HttpResponse::Ok().content_type("image/png").body(image_bytes))
-}
-
-pub async fn search(
-    query: web::Query<SearchQuery>,
-) -> Result<HttpResponse, actix_web::Error> {
-    let search_term = &query.q;
-    
-    let results = search_content(search_term);
-    
     Ok(HttpResponse::Ok()
-        .content_type("application/json")
-        .json(results))
+        .insert_header((actix_web::http::header::CACHE_CONTROL, "public, max-age=3600"))
+        .content_type("image/png")
+        .body(image_bytes))
 }
