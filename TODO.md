@@ -35,12 +35,13 @@
 
 ## Fixes
 - [x] indentation of folders
-- [ ] optmise conway's game of life
+- [x] optmise conway's game of life
   - [x] remove the lag when changing theme
-  - [ ] use requestAnimationFrame
-  - [ ] pause the game when the tab is not active
-- [ ] fix the search bar
-- [ ] maybe make search results rendered markdown
+  - [x] use requestAnimationFrame
+  - [x] pause the game when the tab is not active
+- [ ] search
+  - [ ] fix the search bar
+  - [ ] maybe make search results rendered markdown
 - [x] make it so 0 javascript for projects page
 
 ### commands to run it locally
