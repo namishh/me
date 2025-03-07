@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let parentDirectory = activeFileLink.closest('.directory');
             while (parentDirectory) {
                 const folderContents = parentDirectory.querySelector('.folder-contents');
-                const toggleIcon = parentDirectory.querySelector('.toggle-icon');
+                const toggleIcon = parentDirectory.querySelector('.toggle-icon').querySelector('.ph-caret-right');
                 
                 if (folderContents) {
                     folderContents.classList.remove('hidden');

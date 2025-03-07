@@ -12,7 +12,7 @@ use crate::image_generator::{generate_content_og_image, generate_web_og_image};
 use crate::tweet::generate_tweet;
 use serde::Deserialize;
 use crate::search::search_content;
-
+use crate::projects::get_projects;
 
 pub async fn index(
     app_state: web::Data<AppState>,
@@ -34,6 +34,7 @@ pub async fn projects(
     let file_tree = get_file_tree(&app_state.file_tree);
     let mut context = Context::new();
     context.insert("file_tree", &file_tree);
+    context.insert("projects", &get_projects());
     let html = app_state.tera
         .render("projects.html", &context)
         .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;

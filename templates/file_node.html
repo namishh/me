@@ -4,7 +4,7 @@
             <span class="toggle-icon transform transition-transform duration-200 mr-1"><i class="ph ph-caret-right"></i></span>
             <span class="folder-name text-sm">{{ node.name }}</span>
         </div>
-        <ul class="folder-contents ml-2 hidden">
+        <ul class="folder-contents ml-4 hidden">
             {% for child in node.children %}
                 {% set node = child %}
                 {% include "file_node.html" %}

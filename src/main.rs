@@ -25,6 +25,7 @@ mod rss;
 mod templates;
 mod tweet;
 mod search;
+mod projects;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
