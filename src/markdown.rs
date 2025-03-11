@@ -23,6 +23,7 @@ lazy_static! {
         m.insert("jsx", Language::Jsx);
         m.insert("tsx", Language::Tsx);
         m.insert("zig", Language::Zig);
+        m.insert("nix", Language::Nix);
         m
     };
    pub static ref FRONTMATTER_REGEX: Regex = Regex::new(r"(?s)^-{3,}\s*\n(.*?)\n-{3,}\s*\n(.*)").unwrap();
