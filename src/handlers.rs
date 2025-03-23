@@ -283,7 +283,7 @@ pub async fn generate_web_og(
     let path_segment = &path.0;
     let (title, subtitle) = match path_segment.as_str() {
         "index" => ("namishh", "personal website and garden"),
-        "about" => ("namishh", "learn more about me"),
+        "search" => ("namishh", "search stuff around here"),
         "stuff" => ("namishh", "stuff i have built"),
         _ => return Ok(HttpResponse::NotFound().body("Invalid web path")),
     };

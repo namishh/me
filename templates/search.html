@@ -7,7 +7,11 @@
 {% block meta %}
 <meta property="og:title" content="{% if query %}search - {{ query }}{% else %}search{% endif %} | namishh">
 <meta property="og:description" content="Search through content on namishh's website">
-<meta property="og:image" content="/api/web-og/search">
+<meta property="og:image" content="/og/web/search">
+<meta property="og:url" content="https://namishh.me/search">
+<meta property="twitter:title" content="{% if query %}search - {{ query }}{% else %}search{% endif %} | namishh">
+<meta property="twitter:description" content="Search through content on namishh's website">
+<meta property="twitter:image" content="/og/web/search">
 <meta property="twitter:card" content="summary_large_image">
 {% endblock meta %}
 
