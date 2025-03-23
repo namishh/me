@@ -7,9 +7,9 @@ author: Namish
 category: talk
 ---
 
-I recently saw this tweet on x dot com.
+The orignal tweet I based this post is no longer available, but here is another tweet with the same sentiment:
 
-![img](/tweet/1873031483394556055)
+![img](/tweet/1873055280386457704)
 
 
 For those who do not know, the OP means programming is a [rat race](https://en.wikipedia.org/wiki/Rat_race) like the JEE exam (for my non-Indian audience, JEE is an extremely competitive college entrance exam), and calling out youtubers // influencers who are in the active process of making this an even more evident rat race, just to extract a few extra bucks. 
