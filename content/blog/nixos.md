@@ -358,63 +358,6 @@ rustPlatform.buildRustPackage rec {
   cargoSha256 = "sha256-s5ejGEFMxDg+ENLg0Y1ZXgk2bDyy4H5C7tNMjVEp8kY=";
 }
 ```
-### Overlays
-
-Nix overlays are a mechanism in the Nix package manager that allows you to extend or modify the package set provided by the Nixpkgs repository. They are a way to add, replace, or customize packages and configurations without altering the global Nixpkgs repository. For example to use a custom fork of st we can make an overlay like this
-
-```nix
-{ inputs }:
-{
-  additions = final: _prev: import ../pkgs { pkgs = final; inherit inputs; };
-  modifications = final: prev: {
-    # WE WILL ADD OUR OVERLAYS HERE
-    st = prev.st.overrideAttrs (oldAttrs: {
-      buildInputs = oldAttrs.buildInputs ++ [ prev.harfbuzz ];
-      src = prev.fetchFromGitHub {
-        owner = "chadcat7";
-        repo = "st";
-        rev = "3d9eb51d43981963638a1b5a8a6aa1ace4b90fbb";
-        sha256 = "007pvimfpnmjz72is4y4g9a0vpq4sl1w6n9sdjq2xb2igys2jsyg";
-      };
-    });
-  };
-}
-```
-
-For this to work, you need `./nixpkgs.nix` and `./pkgs/default.nix`
-
-```nix
-# A nixpkgs instance that is grabbed from the pinned nixpkgs commit in the lock file
-# This is useful to avoid using channels when using legacy nix commands
-let lock = (builtins.fromJSON (builtins.readFile ./flake.lock)).nodes.nixpkgs.locked;
-in
-import (fetchTarball {
-  url = "https://github.com/nixos-unstable/nixpkgs/archive/${lock.rev}.tar.gz";
-  sha256 = lock.narHash;
-})
-
-```
-
-
-```nix
-# Custom packages, that can be defined similarly to ones from nixpkgs
-# You can build them using 'nix build .#example' or (legacy) 'nix-build -A example'
-{ pkgs ? (import ../nixpkgs.nix) { }, inputs }: {
-  # example = pkgs.callPackage ./example { };
-}
-```
-
-We can even use our deriviations to create an overlay
-
-```nix
-modifications = final: prev: {
-  ...
-  imgclr = prev.callPackage ../derivs/imagecolorizer.nix {
-    buildPythonPackage = prev.python310Packages.buildPythonPackage;
-  };
-  lutgen = prev.callPackage ../derivs/lutgen.nix { };
-};
-```
 
 ## Configuring the system
 

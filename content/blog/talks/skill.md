@@ -21,7 +21,7 @@ I feel like impostor syndrome is a **good thing**. It it something that keeps yo
 A bell curve take I hear all the time is to brush off impostor syndrome, and telling yourself you are much better than what you believe yourself to be.
 Impostor syndrome should give you this inner drive to do more. No one is born talented, in the words of Bob Ross,  
 
-<div class="p-4 font-mono border-l-2 border-primary bg-mbg my-6">Talent is just pursued interest.</div>
+> Talent is just pursued interest.
 
 The keyword here is interest. If I feel that I'm way too behind in something I have no interest in, say assembly development, no matter how hard I try I will never be able to create my own assembly debugger. You simply cannot have impostor syndrome over something you have no interest in. 
 <br/>

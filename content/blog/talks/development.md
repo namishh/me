@@ -15,7 +15,7 @@ I recently saw this tweet on x dot com.
 For those who do not know, the OP means programming is a [rat race](https://en.wikipedia.org/wiki/Rat_race) like the JEE exam (for my non-Indian audience, JEE is an extremely competitive college entrance exam), and calling out youtubers // influencers who are in the active process of making this an even more evident rat race, just to extract a few extra bucks. 
 
 ### You can do it by yourself
-I remember taking a JavaScript course in my early days (5–6 years ago) for $3.73, and I only took it because it was so cheap. I did _almost_ complete it but I remember not being able to recall anything when making my own projects. The real learning I got was from stack overflow (chatgpt didn't exist back then), reading documentations and going through github repos. But I was only able to do these things because I **found it to be fun**.
+I remember taking a JavaScript course in my early days (5 to 6 years ago) for $3.73, and I only took it because it was so cheap. I did _almost_ complete it but I remember not being able to recall anything when making my own projects. The real learning I got was from stack overflow (chatgpt didn't exist back then), reading documentations and going through github repos. But I was only able to do these things because I **found it to be fun**.
 <br/>
 Some of the most cracked people I know have taken 0 courses. They just learn it by their natural interest. Even though JEE is a LOT more tougher than getting a job, the most intelligent people I have ever met have the capability to excel in that exam without any further tuition, This is because they have a natural interest in physics and maths, unlike 98% of the competition, who are forced into it.
 

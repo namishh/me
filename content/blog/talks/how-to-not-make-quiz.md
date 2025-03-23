@@ -7,6 +7,7 @@ author: Namish
 category: talks
 ---
 <img src="/static/images/quizapp.png"/>
+
 [play it here, username and pass below](https://cyquest.vercel.app)
 
 
@@ -71,7 +72,7 @@ Fun Fact: 95% of this website actually went useless
 To play this game, here are the details
 
 
-```txt
+```txt title="credentials"
 ind_namish@cyquest.com
 namish
 ```
