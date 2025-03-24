@@ -666,7 +666,7 @@ rec {
 }
 ```
 
-<img src="/wavescrot.png" />
+<img src="/static/wavescrot.png" />
 
 This is how the theme looks on awesome
 

@@ -8,20 +8,6 @@ category: guide
 ---
 
 ![freosan](/static/images/freosan.png)
-<br/>
-
-## Table Of Contents
-+ [Introduction](#introduction)
-+ [Choosing A Window Manager](#choosing-a-window-manager)
-+ [Terminals](#terminals)
-+ [The Aesthetics](#the-aesthetics)
-+ [Colorschemes](#colorschemes)
-+ [Icons And Cursors](#icons-and-cursors)
-+ [Wallpapers](#wallpapers)
-+ [Compositing](#compositing)
-+ [The Bars And Widgets](#the-bars-and-widgets)
-+ [Terminal Eyecandy](#terminal-eyecandy)
-+ [Some Good Dotfile Repos and Resources](#some-good-dotfile-repos-and-resources)
 
 ## Introduction
 
@@ -64,9 +50,7 @@ First, what is a window manager? In contrast to a DE, which provides a whole use
 
 - [swayfx](https://github.com/WillPower3309/swayfx): A fork of sway but much better. Sway is just a pure [i3](https://i3wm.org) replacement for wayland. But sway never adds any extra feature on their own, they just do what i3 does. Swayfx is a fork that adds eyecandy such as rounded-corners that are anti aliased, blurring, shadows, dimming of unfocused windows, **per application saturation control** and possible fade and window animations.
 
-<Callout type="info"> 
-These are just my recommendations for beginners, there are many other compositors/wms available and you are free to use those.
-</Callout>
+> These are just my recommendations for beginners, there are many other compositors/wms available and you are free to use those.
 
 ## Terminals
 Almost any temrminal can look good with your rice. It does not really matter but here are my only two recommendations for a terminal emulator if you ever feel confused.
@@ -84,15 +68,19 @@ Now what defines a 'modern' theme. A modern theme usually plays with small round
 
 For this, its to preferred to use sans serif fonts like [Lexend](https://fonts.google.com/specimen/Lexend), [Gabarito](https://fonts.google.com/specimen/Gabarito) or [Rubik](https://fonts.google.com/specimen/Rubik).
 
-![syndrizlle/fvvm](https://camo.githubusercontent.com/7c31984716c4455a83ac5356abb3dc0bc38501acfe35b1d148cc6b71c1625b83/68747470733a2f2f692e696d6775722e636f6d2f376c47385152452e6a7067)
+![syndrizlle/fvvm](https://i.imgur.com/7lG8QRE.jpg)
 
 <div align="center">
+
   [syndrizzle/hotfiles at fvwm](https://github.com/Syndrizzle/hotfiles/tree/fvwm)
+
 </div>
 
 ![chadcat7/crystal](/static/images/crystal.png)
 <div align="center">
+
   [chadcat7/crystal at aura](https://github.com/chadcat7/crystal/tree/aura)
+
 </div>
 
 ### Material
@@ -106,7 +94,9 @@ The number of colors included in this are significantly more than your average D
 ![end-4/dots-hyprland](https://end-4.github.io/dots-hyprland-wiki/screenshots/i-i.1.png)
 
 <div align="center">
+
   [end-4/dots-hyprland at illogical-impulse](https://github.com/end-4/dots-hyprland)
+
 </div>
 
 For material its often recommended to generate your colors using [matugen](https://github.com/InioX/matugen) instead of cherry picking the colors. You can do this by -
@@ -121,7 +111,9 @@ Now this kind of rice is subjective to all. Each person has thier own view on a 
 ![sakura](https://star.is-a.dev/src/sakura.png)
 
 <div align="center">
+
   [Stardust-kyun/sakura](https://github.com/Stardust-kyun/dotfiles)
+
 </div>
 
 Sometimes use of a "pixelated" design is also seen. Pixelated rices are bit tricky to pull off because of the lack of good pixelated fonts. Beck's pixel rice is a good example of this
@@ -131,14 +123,16 @@ Sometimes use of a "pixelated" design is also seen. Pixelated rices are bit tric
 ### Minimalism
 Now these rices are the bare minimum and mostly just a bar with workspaces and some indicators. Mostly driven by the words, "less is more". Does not contain widgets, but if they do, it is mostly some settings buttons and a music indicator.
 
-![neroz](https://camo.githubusercontent.com/2de1eaeafb7321419c75382f9c9a65485d834d247430aba5c801ee6530aaf7af/68747470733a2f2f692e696d6775722e636f6d2f6e765862394b4e2e706e67)
+![neroz](https://i.imgur.com/nvXb9KN.png)
 
 ### Minimalist+
 These rices go full on minimalism. They only contain a bar (mostly waybar / polybar or the dwm bar) and mostly are "everything is bloat" kind of guys. Mostly made by people who run artix (not arch, systemd is bloat)
 
 ![my dwm rice](https://raw.githubusercontent.com/dark-Jedi2108/bedwm/main/.github/screenshots/n1.png)
 <div align="center">
+
   [my dwm rice](https://github.com/chadcat7/dwm)
+
 </div> 
 
 ## Colorschemes
@@ -196,14 +190,18 @@ Keep in mind that it is not always necessary to use a very artistic, beautiful w
 
 ![nuxsh](https://github.com/nuxshed/dotfiles/wiki/media/cafe2-1.png)
 <div align="center">
+
   [nuxshed/dotfiles](https://github.com/nuxshed/dotfiles)
+
 </div> 
 
 Or sometimes, just a plain color.
 
 ![kizu](/static/images/kizu.png)
 <div align="center">
+
   old rice by [janleigh](https://github.com/janleigh/dotfiles)
+
 </div> 
 
 
@@ -226,7 +224,9 @@ The wibox library is inbuilt in AwesomeWM, and is only accessible via awesome on
 
 ![kwesome](https://github.com/Kasper24/KwesomeDE/raw/main/.github/assets/9.png)
 <div align="center">
+
    [kasper24/kwesomede](https://github.com/Kasper24/KwesomeDE)
+
 </div> 
 
 People have used wibox to build lockscreens, docks, application launchers, bars, wifi menu, right click menus, notifications, financial ledger and even add custom titlebars to make minimalist programs like NCMPCPP, feh more usable. Has a bit of a steep learning curve and docs may not be enough for newbies.
@@ -240,11 +240,16 @@ As of 30th March 2024, the systray pull request is merged
 
 ![eww dash](https://github.com/dharmx/vile/raw/main/.github/readme/demo.png)
 <div align="center">
+
    [dharmx/vile](https://github.com/dharmx/vile)
+
 </div> 
 
 
 ### AGS (Aylur's Gtk Shell)
+
+> this part about ags is outdated, please checkout [astal](https://github.com/Aylur/astal) for the latest updates.
+
 The new cool kid in town which should take the wayland ricing community by storm. Its fairly new and is being actively worked upon. Learning curve is easy because javascript is easy. Has multiple inbuilt widgets, but really it can give you access to all GTK widgets possible, a major plus side against EWW. Also has systray built in, and more number of CSS properties supported. But the main thing that makes it miles better than EWW is the number of inbuilt services and utility functions. 
 
 <br/>
@@ -253,7 +258,9 @@ Currently fully suppports Hyprland. There is a fork by [ozwaldorf](https://githu
 ![end-4/dots-hyprland](https://raw.githubusercontent.com/chadcat7/crystal/freosan/.github/image.png)
 
 <div align="center">
+
   [chadcat7/crystal at freosan](https://github.com/chadcat7/crystal/tree/freosan)
+
 </div>
 
 ### Special Mention - Fabric
@@ -262,16 +269,20 @@ In dead simple words, [Fabric](https://github.com/Fabric-Development/fabric) is 
 
 ![fabric](https://github.com/Fabric-Development/fabric/raw/main/assets/example-files-bar-showcase.png)
 <div align="center">
+
   [fabric](https://github.com/Fabric-Development/fabric)
+
 </div> 
 <br/>
 ### Polybar // Waybar 
 
 What if you do not want the complexity of these widgets and just want a simple normal rice. You can simply use polybar for x11 and waybar for wayland. They are very limited in terms of functionality, (only colored text for that matter) but might be enough to get your work done. Waybar has an advantage with tasklist, usage of css to style and the functionality to make vertical bars. They can also be used to execute well polished and modern bars as seen below -
 
-![polybar by syndrizzle](https://camo.githubusercontent.com/d8332ae7a8cf3b8eb01cc3f0f544f25489910f62242b595909b091fd694ac059/68747470733a2f2f692e696d6775722e636f6d2f454d75616549762e706e67)
+![polybar by syndrizzle](https://i.imgur.com/EMuaeIv.png)
 <div align="center">
+
    [polybar by syndrizzle](https://github.com/syndrizzle/hotfiles/tree/bspwm)
+
 </div> 
 
 ![waybar](https://preview.redd.it/hyprland-glassmorphism-v0-uu7qkonc4az91.png?width=1080&crop=smart&auto=webp&s=4671305853af21742b1d87ffe0d4a3b9b6eb150a)
@@ -283,7 +294,9 @@ waybar by rxyhn
 
 ![chadwm](https://github.com/siduck/chadwm/blob/screenshots/screenshots/initial_look.png?raw=true)
 <div align="center">
+
    [chadwm by siduck](https://github.com/siduck/chadwm)
+
 </div> 
 
 If you use dwm, then you should strictly stick to the inbuilt dwmbar and extend it with patches and stuff. Here are a list of patches you can apply to make your dwm bar look good and functional -
@@ -305,7 +318,9 @@ If you use dwm, then you should strictly stick to the inbuilt dwmbar and extend 
 
 ![manas/sh](https://github.com/Manas140/sh/blob/main/preview.png?raw=true)
 <div align="center">
+
   [Manas140/sh](https://github.com/Manas140/sh)
+
 </div>
 
 Another big part of your next r/unixporn post is how you display the terminals you have in there. Now you can do that in a number of ways. 
@@ -317,9 +332,11 @@ These are usually bash scripts written to display the different colors in the te
 I do not think we need to discuss what a `fetch` program does. It is a staple of all screenshots in unixporn because it looks cool and is actually a pretty 
 good way to display information about your system. 
 
-![neofetch](https://camo.githubusercontent.com/a7284affde85558daac036c28e02aed04f6e22948e53a06a1eb989bf5829e580/68747470733a2f2f692e696d6775722e636f6d2f47466d433541642e706e67) 
+![neofetch](https://i.imgur.com/GFmC5Ad.png) 
 <div align="center">
+
   [dylanaraps/neofetch](https://github.com/dylanaraps/neofetch)
+
 </div>
 
 Here are some of the popular fetch scripts. 
@@ -375,7 +392,7 @@ This list is made keeping in mind that the reader is new to ricing and the repos
 1. [end-4/dots-hyprland](https://github.com/end-4/dots-hyprland) - Already mentioned in here.
 2. [Aylur/dotfiles](https://github.com/Aylur/dotfiles) - Dotfiles by the creator of AGS himself. Pretty good repo to learn the basics of ags, and all the things that are available in it.
 
-### Good Custom // Underrated Schemes 
+### Good Custom Schemes 
 1. [Biscuit](https://github.com/Biscuit-Colorscheme)
 2. [Carburetor](https://github.com/ozwaldorf/carburetor)
 3. [Oxocarbon](https://github.com/nyoom-engineering/oxocarbon.nvim)

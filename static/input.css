@@ -62,7 +62,7 @@ html {
 }
 
 .code-block pre {
-    @apply overflow-x-auto p-4;
+    @apply overflow-x-auto p-4 text-sm;
 }
 
 .markdown-content blockquote {
@@ -83,7 +83,7 @@ html {
 }
 
 .code-block {
-    @apply dark:text-neutral-400 text-neutral-600 my-2 border-[1px] dark:border-neutral-700 border-neutral-400;
+    @apply dark:text-neutral-400 text-neutral-600 my-2 border-[1px] text-sm dark:border-neutral-700 border-neutral-400;
 }
 
 .line-number {
