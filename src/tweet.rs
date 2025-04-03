@@ -374,11 +374,11 @@ pub async fn generate_tweet(id: &str, title_font: &FontRef<'_>, path_font: &Font
     let theta = (hash[6] as f32 / 255.0) * 2.0 * PI;
     let v = (theta.cos(), theta.sin());         
 
-    let width = 500;
+    let width = 700;
     let x0: i32 = 20; 
     let y0: i32 = 20; 
     let padding: i32 = 10;
-    let w: i32 = 460; 
+    let w: i32 = 660; 
     let content_width = w - (padding * 2);
     
     let calculated_height = calculate_tweet_height(
