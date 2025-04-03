@@ -32,5 +32,3 @@ Than the ruthless fanatic who <br>
 Shows his faith by violence and greed <br>
 For a skeptic man all alone <br>
 Outshines the tyrant on his throne <br>
-
-![/static/images/king.png](/static/images/king.png)
