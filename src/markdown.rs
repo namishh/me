@@ -189,13 +189,13 @@ pub fn markdown_to_html(content: &str, highlighter: &Mutex<Highlighter>) -> (Str
                     .join("\n");
                 let code_html = if let Some(filename) = current_filename.as_ref() {
                     format!(
-                        r#"<div class="code-block"><div class="code-header"><span class="code-filename">{}</span><button class="copy-button" onclick="copyCode(this)"><i class="ph ph-copy"></i></button></div><pre><code>{}</code></pre></div>"#,
+                        r#"<div class="code-block"><div class="code-header flex items-center justify-end"><span class="code-filename">{}</span><button class="copy-button" onclick="copyCode(this)"><i class="ph ph-copy"></i></button></div><pre><code>{}</code></pre></div>"#,
                         filename,
                         line_numbered_html
                     )
                 } else {
                     format!(
-                        r#"<div class="code-block"><div class="code-header"><button class="copy-button" onclick="copyCode(this)"><i class="ph ph-copy"></i></button></div><pre><code>{}</code></pre></div>"#,
+                        r#"<div class="code-block"><div class="code-header flex items-center justify-end"><button class="copy-button" onclick="copyCode(this)"><i class="ph ph-copy"></i></button></div><pre><code>{}</code></pre></div>"#,
                         line_numbered_html
                     )
                 };

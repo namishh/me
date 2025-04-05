@@ -8,7 +8,7 @@ draft: true
 
 > not a tutorial, just a devlog
 
-This is a small project I am working on to generate planets using voronoi graphs. The idea is to use the voronoi graph to create continents and then add some noise to make it look more realistic. I will be using the [Odin](https://odin-lang.com/) language (sorry for no syntax highlighting) and raylib for this project.
+This is a small project I am working on to generate planets using voronoi graphs. The idea is to use the voronoi graph to create tectonic plates and then add some noise to make it look more realistic. I will be using the [Odin](https://odin-lang.com/) language (sorry for no syntax highlighting) and raylib for this project.
 
 ## Vonoroi Graph
 
@@ -197,20 +197,33 @@ rl.BeginDrawing()
 What this does is just constantly update the x and z coordinates of the points. The y coordinate is not changed, so it will just rotate around the y axis.
 
 
-### Continents
+### Tectonic Plates 
 
-Now here is where the actual voronoi graph comes it. The idea is to pick 8 to 10 points at random from the points we have generated, and then create a voronoi graph around them. These regions will indicate continets.
+Now here is where the actual voronoi graph comes it. The idea is to pick 8 to 10 points at random from the points we have generated, and then create a voronoi graph around them. These regions will indicate tectonic plates.
 
 
 ![continents](https://u.cubeupload.com/namishhhh/Screenshot2025040521.png)
 
-To do this, first I created a function that generates n random points to act as the centers of the continents. In the above screenshot, I have only used 4 points, so the continents look kinda well defined in the image.
+To do this, first I created a function that generates n random points to act as the centers of the tectonic plates. In the above screenshot, I have only used 4 points, so the tectonic plates look kinda well defined in the image.
 
+The way the function work if that before picking, it divides the points into regions to ensure that points are evenly distributed. It's pseudo code would kinda look like:
 
+```odin
+region_size := len(points) / num_centers
 
+for i in 0 ..< num_centers {
+    region_start := i * region_size
+    region_end := min(region_start + region_size, len(points))
 
+    if region_start >= region_end {
+        continue 
+    }
 
+    // use the random number generator to pick a point from the region and add it to the centers
+}
+```
 
+After this, all we are left to do to "define" the tectonic plates is to assign each point to the nearest center. This was a relatively simple task, although my approach in slower and not recommmended for serious projects. It is a nearest neighbour's approach, so for each point, we just check the distance to all the centers with the classic distance formula and assign `point.tectonic_plate_id` to the id of the nearest center. With this we also change the color of the point to the color of the center and we have successfully recreated the screenshot.
 
 #### roadmap (only for writing purposes, delete later)
 
