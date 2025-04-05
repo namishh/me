@@ -202,9 +202,9 @@ What this does is just constantly update the x and z coordinates of the points. 
 Now here is where the actual voronoi graph comes it. The idea is to pick 8 to 10 points at random from the points we have generated, and then create a voronoi graph around them. These regions will indicate continets.
 
 
-![continents](https://u.cubeupload.com/namishhhh/c66Screenshot2025040516.png)
+![continents](https://u.cubeupload.com/namishhhh/Screenshot2025040521.png)
 
-To do this, first I created a function that generates n random points to act as the centers of the continents.
+To do this, first I created a function that generates n random points to act as the centers of the continents. In the above screenshot, I have only used 4 points, so the continents look kinda well defined in the image.
 
 
 
