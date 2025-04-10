@@ -307,3 +307,53 @@ For each face, we iterate over it's three vertices in a loop. For each pair, v1 
 ![subdividing](https://u.cubeupload.com/namishhhh/Screenshot2025041020.png)
 
 The aim is to create a function that takes in a planet, and returns a new planet with each face subdivider. The idea is that then we can use this function multiple times to create more and more detailed planets.
+
+The first step is to have a map to save the midpoints of the edges, `edge_midpoints := make(map[[2]int]int)`. Then we just loop through the faces, get the three midpoints of the edges and create the news faces. The four new faces have these coordinates
+
++ `v1`, `m12`, `m31`
++ `m12`, `v2`, `m23`
++ `m31`, `m23`, `v3`
++ `m12`, `m23`, `m31`
+
+```odin
+for face in planet.faces {
+    v1 := face.vertices[0]
+    v2 := face.vertices[1]
+    v3 := face.vertices[2]
+    
+    m12 := get_or_create_midpoint(&result.vertices, &edge_midpoints, v1, v2, planet.radius)
+    m23 := get_or_create_midpoint(&result.vertices, &edge_midpoints, v2, v3, planet.radius)
+    m31 := get_or_create_midpoint(&result.vertices, &edge_midpoints, v3, v1, planet.radius)
+    
+    create_face(&result.vertices, &result.faces, v1, m12, m31, face.color, face.region_id)
+    create_face(&result.vertices, &result.faces, m12, v2, m23, face.color, face.region_id)
+    create_face(&result.vertices, &result.faces, m31, m23, v3, face.color, face.region_id)
+    create_face(&result.vertices, &result.faces, m12, m23, m31, face.color, face.region_id)
+}
+```
+
++ The `get_or_create_midpoint` function checks if the midpoint already exists in the map. If it does, it returns the index of the midpoint. If it doesn't, it creates a new vertex at the midpoint and adds it to the planet's vertices. The midpoint is calculated by taking the average of the two vertices and normalizing it.
++ The `create_face` function creates a new face with the given vertices and adds it to the planet's faces. It also calculates the normal and center of the face.
+
+Then we generate the edges for the new planet again, using the same method. Now we can just call this function multiple times to create more and more detailed planets. The more times you call it, the more detailed the planet will be.
+
+```odin
+PLANET_RADIUS :: 3.0
+
+icosahedron := generate_icosahedron(PLANET_RADIUS)
+
+subdivided := subdivide(&icosahedron)
+subdivided = subdivide(&subdivided) 
+subdivided = subdivide(&subdivided) 
+subdivided = subdivide(&subdivided) 
+```
+
+### Dividing into hexagons and pentagons
+
+This is the last step in generating a Goldberg polyhedra. For this the first step is to place new vertices at the center of faces. Then we build a mapping from each vertex index in the original planet to the indices of faces that share that vertex. We iterate over each face, and then for each vertex inside the face we create or add a mapping to the vertex. Then, each vertex in the original planet becomes a face in the dual graph.
+
+The next step is to order the vertices of the new dual face (which are the centers of the original faces adjacent to the original vertex) to form a proper polygon. These vertices lie on the sphere, and connecting them in the wrong order would create a twisted or invalid face. Add this new face to the new planet's faces. And then yet again, we generate the edges for the new planet again, using the same method.
+
+Well, this is the final result:
+
+![image](https://u.cubeupload.com/namishhhh/Screenshot2025041023.png)
