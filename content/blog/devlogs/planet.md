@@ -357,3 +357,38 @@ The next step is to order the vertices of the new dual face (which are the cente
 Well, this is the final result:
 
 ![image](https://u.cubeupload.com/namishhhh/Screenshot2025041023.png)
+
+And then we can use our voronoi implmentations and slightly tweak them to make them work with this. Frist we shuffle all our faces and select 8 of them to be centers of tectonic plates. I am using the [Fisher-Yates shuffle](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle) algorithm to shuffle the faces. Then we just assign each face to the nearest center and set the color of the face to the color of the center.
+
+```osin
+select_random_plate_centers :: proc(planet: ^Planet, num_plates: int) -> []int {
+    plate_count := num_plates
+    if plate_count > len(planet.faces) {
+        plate_count = len(planet.faces)
+    }
+    
+    indices := make([]int, len(planet.faces))
+    for i := 0; i < len(planet.faces); i += 1 {
+        indices[i] = i
+    }
+   
+    for i := len(indices) - 1; i > 0; i -= 1 {
+        j := rand_int_max(i + 1)
+        indices[i], indices[j] = indices[j], indices[i]
+    }
+    
+    plate_centers := make([]int, plate_count)
+    for i := 0; i < plate_count; i += 1 {
+        plate_centers[i] = indices[i]
+    }
+    
+    delete(indices)
+    return plate_centers
+}
+```
+
+Well and now we get beautifully colored tectonic plates and out original problem is now solved.
+
+![image](https://u.cubeupload.com/namishhhh/cc4Screenshot2025041023.png)
+
+The next steps will be realistically simulate the tetonic plates to create mountain ranges.
