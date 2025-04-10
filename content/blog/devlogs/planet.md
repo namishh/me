@@ -225,18 +225,85 @@ for i in 0 ..< num_centers {
 
 After this, all we are left to do to "define" the tectonic plates is to assign each point to the nearest center. This was a relatively simple task, although my approach in slower and not recommmended for serious projects. It is a nearest neighbour's approach, so for each point, we just check the distance to all the centers with the classic distance formula and assign `point.tectonic_plate_id` to the id of the nearest center. With this we also change the color of the point to the color of the center and we have successfully recreated the screenshot.
 
-#### roadmap (only for writing purposes, delete later)
+### Tectonic Edges
 
-```md
-- [x] start with odin template
-- [x] 3d vonoroi graph
+The last thing to create a basic planet is to create the edges of the tectonic plates, which I will admit took me some time to figure out. My first few attempts were just drawing lines between spheres of the same continent, but that resulted in a lot of edges crossing each other, and some points just being left alone. Also to remind you guys, I run this on a 4gb ram laptop, so drawing these many lines was not good for my poor laptop.
 
-- [ ] generate points to make continents
-- [ ] draw the outlines of the continents
-- [ ] generate small subcontinents
-  
-- [ ] add layers of noise to make it look more realistic
-- [ ] add clouds and atmosphere
+My next approach was to create a list of edges, which is calculated by seeing how far it is from the center of the plate. This attempt worked more or less, I was getting distinct edges that one can visually decipher to be a plate, but there was still a problem.  
 
-- [ ] make slider for threshold of noise
+
+After a lot and lot of deliberating, and pleading to the free tiers of claude, I got to a this point:
+
+![edges-but-broken](https://u.cubeupload.com/namishhhh/Screenshot2025040922.png)
+
+Now not a bad result, but there are gaps between the plates, and some edges were just distorted. I tried reading what claude had done but well I will just say that it was a complete mess of a code that I could not understand. Given up I decided to just start again, but with a different approach.
+
+## Goldberg Polyhedra
+
+![goldberg](https://u.cubeupload.com/namishhhh/Screenshot2025041014.png)
+
+This time instead of making points, I will just directly make edges in form of a sphere because I learnt about Goldberg polyhedra. The idea is to just take a sphere and divide it into smaller triangles, and for more detailing, you can subdivide it again with its own vertices how many times you want. And if you group these triangles together, you can form smaller hexagons and pentagons, which I will treat as a "location" or a part of plate.
+
+So, now instead of a Point struct I have a Planet struct, which in turn contains arrays of strcuts Edges, Vertices and Faces.
+
+```odin title="New-structure"
+Vertex :: struct {
+    position: rl.Vector3,
+    normal: rl.Vector3,
+}
+
+Face :: struct {
+    vertices: [dynamic]int,
+    center: rl.Vector3,
+    normal: rl.Vector3,
+    color: rl.Color,
+    is_pentagon: bool,
+    region_id: int,
+}
+
+Edge :: struct {
+    v1, v2: int, // vertex indices
+    face1, face2: int, // face indices this edge belongs to (-1 if only belongs to one face)
+}
+
+Planet :: struct {
+    faces: [dynamic]Face,
+    vertices: [dynamic]Vertex,
+    edges: [dynamic]Edge,
+    radius: f32,
+}
 ```
+
+### Icosahedron 
+
+The first step is to create a base [icosahedron](https://en.wikipedia.org/wiki/Icosahedron). It is a shape with 20 faces, 12 vertices and 30 edges. Now while I do not know how they were derived mathematically, I do know that the vertices are the permutations of `(±1, ±φ, 0)`, `(0, ±1, ±φ)` and `(±φ, 0, ±1)`, where `φ` is the golden ratio. The faces are just the combinations of these vertices. Golden ratio can be calculated with the simple formula `φ = (1 + sqrt(5)) / 2`. From now on, I will refer to the golden ratio as `t` or `phi`.
+
+```odin
+append(&planet.vertices, Vertex{
+    position = rl.Vector3{normalized.x * radius, normalized.y * radius, normalized.z * radius},
+    normal = normalized,
+})
+```
+
+Then we can also just normalize them and extend them to the radius we want. Next I take the predefined 20 faces of the sphere which look like this:
+
+```odin
+faces := [?][3]int{
+    {0, 11, 5}, {0, 5, 1}, {0, 1, 7}, {0, 7, 10}, {0, 10, 11},
+    {1, 5, 9}, {5, 11, 4}, {11, 10, 2}, {10, 7, 6}, {7, 1, 8},
+    {3, 9, 4}, {3, 4, 2}, {3, 2, 6}, {3, 6, 8}, {3, 8, 9},
+    {4, 9, 5}, {2, 4, 11}, {6, 2, 10}, {8, 6, 7}, {9, 8, 1}
+}
+```
+
+We just normalize the vertices according to the radius and make a face struct. The normal of the face can be just calculated by taking the cross product of two edges and then normalizing it. The center of the face can be calculated by taking the average of the vertices. 
+
+For storing edges we create a `map[[2]int]int`. Now I took a lot of help for this and was kind of hard for me intuitively at first. So an edge can only be a part of 2 faces or at minumum 1 face. There are no edges that just floating and its not physically possible to get more than 2 faces without them intersecting. If there is only 1 face, we set the face2 as -1.
+
+For each face, we iterate over it's three vertices in a loop. For each pair, v1 and v2, we sort them and check for an existing edge. If the edge exists, we set the face2 to the current face index. If it doesn't exist, we create a new edge and set the face1 to the current face index.
+
+### Subdividing the faces
+
+![subdividing](https://u.cubeupload.com/namishhhh/Screenshot2025041020.png)
+
+The aim is to create a function that takes in a planet, and returns a new planet with each face subdivider. The idea is that then we can use this function multiple times to create more and more detailed planets.
