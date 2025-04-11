@@ -360,7 +360,7 @@ Well, this is the final result:
 
 And then we can use our voronoi implmentations and slightly tweak them to make them work with this. Frist we shuffle all our faces and select 8 of them to be centers of tectonic plates. I am using the [Fisher-Yates shuffle](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle) algorithm to shuffle the faces. Then we just assign each face to the nearest center and set the color of the face to the color of the center.
 
-```osin
+```odin
 select_random_plate_centers :: proc(planet: ^Planet, num_plates: int) -> []int {
     plate_count := num_plates
     if plate_count > len(planet.faces) {
@@ -392,3 +392,44 @@ Well and now we get beautifully colored tectonic plates and out original problem
 ![image](https://u.cubeupload.com/namishhhh/cc4Screenshot2025041023.png)
 
 The next steps will be realistically simulate the tetonic plates to create mountain ranges.
+
+## World Modelling
+
+Okay so now we actually get to the fun part. This will not be the most realistic simulation because I will be taking in account < 2% of the actual geography that exists. First thing, we divide the plates into 2 types, oceanic and continental, right now, using the proportions of earth, I have set it to be 60% oceanic and 40% water. 
+
+### Mountain Ranges
+
+Each plate moves in a random direction, and if two plates collide, we create a mountain range. The first thing we do is to give each plate a angular velocity and a rotation axis, for now, the rotation axis will be randomly generated unit vector.
+
+```odin
+rotation_axis := rand_unit_vector()
+
+max_angular_velocity := 0.01
+for i in 0 ..< CONTINENTS {
+    if rand_float32() < 0.6 {
+        plates[i].plate_type = .OCEANIC
+    } else {
+        plates[i].plate_type = .CONTINENTAL
+    }
+    plates[i].rotation_axis = rotation_axis
+    plates[i].angular_velocity = rand_float32_range(0, f32(max_angular_velocity))
+}
+```
+
+Then for each face, we give it a velocity based on the angular velocity and the rotation axis. The velocity is calculated using the cross product of the rotation axis and the position of the face. Thanks, [Euler](https://en.wikipedia.org/wiki/Euler%27s_rotation_theorem) for this. 
+
+```odin
+for plate in plates {
+    axis := plate.rotation_axis
+    omega := plate.angular_velocity
+    for face_idx in plate.faces {
+        face := &goldberg.faces[face_idx]
+        p := face.center
+        face.velocity = omega * cross(axis, p)
+    }
+}
+```
+
+Now we can just check if a face is at the border and calculate the amount of stress that is being applied on it. Now my approach of calculating stress is just taking the maximum difference between the velocities of the neigbours. Then we can use these stress values to create a height map. But for now we will color the faces based on the stress values, if the stress is high, we will color it red, else blue.
+
+![image](https://u.cubeupload.com/namishhhh/Screenshot2025041115.png)
