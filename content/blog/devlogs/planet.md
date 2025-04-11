@@ -433,3 +433,38 @@ for plate in plates {
 Now we can just check if a face is at the border and calculate the amount of stress that is being applied on it. Now my approach of calculating stress is just taking the maximum difference between the velocities of the neigbours. Then we can use these stress values to create a height map. But for now we will color the faces based on the stress values, if the stress is high, we will color it red, else blue.
 
 ![image](https://u.cubeupload.com/namishhhh/Screenshot2025041115.png)
+
+### A Basic World
+
+Now that we have atleast three terrains, namely water, mountain, and not a mountain, we can start creating the most basic world. The first step is to generate a height map according to the stress values. Lower stress equals lower height, and higher stress equals higher height.
+
+Generating the heightmap was somewhat a challenge. First step was to just generate the initial heightmap, which just consisted of giving faces of CONTINENTAL plates a height of 0.5 and OCEANIC plates a height of -0.5. Then on top of this initial height, we calculate the stress height according to the stress factor and add it to the initial heights.
+
+The formula of the stress factor is
+
+```odin
+stress_factor := max_stress > 0 ? stress_values[face_idx] / max_stress : 0
+stress_height := math.pow(stress_factor, 1.5) * 1.5 // add this to the initial height
+```
+
+The next step was to assign colors to the faces based on the height. Right now it is very bad and easy function, but 
+
+1. if the plate is oceanic, color it blue
+2. else if stress factor is greater than `THRESHOLD`, color it red/orange else green
+
+
+Another thing I wanted to do was to draw the rotation axis of the planets, and not just make them a random vector. So with some maths, I made a function that takes in a tilt_value (angle in degrees) and spews back an axis
+
+```odin
+x := math.sin(tilt_angle)
+y := math.cos(tilt_angle)
+z := 0.0
+
+return normalize(rl.Vector3{f32(x), f32(y), f32(z)})
+```
+
+Drawing the axis is a trivial task, it is just drawing a line passing through the cneter of the screen. And now we have got this:
+
+![image](https://u.cubeupload.com/namishhhh/Screenshot2025041201.png)
+
+Due to me having a low end setup, I have removed one level of subdivision, so as to not waste a lot of time rendering. We are still far away from a semi-realistic planet but we are getting there.
