@@ -1,7 +1,7 @@
 ---
 title: Generating Planets
-date: 04 April 2025
-draft: true 
+date: 14 April 2025
+draft: false 
 ---
 
 ![img](https://u.cubeupload.com/namishhhh/744Screenshot2025041401.png)
@@ -473,7 +473,7 @@ Due to me having a low end setup, I have removed one level of subdivision, so as
 
 ### Perlin Noise
 
-![perlin](https://www.ronja-tutorials.com/assets/images/posts/026/heightLines.png)
+![perlin](https://u.cubeupload.com/namishhhh/perlinnoiseterrainme.png)
 
 Now it is time to add some noise to the planet. And of course, like any other terrain generator video/article on the planet, we will use Perlin noise. This will help us in making the terrain look more realistic and varied. We are not using random 1 and 0 white noise because, well terrain is not just random. Perlin noise generated smooth curves and is a lot more realistic for our use case.
 
