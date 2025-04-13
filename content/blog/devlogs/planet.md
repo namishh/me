@@ -468,3 +468,83 @@ Drawing the axis is a trivial task, it is just drawing a line passing through th
 ![image](https://u.cubeupload.com/namishhhh/Screenshot2025041201.png)
 
 Due to me having a low end setup, I have removed one level of subdivision, so as to not waste a lot of time rendering. We are still far away from a semi-realistic planet but we are getting there.
+
+### Perlin Noise
+
+![perlin](https://www.ronja-tutorials.com/assets/images/posts/026/heightLines.png)
+
+Now it is time to add some noise to the planet. And of course, like any other terrain generator video/article on the planet, we will use Perlin noise. This will help us in making the terrain look more realistic and varied. We are not using random 1 and 0 white noise because, well terrain is not just random. Perlin noise generated smooth curves and is a lot more realistic for our use case.
+
+I will not be going deep into the math of Perlin noise, but I will just give a brief overview of how it works. The idea is to take a grid of points and assign each point a random value. Then for each point in the grid, we interpolate between the values of the surrounding points to get a smooth value. This is done using a fade function, which smooths out the values. 
+
+The fade function is defined as:
+
+```odin
+fade :: proc(t: f32) -> f32 {
+    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
+}
+```
+
+Now the idea is to create multiple octaves of noise, and them combine them to get a more detailed noise. This will make it even more realistic. So for now I have three layers
+
+```odin
+NOISE_LAYERS :: []NoiseLayer{
+    {scale = 1.0, influence = 0.3, octaves = 4, persistence = 0.5},
+    {scale = 3.0, influence = 0.15, octaves = 6, persistence = 0.5},
+    {scale = 8.0, influence = 0.05, octaves = 2, persistence = 0.5},
+}
+```
+
+The scale is the size of the noise, the influence is how much it will affect the height, and the octaves are how many layers of noise we will use. The persistence is how much each layer will affect the next layer. 
+
+Now when we calculating height, we just add the noise to the height. And now we have some more realistic terrain.
+
+<br>
+
+But it still is not realistic enough. That is because I realized that Voronoi graphs are not the best way to randomly distribute plates. So for now, I updated this function to just take the center points and randomly expand them. To make it even more random, I gave each plate a random strength factor and random directions, in which they will expand. Now we have a more realistically distributed planet.
+
+<br>
+
+Adding another layer of realism, I made it so that there is noise even in the colors. The idea is to just add some noise to the color of the faces, so that they are not all the same color. 
+
+```odin
+noise_for_color :: proc(value: u8, range: u8) -> u8 {
+	noise := rand_int_max(int(range * 2 + 1)) - int(range)
+	result := int(value) + noise
+	return u8(math.clamp(result, 0, 255))
+}
+```
+
+To even add even more realism, we can go wayyyy back and add some noise to the position of the points. This will make the polyhedron look like as if it was made of irregular hexagons and pentagons.
+
+<br>
+
+And now after these small changes, we have a drastically improved planet. It is also fun to see that, we started with a points and voronoi graph, and now we are at a completely different solution.
+
+![image](https://u.cubeupload.com/namishhhh/Screenshot2025041322.png)
+
+### Adding height to the faces
+
+Well now, its time add height to the faces, to make the mountains.... actually look like mountains. It can be simply done by changing the height of the vertices of the face. But we don't want to add the height to water, so we will just add the height to the continental plates. It is fairly trivial (after some help with claude)
+
+```odin
+for vertex_idx := 0; vertex_idx < len(planet.vertices); vertex_idx += 1 {
+    if vertex_counts[vertex_idx] > 0 {
+        avg_height := vertex_heights[vertex_idx]
+        displacement: f32
+        normalized_height := (avg_height - height_map.min_height) / (height_map.max_height - height_map.min_height)
+        if normalized_height < WATER_THRESHOLD {
+            displacement = water_displacement
+        } else {
+            displacement = avg_height * height_scale
+        }
+        vertex := &planet.vertices[vertex_idx]
+        base_position := normalize(vertex.position) * planet.radius
+        vertex.position = base_position + vertex.normal * displacement
+    }
+}
+```
+
+After moving vertices, the faces (triangles or polygons) need updated centers and normals. The face’s center is recalculated as the average position of its vertices. The normal is recalculated using the cross product of two edges of the face. The updated center and normal are then assigned to the face.
+
+![image](https://u.cubeupload.com/namishhhh/746Screenshot2025041322.png)
