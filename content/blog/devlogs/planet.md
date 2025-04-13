@@ -449,13 +449,13 @@ stress_factor := max_stress > 0 ? stress_values[face_idx] / max_stress : 0
 stress_height := math.pow(stress_factor, 1.5) * 1.5 // add this to the initial height
 ```
 
-The next step was to assign colors to the faces based on the height. Right now it is very bad and easy function, but 
+The next step was to assign colors to the faces based on the height. Right now it is a very simple function - 
 
 1. if the plate is oceanic, color it blue
 2. else if stress factor is greater than `THRESHOLD`, color it red/orange else green
 
 
-Another thing I wanted to do was to draw the rotation axis of the planets, and not just make them a random vector. So with some maths, I made a function that takes in a tilt_value (angle in degrees) and spews back an axis
+Another thing I wanted to do was to draw the rotation axis of the planet, and not just make it a random vector. So with some maths, I made a function that takes in a tilt_value (angle in degrees) and spews back an axis
 
 ```odin
 x := math.sin(tilt_angle)
@@ -521,7 +521,7 @@ To even add even more realism, we can go wayyyy back and add some noise to the p
 
 <br>
 
-And now after these small changes, we have a drastically improved planet. It is also fun to see that, we started with a points and voronoi graph, and now we are at a completely different solution.
+And now after these small changes, we have a drastically improved planet. It is also fun to see that, we started with perfectly placed points and a voronoi graph, and now we are at a completely different solution.
 
 ![image](https://u.cubeupload.com/namishhhh/Screenshot2025041322.png)
 
@@ -547,13 +547,13 @@ for vertex_idx := 0; vertex_idx < len(planet.vertices); vertex_idx += 1 {
 }
 ```
 
-After moving vertices, the faces (triangles or polygons) need updated centers and normals. The face’s center is recalculated as the average position of its vertices. The normal is recalculated using the cross product of two edges of the face. The updated center and normal are then assigned to the face.
+After moving vertices, the faces need updated centers and normals. The face’s center is recalculated as the average position of its vertices. The normal is recalculated using the cross product of two edges of the face. The updated center and normal are then assigned to the face.
 
 ![image](https://u.cubeupload.com/namishhhh/746Screenshot2025041322.png)
 
 ### Climate and Biomes
 
-The climate and biomes of the planet are determined by two main factors: temperature and precipitation. Temperature in in turn, determined by the height, and the distance from equator. Well so this was the easier of the two, the only trouble I got was keeping the TILT value in mind, but not that hard.
+The climate and biomes of the planet are determined by two main factors: temperature and precipitation. Temperature is in turn, determined by the height, and the distance from equator. Well so this was the easier of the two, the only trouble I got was keeping the TILT value in mind, but not that hard.
 
 ```odin
 abs_latitude := math.abs(latitude_dot)
@@ -626,7 +626,7 @@ Biome :: enum {
 }
 ```
 
-The final result is a planet with different biomes, but there are still many visible patterns, mostly because our logic is very simple, to help with that, I added some layers of perlin noise to the temperature and precipitation values. This will help in making the biomes look more natural and less uniform.
+The final result is a planet with different biomes, but there are still many visible patterns, mostly because our logic is very simple. To help with that, I added some layers of perlin noise to the temperature and precipitation values. This will help in making the biomes look more natural and less uniform.
 
 <br>
 
@@ -637,7 +637,7 @@ And then I added the finishing touches, for example making the ocean blue, and t
 
 ## Conclusion
 
-And.... cut. Now I am well aware my code is not in fact the least bit optimized, and neither I am using any of the best practices. But this was a fun little project to work on, I surprisingly learnt a LOT of maths and I'm very lowkey wanting to go deeper into maths. Also a shoutout to [claude](https://claude.ai/) 3.7 sonnet for helping me with the math and the code. 
+And.... cut. Now I am well aware my code is not in fact the least bit optimized, and neither I am using any of the best practices. But this was a fun little project to work on, I surprisingly learnt a LOT of maths and I'm very lowkey wanting to go deeper into maths. Also a shoutout to [claude](https://claude.ai/) 3.7 sonnet for helping me with the math and the code. Also it is very interesting to see, how different this blog started and how different it ended. We ended up ditching both of our first starting steps to do something different, but better. It was also my first time creating something with Odin, and honestly I really like this language? It is very simple and almost reads like pseudo code. Definitely needs more love and attention. 
 
 <br>
 
