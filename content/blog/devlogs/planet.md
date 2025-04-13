@@ -4,6 +4,8 @@ date: 04 April 2025
 draft: true 
 ---
 
+![img](https://u.cubeupload.com/namishhhh/744Screenshot2025041401.png)
+
 ## Introduction
 
 > not a tutorial, just a devlog
@@ -20,7 +22,7 @@ So while developing, here was my first primitive idea, generate a bunch of rando
 
 ### Side Quest - Randomness
 
-Since I wanted to go a step further, I wanted to even create my own randomness. Now since computational randomness is not really worth the effort. I decided to rather write a well known pseudorandom number generator. LCG is well known, so I wanted to learn something new. I went with the [xorshift](https://en.wikipedia.org/wiki/Xorshift) algorithm. It is a very simple algorithm and is very fast.
+Since I wanted to go a step further, I wanted to even create my own randomness. Now since computational randomness is not really worth the effort. I decided to use any existing pseudo-random number generator. LCG is well known, so I wanted to learn something new. I went with the [xorshift](https://en.wikipedia.org/wiki/Xorshift) algorithm. It is a very simple algorithm and is very fast.
 
 ```odin
 rand_state: u64 = 1234567890
@@ -548,3 +550,95 @@ for vertex_idx := 0; vertex_idx < len(planet.vertices); vertex_idx += 1 {
 After moving vertices, the faces (triangles or polygons) need updated centers and normals. The face’s center is recalculated as the average position of its vertices. The normal is recalculated using the cross product of two edges of the face. The updated center and normal are then assigned to the face.
 
 ![image](https://u.cubeupload.com/namishhhh/746Screenshot2025041322.png)
+
+### Climate and Biomes
+
+The climate and biomes of the planet are determined by two main factors: temperature and precipitation. Temperature in in turn, determined by the height, and the distance from equator. Well so this was the easier of the two, the only trouble I got was keeping the TILT value in mind, but not that hard.
+
+```odin
+abs_latitude := math.abs(latitude_dot)
+
+temp := lerp(POLE_TEMP, EQUATOR_TEMP, equatorial_factor)
+
+normalized_height := (height_map.values[face_idx] - height_map.min_height) / 
+                    (height_map.max_height - height_map.min_height)
+
+if normalized_height > WATER_THRESHOLD {
+    altitude_factor := (normalized_height - WATER_THRESHOLD) / (1.0 - WATER_THRESHOLD)
+    temp = temp - f32(altitude_factor * ALTITUDE_TEMP_FACTOR)
+}
+```
+
+Precipitation on the other hand, was a lot more complex. I created a very simple model for it, which for now is
+
+1. near equator no rain, decrease as we go up for the first 30 degrees and then increase. no rain in the poles.
+2. near ocean means more rain
+3. near mountains means more rain
+
+There are a lot of other factors that affect precipitation, but for now, this is good enough. Checking for water nearby is easy, we just check if the height is under the water threshold. For checking for mountains, we just the get the highest faces and check if the height is greater than a certain threshold. The final precipitation logic is as follows:
+
+```odin
+if scaled_latitude < 0.12 {
+    precip = lerp(0.8, 1.0, 1.0 - scaled_latitude/0.12)
+} else if scaled_latitude < 0.3 {
+    t := (scaled_latitude - 0.12) / (0.3 - 0.12)
+    precip = lerp(0.8, 0.2, t)
+} else if scaled_latitude < 0.6 {
+    t := (scaled_latitude - 0.3) / (0.6 - 0.3)
+    precip = lerp(0.2, 0.7, t)
+} else {
+    t := (scaled_latitude - 0.6) / (1.0 - 0.6)
+    precip = lerp(0.7, 0.1, t)
+}
+
+if is_coastal[face_idx] {
+    precip += COASTAL_PRECIP_BONUS
+}
+
+if near_mountain[face_idx] {
+    precip += MOUNTAIN_PRECIP_BONUS
+}
+
+if normalized_height <= WATER_THRESHOLD {
+    precip = 0.0
+}
+
+precip = math.clamp(precip, 0.0, 1.0)
+```
+
+Now we can just assign the biomes based on the temperature and precipitation. So I listed out biomes, and defined their preferred (temperature, precipitation) values. Then for each face, we get the temperature and precipitation values, and assign the biome based on the closest preferred value. For now there are 13 biomes
+
+```odin
+Biome :: enum {
+	OCEAN,
+	DESERT,
+	SAVANNAH,
+	TAIGA,
+	RAINFOREST,
+	TUNDRA,
+	POLAR,
+	TEMP_FOREST,
+	MEDITERRANEAN,
+	STEPPE,
+	GRASSLAND,
+	MOUNTAIN,
+	SNOW_CAP,
+}
+```
+
+The final result is a planet with different biomes, but there are still many visible patterns, mostly because our logic is very simple, to help with that, I added some layers of perlin noise to the temperature and precipitation values. This will help in making the biomes look more natural and less uniform.
+
+<br>
+
+And then I added the finishing touches, for example making the ocean blue, and the mountains gray, and the peak of the mountains white. I also made it so that near poles, the ocean is more blue (glaciers). I also added some noise to the colors of biomes like before and we are essentially done?
+
+
+![final](https://u.cubeupload.com/namishhhh/Screenshot2025041401.png)
+
+## Conclusion
+
+And.... cut. Now I am well aware my code is not in fact the least bit optimized, and neither I am using any of the best practices. But this was a fun little project to work on, I surprisingly learnt a LOT of maths and I'm very lowkey wanting to go deeper into maths. Also a shoutout to [claude](https://claude.ai/) 3.7 sonnet for helping me with the math and the code. 
+
+<br>
+
+The source code is available at [namishh/planet](https://github.com/namishh/planet) and I encourage you to have fun playing with the config file. Until next time, bye!
