@@ -641,4 +641,14 @@ And.... cut. Now I am well aware my code is not in fact the least bit optimized,
 
 <br>
 
-The source code is available at [namishh/planet](https://github.com/namishh/planet) and I encourage you to have fun playing with the config file. Until next time, bye! 
+The source code is available at [namishh/planet](https://github.com/namishh/planet) and I encourage you to have fun playing with the config file. Here are some fun/random generations and until next time, bye! 
+
+![image](https://u.cubeupload.com/namishhhh/26cScreenshot2025041411.png)
+
+![image](https://u.cubeupload.com/namishhhh/684Screenshot2025041411.png)
+
+![image](https://u.cubeupload.com/namishhhh/Screenshot2025041411.png)
+
+![image](https://u.cubeupload.com/namishhhh/368Screenshot2025041411.png)
+
+![image](https://u.cubeupload.com/namishhhh/bf2Screenshot2025041411.png)
