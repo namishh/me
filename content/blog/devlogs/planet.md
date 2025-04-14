@@ -74,7 +74,7 @@ The operations are very simple, I just shift the bits of the number and then xor
 
 ### Back to the sphere
 
-Well, let us just generate a bunch of random points. The very first thing was to just types called Point and Edge.
+Well, let us just generate a bunch of random points. The very first thing to do was creating two types called Point and Edge
 
 ```odin
 Point :: struct {
@@ -95,7 +95,7 @@ So to not make everything seem like a white blob, I, for now will give them a ra
 We want the points to be evenly distributed in the sphere, so for that we will be using the [Fibonacci Sphere](https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere) method, which is a efficient way to generate evenly distributed n points on a sphere.
 
 
-In the coordinate system, any point of the sphere can be represented as a mixture of radius, theta (azimutal angle) and phi (polar angle). So we create a function that takes in the gap between the points, and the radius of the sphere, generates the points in the polar coordinate system, and the converts them into the cartesian coordinate system, and returns an array of points.
+In the coordinate system, any point of the sphere can be represented as a mixture of radius, theta (azimuthal angle) and phi (polar angle). So we create a function that takes in the gap between the points, and the radius of the sphere, generates the points in the polar coordinate system, and the converts them into the cartesian coordinate system, and returns an array of points.
 
 The formula for converting polar coordinates to cartesian coordinates is:
 
@@ -225,7 +225,7 @@ for i in 0 ..< num_centers {
 }
 ```
 
-After this, all we are left to do to "define" the tectonic plates is to assign each point to the nearest center. This was a relatively simple task, although my approach in slower and not recommmended for serious projects. It is a nearest neighbour's approach, so for each point, we just check the distance to all the centers with the classic distance formula and assign `point.tectonic_plate_id` to the id of the nearest center. With this we also change the color of the point to the color of the center and we have successfully recreated the screenshot.
+After this, all we are left to do to "define" the tectonic plates is to assign each point to the nearest center. This was a relatively simple task, although my approach in slower and not recommended for serious projects. It is a nearest neighbour's approach, so for each point, we just check the distance to all the centers with the classic distance formula and assign `point.tectonic_plate_id` to the id of the nearest center. With this we also change the color of the point to the color of the center and we have successfully recreated the screenshot.
 
 ### Tectonic Edges
 
@@ -246,7 +246,7 @@ Now not a bad result, but there are gaps between the plates, and some edges were
 
 This time instead of making points, I will just directly make edges in form of a sphere because I learnt about Goldberg polyhedra. The idea is to just take a sphere and divide it into smaller triangles, and for more detailing, you can subdivide it again with its own vertices how many times you want. And if you group these triangles together, you can form smaller hexagons and pentagons, which I will treat as a "location" or a part of plate.
 
-So, now instead of a Point struct I have a Planet struct, which in turn contains arrays of strcuts Edges, Vertices and Faces.
+So, now instead of a Point struct I have a Planet struct, which in turn contains arrays of structs Edges, Vertices and Faces.
 
 ```odin title="New-structure"
 Vertex :: struct {
@@ -300,7 +300,7 @@ faces := [?][3]int{
 
 We just normalize the vertices according to the radius and make a face struct. The normal of the face can be just calculated by taking the cross product of two edges and then normalizing it. The center of the face can be calculated by taking the average of the vertices. 
 
-For storing edges we create a `map[[2]int]int`. Now I took a lot of help for this and was kind of hard for me intuitively at first. So an edge can only be a part of 2 faces or at minumum 1 face. There are no edges that just floating and its not physically possible to get more than 2 faces without them intersecting. If there is only 1 face, we set the face2 as -1.
+For storing edges we create a `map[[2]int]int`. Now I took a lot of help for this and was kind of hard for me intuitively at first. So an edge can only be a part of 2 faces or at minimum 1 face. There are no edges that just floating and its not physically possible to get more than 2 faces without them intersecting. If there is only 1 face, we set the face2 as -1.
 
 For each face, we iterate over it's three vertices in a loop. For each pair, v1 and v2, we sort them and check for an existing edge. If the edge exists, we set the face2 to the current face index. If it doesn't exist, we create a new edge and set the face1 to the current face index.
 
@@ -360,7 +360,7 @@ Well, this is the final result:
 
 ![image](https://u.cubeupload.com/namishhhh/Screenshot2025041023.png)
 
-And then we can use our voronoi implmentations and slightly tweak them to make them work with this. Frist we shuffle all our faces and select 8 of them to be centers of tectonic plates. I am using the [Fisher-Yates shuffle](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle) algorithm to shuffle the faces. Then we just assign each face to the nearest center and set the color of the face to the color of the center.
+And then we can use our voronoi implementations and slightly tweak them to make them work with this. Frist we shuffle all our faces and select 8 of them to be centers of tectonic plates. I am using the [Fisher-Yates shuffle](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle) algorithm to shuffle the faces. Then we just assign each face to the nearest center and set the color of the face to the color of the center.
 
 ```odin
 select_random_plate_centers :: proc(planet: ^Planet, num_plates: int) -> []int {
@@ -393,15 +393,15 @@ Well and now we get beautifully colored tectonic plates and out original problem
 
 ![image](https://u.cubeupload.com/namishhhh/cc4Screenshot2025041023.png)
 
-The next steps will be realistically simulate the tetonic plates to create mountain ranges.
+The next steps will be realistically simulate the tectonic plates to create mountain ranges.
 
 ## World Modelling
 
-Okay so now we actually get to the fun part. This will not be the most realistic simulation because I will be taking in account < 2% of the actual geography that exists. First thing, we divide the plates into 2 types, oceanic and continental, right now, using the proportions of earth, I have set it to be 60% oceanic and 40% water. 
+Okay so now we actually get to the fun part. This will not be the most realistic simulation because I will be taking in account < 2% of the actual geography that exists. First thing, we divide the plates into 2 types, oceanic and continental, right now, using the proportions of earth, I have set it to be 60% oceanic and 40% continental. 
 
 ### Mountain Ranges
 
-Each plate moves in a random direction, and if two plates collide, we create a mountain range. The first thing we do is to give each plate a angular velocity and a rotation axis, for now, the rotation axis will be randomly generated unit vector.
+Each plate moves in a random direction, and if two plates collide, we create a mountain range. The first thing we do is to give each plate a angular velocity and a rotation axis, for now, the rotation axis will be a randomly generated unit vector.
 
 ```odin
 rotation_axis := rand_unit_vector()
@@ -475,7 +475,7 @@ Due to me having a low end setup, I have removed one level of subdivision, so as
 
 ![perlin](https://u.cubeupload.com/namishhhh/perlinnoiseterrainme.png)
 
-Now it is time to add some noise to the planet. And of course, like any other terrain generator video/article on the planet, we will use Perlin noise. This will help us in making the terrain look more realistic and varied. We are not using random 1 and 0 white noise because, well terrain is not just random. Perlin noise generated smooth curves and is a lot more realistic for our use case.
+Now it is time to add some noise to the planet. And of course, like any other terrain generator video/article on the planet, we will use Perlin noise. This will help us in making the terrain look more realistic and varied. We are not using random 1 and 0 white noise because, well terrain is not just random. Perlin noise generates smooth curves and is a lot more realistic for our use case.
 
 I will not be going deep into the math of Perlin noise, but I will just give a brief overview of how it works. The idea is to take a grid of points and assign each point a random value. Then for each point in the grid, we interpolate between the values of the surrounding points to get a smooth value. This is done using a fade function, which smooths out the values. 
 
@@ -499,7 +499,7 @@ NOISE_LAYERS :: []NoiseLayer{
 
 The scale is the size of the noise, the influence is how much it will affect the height, and the octaves are how many layers of noise we will use. The persistence is how much each layer will affect the next layer. 
 
-Now when we calculating height, we just add the noise to the height. And now we have some more realistic terrain.
+Now when we calculate height, we just add the noise to the height. And now we have some more realistic terrain.
 
 <br>
 
@@ -641,4 +641,4 @@ And.... cut. Now I am well aware my code is not in fact the least bit optimized,
 
 <br>
 
-The source code is available at [namishh/planet](https://github.com/namishh/planet) and I encourage you to have fun playing with the config file. Until next time, bye!
+The source code is available at [namishh/planet](https://github.com/namishh/planet) and I encourage you to have fun playing with the config file. Until next time, bye! 
