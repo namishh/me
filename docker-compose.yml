@@ -1,9 +1,7 @@
 services:
   web:
     container_name: namish-personal-website
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/namishh/me:latest
     ports:
       - "4321:8080"
     environment:
