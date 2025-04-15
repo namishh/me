@@ -22,7 +22,7 @@ So while developing, here was my first primitive idea, generate a bunch of rando
 
 ### Side Quest - Randomness
 
-Since I wanted to go a step further, I wanted to even create my own randomness. Now since computational randomness is not really worth the effort. I decided to use any existing pseudo-random number generator. LCG is well known, so I wanted to learn something new. I went with the [xorshift](https://en.wikipedia.org/wiki/Xorshift) algorithm. It is a very simple algorithm and is very fast.
+Since I wanted to go a step further, I wanted to even create my own randomness. Now since computational randomness is not really worth the effort. I decided to use any existing pseudo-random number generator. LCG is well known, so I wanted to learn something new. I went with the [xorshift](https://en.wikipedia.org/wiki/Xorshift) algorithm. I also found it to be relatively simple to implement.
 
 ```odin
 rand_state: u64 = 1234567890
