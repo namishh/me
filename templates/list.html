@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}kino{% endblock title %}
+{% block head %}
+{{ super() }}
+<script src="/static/gol.js" defer></script>
+{% endblock head %}
+{% block meta %}
+<meta property="og:title" content="nam's site" />
+<meta property="og:url" content="https://namishh.me/kino" />
+<meta property="og:image" content="/og/web/list" />
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:type" content="article" />
+<meta property="og:description" content="personal collection of list, resources and ideas">
+
+<meta property="twitter:description" content="personal collection of list, resoruces and ideas">
+<meta name="twitter:title" content="nam's site">
+<meta property="twitter:image" content="/og/web/kino" />
+{% endblock meta %}
+{% block content %}
+
+<div class="markdown-content">
+
+    <h1>kino stuff</h1>
+    <p>a collection of miscellaeneous stuff i found or stuff that is in my mind and i wanna do later</p>
+
+    <h2>youtube</h2>
+    <ul>
+        <li><a href="https://www.youtube.com/@acegikmo">freya holmer:</a> beautiful videos on game dev and the
+            mathematics behind game dev</li>
+        <li><a href="https://www.youtube.com/@ColinGalen/">colin galen:</a> competitive programming tips and tricks</li>
+        <li><a href="https://www.youtube.com/@argonautcode/">argonautcode</a></li>
+        <li><a href="https://www.youtube.com/@FractalPhilosophy/">fractal philosphy</a></li>
+        <li><a href="https://www.youtube.com/@sphaerophoria">sphaerophoria:</a> programming livestreams with zig</li>
+    </ul>
+
+    <h2>blogs</h2>
+    <ul>
+        <li><a href="https://veysel.bearblog.dev/">veysel: </a>excellent curation of resources for linguistics and plt</li>
+        <li><a href="https://kennethnym.com/">kennethmym: </a>well written articles on programming habits</li>
+        <li><a href="https://snats.xyz/pages/articles.html">snats</a></li>
+        <li><a href="https://minami.bearblog.dev/blog/">minamisatokun</a></li>
+        <li><a href="https://ludwigabap.bearblog.dev/">ludwig: </a>great resources for ml and cs</li>
+        <li><a href="https://mcyoung.xyz/posts">mcyoung: </a>compilers and performance</li>
+        <li><a href="https://maharshi.bearblog.dev/blog/">maharshi: </a>cuda and ml</li>
+        <li><a href="https://seated.ro/blog">seatedro</a></li>
+    </ul>
+
+    <h2>good x tech accounts</h2>
+    <ul>
+        <li><a href="https://x.com/seatedro">seatedro</a></li>
+        <li><a href="https://x.com/ludwigABAP">ludwig</a></li>
+        <li><a href="https://x.com/zoriya_dev">zoe</a></li>
+        <li><a href="https://x.com/vin_acct">vin</a></li>
+        <li><a href="https://x.com/kennethnym">kennethnym</a></li>
+        <li><a href="https://x.com/4ster_light">aster</a></li>
+    </ul>
+
+    <h2>future devlog (ideas)</h2>
+    <ul>
+        <li>barebones game in assembly</li>
+        <li>voxels entirely in shaders</li>
+        <li>procedural animation</li>
+        <li>chess engine from scratch</li>
+    </ul>
+
+</div>
+
+{% endblock content %}

@@ -44,6 +44,23 @@ pub async fn projects(
         .body(html))
 }
 
+
+pub async fn list(
+    app_state: web::Data<AppState>,
+    _: web::Query<HashMap<String, String>>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let file_tree = get_file_tree(&app_state.file_tree);
+    let mut context = Context::new();
+    context.insert("file_tree", &file_tree);
+    let html = app_state.tera
+        .render("list.html", &context)
+        .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
+    Ok(HttpResponse::Ok()
+        .insert_header((actix_web::http::header::CACHE_CONTROL, "public, max-age=60"))
+        .content_type("text/html")
+        .body(html))
+}
+
 #[derive(Deserialize)]
 pub struct SearchQuery {
     #[serde(default)]
@@ -285,6 +302,7 @@ pub async fn generate_web_og(
         "index" => ("namishh", "personal website and garden"),
         "search" => ("namishh", "search stuff around here"),
         "stuff" => ("namishh", "stuff i have built"),
+        "kino" => ("namishh", "list of personal resources"),
         _ => return Ok(HttpResponse::NotFound().body("Invalid web path")),
     };
 

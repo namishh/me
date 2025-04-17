@@ -10,7 +10,7 @@ use image::load_from_memory;
 
 use crate::state::AppState;
 use crate::file_tree::build_file_tree;
-use crate::handlers::{index, projects, search_page, view_markdown, resume, generate_og_image, generate_web_og, generate_tweet_image, search};
+use crate::handlers::{index, list, projects, search_page, view_markdown, resume, generate_og_image, generate_web_og, generate_tweet_image, search};
 use crate::templates::init_tera;
 use crate::rss::rss_feed;
 use crate::search::initialize_search_index;
@@ -80,6 +80,7 @@ async fn main() -> std::io::Result<()> {
             )
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/stuff").route(web::get().to(projects)))
+            .service(web::resource("/kino").route(web::get().to(list)))
             .service(web::resource("/resume").route(web::get().to(resume)))
             .service(web::resource("/search").route(web::get().to(search_page)))
             .service(web::resource("/og/content/{path:.*}").route(web::get().to(generate_og_image)))
