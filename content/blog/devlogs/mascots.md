@@ -70,7 +70,10 @@ And then we can make a function to add more segments to the snake, so as to not 
 
 ![gif](https://u.cubeupload.com/namishhhh/987ScreenRecording20250.gif)
 
-The most obvious problem here is that the snake is collapsing on itself, and that is because there is no limit to how much the head can turn. Nothing is infinitely flexible, and we will fix it later.
+The most obvious problem here is that the snake is collapsing on itself, and that is because there is no limit to how much the head can turn.
+
+> todo
+
 
 ### Makeup
 
