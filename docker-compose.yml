@@ -1,6 +1,7 @@
 services:
   web:
     container_name: namish-personal-website
+    pull_policy: always
     image: ghcr.io/namishh/me:latest
     ports:
       - "4321:8080"
