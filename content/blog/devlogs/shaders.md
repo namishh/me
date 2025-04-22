@@ -122,6 +122,91 @@ float fibers(vec2 uv) {
 }
 ```
 
-Then I added some age spots to the paper, which are just random skewed figures with a slightly darker color. And then as a final touch fo r my old paper look, I darkened the edges and the corners of the paper. Now, we have a pretty decent and "semi-realistic" old paper texture.
+Then I added some age spots to the paper, which are just random skewed figures with a slightly darker color. And then as a final touch for my old paper look, I darkened the edges and the corners of the paper. Now, we have a pretty decent and "semi-realistic" old paper texture.
 
 ![save](https://u.cubeupload.com/namishhhh/Screenshot2025042202.png)
+
+### Basic Terrain
+
+For terrain, we will layer multiple fractorial brownian motion noise functions at decreasing frequencies. The idea is to create a base layer of noise, and then add more layers on top of it. The base layer will be the largest, and the top layer will be the smallest. The result is a more complex noise pattern that looks more like terrain.
+
+<br>
+
+In fractal noise, we use the same noise function, but we scale the input coordinates by a factor of 2.0 for each layer, and then we multiply the output by a factor of 0.5 for each layer. The result is a more complex noise pattern that looks more like terrain.
+You can read more about fractal noise [in the book of shaders](https://thebookofshaders.com/13/).
+
+```glsl title="fragment.glsl"
+float fbm(vec2 st) {
+    float value = 0.0;
+    float amplitude = 0.5;
+    float frequency = 1.0;
+    for (int i = 0; i < 7; i++) {
+        value += amplitude * noise(st * frequency);
+        frequency *= 2.0;
+        amplitude *= 0.5;
+    }
+    return value;
+}
+```
+
+Now we can generate the terrain value by 
+
+```glsl
+float terrainValue = noise1 * 0.5 + noise2 * 0.3 + noise3 * 0.2 + noise4 * 0.1;
+```
+
+where `noise1`, `noise2`, `noise3` and `noise4` are the four layers of noise. The result is a value between 0 and 1, which we can use to determine the color of the terrain. For now, the threshold is set to 0.5, so anything above that will be considered land, and anything below that will be considered water. I also made the center of the map is emphasized by blending in a radial focus, making the center look more "developed" or "landmass-heavy." This is common in terrain generation to focus visual interest.
+
+<br>
+
+The last thing I did was to add a outline to the coastline. This is done by using the `smoothstep` function, which takes in 3 paramters and creates a smooth transition between two values. Then we take the modulus of the coastline value and sharpen it, we just apply an exponent.
+
+```glsl title="fragment.glsl"
+float coastline = smoothstep(0.5 - 0.02, 0.5 + 0.02, terrainValue);
+coastline = abs(coastline - 0.5) * 2.0;
+coastline = pow(coastline, 0.3);
+```
+
+Now we have a very basic map!
+
+![basicmap](https://u.cubeupload.com/namishhhh/Screenshot2025042211.png)
+
+
+### Adding details
+
+First, we can add some lattitude and longitude lines to the map. To add a repeating pattern, we use the absolute value of `sin` functions. And then we can distort the lines just a bit to make the irregular, to give it a hand drawn look. I also made the grid lines fade out at the edges of the map, which is done by the `smoothstep` function. 
+
+```glsl title="fragment.glsl"
+float gridLines(vec2 uv, float lineWidth, float irregularity, float fadeEdges) {
+    vec2 distortUV = uv;
+    
+    distortUV.x += noise(uv * 5.0) * irregularity;
+    distortUV.y += noise((uv + vec(42.0, 17.0)) * 5.0) * irregularity;
+    
+    const float GRID_DENSITY = 30.0;
+    
+    float xGrid = abs(sin(distortUV.x * GRID_DENSITY * 3.14159));
+    float yGrid = abs(sin(distortUV.y * GRID_DENSITY * 3.14159));
+    
+    xGrid = smoothstep(1.0 - lineWidth, 1.0, xGrid);
+    yGrid = smoothstep(1.0 - lineWidth, 1.0, yGrid);
+    
+    float edgeFade = smoothstep(0.0, fadeEdges, uv.x) * 
+                     smoothstep(0.0, fadeEdges, uv.y) * 
+                     smoothstep(0.0, fadeEdges, 1.0 - uv.x) * 
+                     smoothstep(0.0, fadeEdges, 1.0 - uv.y);
+    
+    float grid = max(xGrid, yGrid);
+    
+    return grid * edgeFade;
+}
+```
+
+Another thing I did is to randomly place green patches on the map, to represent forests, and brown patches to represent hills and mountains. There is no actual logic to it, it is all random. And we have a pretty decent fantasy map now.
+
+![image](https://u.cubeupload.com/namishhhh/Screenshot2025042214.png)
+
+
+## Synthwave Shader
+
+Now that I have some experience with 2D shaders, it is time to one up the number of dimensions.
