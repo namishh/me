@@ -111,7 +111,7 @@ First thing you can do is to add a grainy texture to it. This is simply just giv
 
 <br>
 
-The next thing I did was to add these line like structures to the paper. Now I tried looking into this a bit, and found there is a whole field for this called anisotropy and there are literal research papers on the anisotropy of a paper. I, well will not go into that. But with the help of my friend, claude 3.7 I was able to find a simpler alternative. The idea is simple, create very long horizontal streaks, create vertical streaks and the mix them together. This is how the function for it looked like.
+The next thing I did was to add these line like structures to the paper which happen due to aging. Now I tried looking into this a bit, and found there is a whole field for this called anisotropy and there are literal research papers on the anisotropy of a paper. I, well will not go into that. But with the help of my friend, claude 3.7 I was able to find a simpler alternative. The idea is simple, create very long horizontal streaks, create vertical streaks and the mix them together. This is how the function for it looked like.
 
 ```glsl title="fragment.glsl"
 float fibers(vec2 uv) {
@@ -209,4 +209,70 @@ Another thing I did is to randomly place green patches on the map, to represent 
 
 ## Synthwave Shader
 
-Now that I have some experience with 2D shaders, it is time to one up the number of dimensions.
+Now that I have some experience with 2D shaders, it is time to one up the number of dimensions. I want to make one of those animated synthwave mountains + road + sun style shaders. To make them animated, we can use pass in the time variable from javascript. The time variable tells the amount of time elapsed since the start. For the most basic animated shader, we can just use the time variable to smoothly lighten and darken the color. Here is the basic code for that:
+
+```glsl title="fragment.glsl"
+uniform float u_time; 
+
+void main() {
+    vec3 paperColor = vec3(0.94, 0.88, 0.71);
+    
+    float variation = 0.2 * sin(u_time);
+    gl_FragColor = vec4(paperColor + variation, 1.0);
+}
+```
+
+
+### Skybox
+
+The first step is to create the skybox. Here the skybox is just a gradient that goes from purple to blue. Vertical gradients can be done by using the mix function and passing in `uv.y` in the third parameter.
+
+<br>
+
+The next thing I did was to randomly place stars in the upper half of the sky. We divide the upper half into cells, and then convert less than 3% into stars. The stars are just white dots with a random size and position. The stars are created by using the `smoothstep` function to create a circle. To make them twinkle, we can use the time variable to oscillate the brightness of the stars.
+
+```glsl title="fragment.glsl"
+float twinkle(vec2 gridCoord, float time) {
+    float speed = 1.0 + random(gridCoord + 3.0) * 2.0;
+    float phaseOffset = random(gridCoord + 4.0) * 6.28;
+    return 0.5 + 0.5 * sin(time * speed + phaseOffset);
+}
+
+```
+
+To not make it look uncanny, each star has it's own time period. 
+
+![image](https://u.cubeupload.com/namishhhh/Screenshot2025042301.png)
+
+### CRT Effect
+
+To add more of the "retro" effect, we can add a CRT effect to the shader.
+
+```glsl
+scanlineY = fract(uv.y * scanlineCount + time * speed)
+```
+
+If it is not obvious scanlineCount is the number of lines you want (100 in tihs case) and speed is how fast you want the lines to move (10 in this case). Here, uv.y (0 to 1) is scaled by 100, so it ranges from 0 to 100 across the screen. Adding time * speed shifts this upward over time, and fract keeps it between 0 and 1, creating a repeating pattern of lines that scroll.
+
+```glsl
+float scanlineIntensity = 0.14;
+return 1.0 - scanlineIntensity * smoothstep(0.4, 0.6, scanlineY);
+```
+
+And then we can use the smoothstep function to smooth out this pattern. This defines a band where the scanline is strongest (around 0.5), fading at the edges.
+
+<br>
+
+CRT monitors also have a dark vingette effect, which is just a radial fade, enhancing focus on the center. I added that as well. It takes uv (0 to 1) and remaps it to -1 to 1 with uv * 2.0 - 1.0. At the center (0.5, 0.5), this becomes (0, 0), at the corners it’s (-1, -1) or similar. This centers the effect. The expression uv.x * uv.x + uv.y * uv.y computes the squared distance from the center, ranging from 0 at the center to 2 at the corners. Multiplying by `vignetteStrength = 0.35` scales this, and subtracting from 1.0 inverts it, creating the desired effect.
+
+```glsl title="fragment.glsl"
+float vignette(vec2 uv) {
+    uv = uv * 2.0 - 1.0;
+    float vignetteStrength = 0.35;
+    return 1.0 - (uv.x * uv.x + uv.y * uv.y) * vignetteStrength;
+}
+```
+
+That is step 2 complete, we not have a shader that looks like this:
+
+![image](https://u.cubeupload.com/namishhhh/da0Screenshot2025042301.png)
