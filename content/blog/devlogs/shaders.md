@@ -276,3 +276,31 @@ float vignette(vec2 uv) {
 That is step 2 complete, we not have a shader that looks like this:
 
 ![image](https://u.cubeupload.com/namishhhh/da0Screenshot2025042301.png)
+
+
+### Adding The Sun
+
+![imgage](https://u.cubeupload.com/namishhhh/Screenshot2025042313.png)
+
+One of the most iconic parts of the synthwave aesthetic part is the sun in the middle. They are two core parts of the sun, the circular gradient and the lines that are cut off. Let us just appeoach this step by step.
+
+<br>
+
+The first task, was making a big circlular gradient. There was a problem I was running into while doing this, which was that the gradient looked more like an ellipse than a circle. The reason for this is that the uv coordinates are normalized to be from 0 to 1, and the aspect ratio in the browser is not always gonna be 1:1. So first I had to adjust the uv. This explained why my stars also looked kinda stretched on zooming but they look fine to the normal eye.
+
+```glsl title="fragment.glsl"
+float aspect = u_resolution.x / u_resolution.y;
+vec2 adjustedUV = vec2((uv.x - 0.5) * aspect + 0.5, uv.y);
+```
+
+Then we calculate the dsitance between adjustedUV and the center of the sun. The center of the sun is just a little above the center of the screen. So then we create a mask for the sun, which is just the `step` function which takes the distance we just mentioned and the size of the sun. For this example, the size is hardcoded to 0.24. We finally use the `mix` function to create a gradient for the sun and then multiply is with the mask to return the final value.
+
+<br>
+
+This creates a very basic sun. Now we need to replicate the lines in the lower half of the sun. So, my solution is not the neatest, but I harcoded the thickness and the position of the lines in 2 arrays. Then I loop 5 times to check if pixel’s uv.y is within the line's vertical band. If yes, then I set the mask to 0, which makes it transparent. After all of this, we now have a decent looking sun.
+
+![image](https://u.cubeupload.com/namishhhh/Screenshot2025042316.png)
+
+To add another layer of fun, I kept updating the position of the lines with respect to the time variable, to make an infintie panning animation, like the CRT effect. I just thought it looked nice. Sorry for the low quality gifs, but where I host images, I need to keep the size under 5mb.
+
+![final sun animated](https://u.cubeupload.com/namishhhh/d49ScreenRecording20250.gif)
