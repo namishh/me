@@ -209,7 +209,7 @@ Another thing I did is to randomly place green patches on the map, to represent 
 
 ## Synthwave Shader
 
-Now that I have some experience with 2D shaders, it is time to one up the number of dimensions. I want to make one of those animated synthwave mountains + road + sun style shaders. To make them animated, we can use pass in the time variable from javascript. The time variable tells the amount of time elapsed since the start. For the most basic animated shader, we can just use the time variable to smoothly lighten and darken the color. Here is the basic code for that:
+Now that I have some experience with 2D shaders, it is time to one up the number of dimensions. I want to make one of those animated synthwave road + sun style shaders. To make them animated, we can use pass in the time variable from javascript. The time variable tells the amount of time elapsed since the start. For the most basic animated shader, we can just use the time variable to smoothly lighten and darken the color. Here is the basic code for that:
 
 ```glsl title="fragment.glsl"
 uniform float u_time; 
@@ -305,43 +305,40 @@ To add another layer of fun, I kept updating the position of the lines with resp
 
 ![final sun animated](https://u.cubeupload.com/namishhhh/d49ScreenRecording20250.gif)
 
-### Raymarch Rewrite
+### The Ground
 
-Before adding the mountains, first I need to rewrite the shader to use raymarching. The idea is that from an origin point, we cast a ray in the direction of where the camera is looking at, and we keep moving or "marching" forward until we intersect with an object in the scene. When we intersect with an object, we draw it. That is the most basic oversimplification of raymarching. We are using raymarching here because it is a lot easier to simulate layers in 3D space, or in simpler words, knowing which object is in front of which. To detect intersections, we use something called signed distance functions (SDF). Now raymarching and SDFs on its own are topics worth a separate devlog, but I will not go into that in this one. If you want to learn more about raymarching, you should read this [blog post by Maxime Hickel](https://blog.maximeheckel.com/posts/painting-with-math-a-gentle-study-of-raymarching/).
+The moving ground below is not particularly that special, mostly because in my example, it is juts a flat grid, but with adjusted perspective. For the perspective, the ground function takes in a uv adjusted coordinate p, and applies the following transformation:
+
+```glsl title="fragment.glsl"
+vec2 q = vec2(p.x/p.y, 1.0/p.y);
+float offs = -0.9 * u_time;
+q.y += offs;
+```
+
+Now it is clear that the last two lines are just there to create the illusion that the ground is moving. The first line is the most important, which adjusts the perspective for us. The q coordinates simulate perspective by dividing p.x and 1.0 by p.y. Since p.y is negative in the lower half, this creates a vanishing point at the horizon (y=0). The q.x = p.x/p.y scales the x-coordinate inversely with depth, making lines converge toward the center as they approach the horizon.
 
 <br>
 
-So for the rewrite, I created two basic SDFs, one for a sphere, and other for the sun I have with slices, which uses the sphere SDF. The sphere SDF is pretty simple, it just takes the distance from the center of the sphere to the point we are checking.
+Then we can define the horizontal and vertical lines with 
+
+```glsl title="fragment.glsl"
+vec2 qh = vec2(q.x, round(q.y));
+vec2 qv = vec2(round(q.x), q.y);
+qh.y -= offs;
+qv.y -= offs
+```
+
+For horizontal lines, qh = (q.x, round(q.y)) snaps q.y to the nearest integer, defining grid cells along the y-axis. For vertical lines, qv = (round(q.x), q.y) snaps q.x. Then we convert the coordinates back into the original space to calculate the intensity of the lines. 
+The intensity of the grid lines is computed using a distance-based falloff. I also made the lines thinner when they are closer to the horizon.
 
 <br>
 
-The Sun sdf is a bit more complicated. It starts out with the bases sphere SDF. But below the diameter, we create a slice sdf by 
+For coloring, I first set the basic color of the road to a dark blue. Then for each pixel, I run this
 
 ```glsl title="fragment.glsl"
-float sliceDist = abs(p.y - sliceY) - thickness;
+gridcolor += linecolor * 0.001/(dh*dh+eps*eps) * INTENSITY * 0.5;
+gridcolor += linecolor * 0.001/(dv*dv+eps*eps) * INTENSITY * 0.5;
 ```
+where `dh` and `dv` are the horizontal and vertical distances from the line, and `eps` is a small value to prevent division by zero. The INTENSITY is just a constant to control the brightness of the lines. The final color is then mixed with the base color of the road. This is the final result.
 
-Now when we have to combine two or more sdf, we can use the `min` function to get the closest distance. But here, since we want to subtract the slice from the sphere, we can use the `max` function to get the distance. So the final sdf for the sun looks like this:
-
-```glsl title="fragment.glsl"
-if (abs(p.x - center.x) < x_dist) {
-    result = max(result, -sliceDist);
-}
-```
-
-After that I created a sdf function for the whole scene, which for now just returns the sun sdf. After that, comes the main raymarching function, which takes in two parameters, the origin and the direction and returns the total distance traversed. Keeping track of it is fairly easy.
-
-```glsl title="fragment.glsl"
-for (int i = 0; i < MAX_STEPS; i++) {
-        vec3 p = ro + rd * dO;
-        float dS = sceneSDF(p);
-        dO += dS;
-        if (dO > MAX_DIST || dS < SURF_DIST) break;
-}
-
-return dO;
-```
-
-Now since our scene till now, only has the sun, the condition for the raytracer hitting the sun is `d < MAX_DIST`. If this condition is met, we draw the sun, if not, we draw the sky and the stars. With this, we have a basic raymarching shader. The only thing left to do is to add the mountains.
-
-### Mountains
+![https://u.cubeupload.com/namishhhh/8c6ScreenRecording20250.gif](https://u.cubeupload.com/namishhhh/8c6ScreenRecording20250.gif)
