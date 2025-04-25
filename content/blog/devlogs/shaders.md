@@ -304,3 +304,44 @@ This creates a very basic sun. Now we need to replicate the lines in the lower h
 To add another layer of fun, I kept updating the position of the lines with respect to the time variable, to make an infintie panning animation, like the CRT effect. I just thought it looked nice. Sorry for the low quality gifs, but where I host images, I need to keep the size under 5mb.
 
 ![final sun animated](https://u.cubeupload.com/namishhhh/d49ScreenRecording20250.gif)
+
+### Raymarch Rewrite
+
+Before adding the mountains, first I need to rewrite the shader to use raymarching. The idea is that from an origin point, we cast a ray in the direction of where the camera is looking at, and we keep moving or "marching" forward until we intersect with an object in the scene. When we intersect with an object, we draw it. That is the most basic oversimplification of raymarching. We are using raymarching here because it is a lot easier to simulate layers in 3D space, or in simpler words, knowing which object is in front of which. To detect intersections, we use something called signed distance functions (SDF). Now raymarching and SDFs on its own are topics worth a separate devlog, but I will not go into that in this one. If you want to learn more about raymarching, you should read this [blog post by Maxime Hickel](https://blog.maximeheckel.com/posts/painting-with-math-a-gentle-study-of-raymarching/).
+
+<br>
+
+So for the rewrite, I created two basic SDFs, one for a sphere, and other for the sun I have with slices, which uses the sphere SDF. The sphere SDF is pretty simple, it just takes the distance from the center of the sphere to the point we are checking.
+
+<br>
+
+The Sun sdf is a bit more complicated. It starts out with the bases sphere SDF. But below the diameter, we create a slice sdf by 
+
+```glsl title="fragment.glsl"
+float sliceDist = abs(p.y - sliceY) - thickness;
+```
+
+Now when we have to combine two or more sdf, we can use the `min` function to get the closest distance. But here, since we want to subtract the slice from the sphere, we can use the `max` function to get the distance. So the final sdf for the sun looks like this:
+
+```glsl title="fragment.glsl"
+if (abs(p.x - center.x) < x_dist) {
+    result = max(result, -sliceDist);
+}
+```
+
+After that I created a sdf function for the whole scene, which for now just returns the sun sdf. After that, comes the main raymarching function, which takes in two parameters, the origin and the direction and returns the total distance traversed. Keeping track of it is fairly easy.
+
+```glsl title="fragment.glsl"
+for (int i = 0; i < MAX_STEPS; i++) {
+        vec3 p = ro + rd * dO;
+        float dS = sceneSDF(p);
+        dO += dS;
+        if (dO > MAX_DIST || dS < SURF_DIST) break;
+}
+
+return dO;
+```
+
+Now since our scene till now, only has the sun, the condition for the raytracer hitting the sun is `d < MAX_DIST`. If this condition is met, we draw the sun, if not, we draw the sky and the stars. With this, we have a basic raymarching shader. The only thing left to do is to add the mountains.
+
+### Mountains
