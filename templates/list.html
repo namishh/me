@@ -4,67 +4,85 @@
 {{ super() }}
 <script src="/static/gol.js" defer></script>
 {% endblock head %}
+
 {% block meta %}
-<meta property="og:title" content="nam's site" />
+{% set site_title = "nam's site" %}
+{% set site_desc = "personal collection of list, resources and ideas" %}
+<meta property="og:title" content="{{ site_title }}" />
 <meta property="og:url" content="https://namishh.me/kino" />
 <meta property="og:image" content="/og/web/kino" />
 <meta name="twitter:card" content="summary_large_image">
 <meta property="og:type" content="article" />
-<meta property="og:description" content="personal collection of list, resources and ideas">
-
-<meta property="twitter:description" content="personal collection of list, resoruces and ideas">
-<meta name="twitter:title" content="nam's site">
+<meta property="og:description" content="{{ site_desc }}">
+<meta property="twitter:description" content="{{ site_desc }}">
+<meta name="twitter:title" content="{{ site_title }}">
 <meta property="twitter:image" content="/og/web/kino" />
 {% endblock meta %}
+
 {% block content %}
+<div class="normal-text">
+    {% set heading_class = "text-neutral-700 dark:text-neutral-50 font-bold my-3" %}
+    {% set link_class = "underlined" %}
+    {% set list_class = "list-disc ml-4 flex flex-col gap-2 marker:text-neutral-400" %}
+    {% set account_list_class = "list-none my-4 mx-2 grid lg:grid-cols-3 gap-3 grid-cols-2" %}
+    {% set account_link_class = "flex items-center gap-2 text-sm underline underline-offset-4 dark:text-neutral-400 text-neutral-600 hover:text-neutral-900 dark:hover:text-neutral-200" %}
 
-<div class="markdown-content">
-
-    <h1>kino stuff</h1>
+    <h1 class="{{ heading_class }} text-2xl md:text-3xl">kino stuff</h1>
     <p>a collection of miscellaeneous stuff i found or stuff that is in my mind and i wanna do later</p>
 
-    <img src="/static/images/kino.jpg" alt="banner">
+    <img src="/static/images/kino.jpg" class="my-4" alt="banner">
 
-    <h2>youtube</h2>
-    <ul>
-        <li><a href="https://www.youtube.com/@acegikmo">freya holmer:</a> beautiful videos on game dev and the
-            mathematics behind game dev</li>
-        <li><a href="https://www.youtube.com/@ColinGalen/">colin galen:</a> competitive programming tips and tricks</li>
-        <li><a href="https://www.youtube.com/@argonautcode/">argonautcode</a></li>
-        <li><a href="https://www.youtube.com/@FractalPhilosophy/">fractal philosphy</a></li>
-        <li><a href="https://www.youtube.com/@sphaerophoria">sphaerophoria:</a> programming livestreams with zig</li>
+    <h2 class="{{ heading_class }} text-xl md:text-2xl">youtube</h2>
+    <ul class="{{ list_class }}">
+        {% for channel in kino_data.youtube_channels %}
+        <li>
+            <a href="{{ channel.url }}" class="{{ link_class }}">{{ channel.name }}:</a>
+            {% if channel.description %} {{ channel.description }}{% endif %}
+        </li>
+        {% endfor %}
     </ul>
 
-    <h2>blogs</h2>
-    <ul>
-        <li><a href="https://veysel.bearblog.dev/">veysel: </a>excellent curation of resources for linguistics and plt</li>
-        <li><a href="https://kennethnym.com/">kennethmym: </a>well written articles on programming habits</li>
-        <li><a href="https://snats.xyz/pages/articles.html">snats</a></li>
-        <li><a href="https://minami.bearblog.dev/blog/">minamisatokun</a></li>
-        <li><a href="https://ludwigabap.bearblog.dev/">ludwig: </a>great resources for ml and cs</li>
-        <li><a href="https://mcyoung.xyz/posts">mcyoung: </a>compilers and performance</li>
-        <li><a href="https://maharshi.bearblog.dev/blog/">maharshi: </a>cuda and ml</li>
-        <li><a href="https://seated.ro/blog">seatedro</a></li>
+    <h2 class="{{ heading_class }} text-xl md:text-2xl">blogs</h2>
+    <ul class="{{ list_class }}">
+        {% for blog in kino_data.blogs %}
+        <li>
+            <a href="{{ blog.url }}" class="{{ link_class }}">{{ blog.name }}:</a>
+            {% if blog.description %} {{ blog.description }}{% endif %}
+        </li>
+        {% endfor %}
     </ul>
 
-    <h2>good x tech accounts</h2>
-    <ul>
-        <li><a href="https://x.com/seatedro">seatedro</a></li>
-        <li><a href="https://x.com/ludwigABAP">ludwig</a></li>
-        <li><a href="https://x.com/zoriya_dev">zoe</a></li>
-        <li><a href="https://x.com/vin_acct">vin</a></li>
-        <li><a href="https://x.com/kennethnym">kennethnym</a></li>
-        <li><a href="https://x.com/4ster_light">aster</a></li>
+    <h2 class="{{ heading_class }} text-xl md:text-2xl">good tech accs</h2>
+    <ul class="{{ account_list_class }}">
+        {% for account in kino_data.tech_accounts %}
+        <li>
+            <a href="https://x.com/{{ account.username }}" class="{{ account_link_class }}">
+                <img src="https://wisp.rex.wf/x/{{ account.username }}" class="h-8 w-8"> 
+                <span>{{ account.name }}</span>
+            </a>
+        </li>
+        {% endfor %}
     </ul>
 
-    <h2>future devlog (ideas)</h2>
-    <ul>
-        <li>barebones game in assembly</li>
-        <li>voxels entirely in shaders</li>
-        <li>procedural animation</li>
-        <li>chess engine from scratch</li>
+    <h2 class="{{ heading_class }} text-xl md:text-2xl">good tech accs 🇮🇳</h2>
+    <ul class="{{ account_list_class }}">
+        {% for account in kino_data.indian_tech_accounts %}
+        <li>
+            <a href="https://x.com/{{ account.username }}" class="{{ account_link_class }}">
+                <img src="https://wisp.rex.wf/x/{{ account.username }}" class="h-8 w-8"> 
+                <span>{{ account.name }}</span>
+            </a>
+        </li>
+        {% endfor %}
     </ul>
 
+    <h2 class="{{ heading_class }} text-xl md:text-2xl">future devlog ideas</h2>
+    <ul class="{{ list_class }}">
+        {% for idea in kino_data.devlog_ideas %}
+        <li {% if idea.completed %}style="text-decoration-line: line-through !important;"{% endif %}>
+            {{ idea.title }}
+        </li>
+        {% endfor %}
+    </ul>
 </div>
-
 {% endblock content %}
