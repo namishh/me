@@ -26,7 +26,7 @@ COPY templates ./templates
 COPY content ./content
 
 RUN npm ci && \
-    npx tailwindcss -i ./static/input.css -o ./static/style.css && \
+    npx @tailwindcss/cli -i ./static/input.css -o ./static/style.css && \
     rm -rf node_modules
 
 RUN rm -rf target/release && cargo build --release && \
