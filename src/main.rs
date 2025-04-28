@@ -15,7 +15,6 @@ use crate::templates::init_tera;
 use crate::rss::rss_feed;
 use crate::search::initialize_search_index;
 use crate::middle::CacheControlMiddleware;
-use crate::kino::kino;
 
 mod state;
 mod image_generator;
@@ -24,7 +23,6 @@ mod markdown;
 mod cache;
 mod handlers;
 mod rss;
-mod kino;
 mod templates;
 mod tweet;
 mod search;
@@ -82,7 +80,6 @@ async fn main() -> std::io::Result<()> {
             )
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/stuff").route(web::get().to(projects)))
-            .service(web::resource("/kino").route(web::get().to(kino)))
             .service(web::resource("/resume").route(web::get().to(resume)))
             .service(web::resource("/search").route(web::get().to(search_page)))
             .service(web::resource("/og/content/{path:.*}").route(web::get().to(generate_og_image)))
