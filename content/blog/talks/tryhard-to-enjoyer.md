@@ -8,7 +8,6 @@ category: talks
 ---
 
 ![img](https://i.imgur.com/FHxHI33.png)
-<div align="center">kinda ragebaity, I know</div>
 
 So I know the left guy in the above image makes you feel that he is already a prodigy or a gifted _10x_ dev. But no he is not, he might be even programming less than the guy beside him but in the end, he is more productive.
 
