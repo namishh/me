@@ -43,7 +43,7 @@ And this is what we have for now.
 
 ## Fantasy Map Shader
 
-Next, now we try to convert this simple solid color into something like a fantasy map. The idea is to create this old map like texture and add things like lakes, mountains, forests, villages, islands and meadows. I will also try to add text to the map, as to indicate the names of the places. The first thing to do is -
+Next, now we try to convert this simple solid color into something like a fantasy map. The idea is to create this old map like texture and add things like lakes, mountains and forest. The first thing to do is to get the
 
 ### Old Paper Texture
 
@@ -111,7 +111,7 @@ First thing you can do is to add a grainy texture to it. This is simply just giv
 
 <br>
 
-The next thing I did was to add these line like structures to the paper which happen due to aging. Now I tried looking into this a bit, and found there is a whole field for this called anisotropy and there are literal research papers on the anisotropy of a paper. I, well will not go into that. But with the help of my friend, claude 3.7 I was able to find a simpler alternative. The idea is simple, create very long horizontal streaks, create vertical streaks and the mix them together. This is how the function for it looked like.
+The next thing I did was to add these line like structures to the paper which happen due to aging. Now I tried looking into this a bit, and found there is a whole field for this called anisotropy and there are literal research papers on the anisotropy of a paper. I, well will not go into that. But with the help of my friend, claude 3.7, I was able to find a simpler alternative. The idea is simple, create very long horizontal streaks, create vertical streaks and the mix them together. This is how the function for it looked like.
 
 ```glsl title="fragment.glsl"
 float fibers(vec2 uv) {
@@ -343,9 +343,9 @@ where `dh` and `dv` are the horizontal and vertical distances from the line, and
 
 ![https://u.cubeupload.com/namishhhh/8c6ScreenRecording20250.gif](https://u.cubeupload.com/namishhhh/8c6ScreenRecording20250.gif)
 
-## Raymarched Night Street
+## Raymarched City
 
-Here is the final and the most complex shader I will attempt in this short little journey. The idea is to recreate this [awesome Tokyo inspired shader](https://reindernijhoff.net/2015/03/tokyo-breakdown-of-a-webgl-fragment-shader/) by [Reinder Nijhoff](https://x.com/ReinderNijhoff). 
+Here is the final and the most complex shader I will attempt in this short little journey. The idea is to recreate the [Desecent 3D shader](https://www.shadertoy.com/view/wdfGW4). 
 
 <br>
 
