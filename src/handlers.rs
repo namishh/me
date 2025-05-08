@@ -13,6 +13,7 @@ use crate::tweet::generate_tweet;
 use serde::Deserialize;
 use crate::search::search_content;
 use crate::projects::get_projects;
+use serde::Serialize;
 
 pub async fn index(
     app_state: web::Data<AppState>,
@@ -301,4 +302,18 @@ pub async fn generate_web_og(
         .insert_header((actix_web::http::header::CACHE_CONTROL, "public, max-age=3600"))
         .content_type("image/png")
         .body(image_bytes))
+}
+
+#[derive(Serialize)]
+struct HealthResponse {
+    status: String,
+    commit: String,
+}
+
+pub async fn health_check() -> impl Responder {
+    let commit_hash = std::env::var("GIT_COMMIT").unwrap_or_else(|_| "unknown".to_string());
+    HttpResponse::Ok().json(HealthResponse {
+        status: "ok".to_string(),
+        commit: commit_hash,
+    })
 }

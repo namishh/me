@@ -46,6 +46,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
@@ -54,3 +56,29 @@ jobs:
       - name: Deploy to Coolify
         run: | 
          curl --request GET '${{ secrets.COOLIFY_WEBHOOK_URL }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}' 
+
+      - name: Wait for deployment
+        run: |
+          echo "Waiting up to 5 minutes (initial 45s + 51 attempts * 5s) for deployment..."
+          sleep 45 # initial wait for docker swarm to update
+
+          for i in {1..51}; do
+            echo "Checking deployment status... (attempt $i/51)"
+            response=$(curl --fail -s --max-time 5 https://namishh.me/health || echo "error")
+
+            if [[ "$response" != "error" ]]; then
+              commit=$(echo "$response" | jq -r '.commit' 2>/dev/null || echo "")
+              echo "Current deployed commit: $commit"
+              if [[ -n "$commit" && "$commit" = "${{ github.sha }}" ]]; then
+                echo "Deployment successful!"
+                exit 0
+              fi
+            else
+              echo "Health check endpoint not ready or returned error."
+            fi
+
+            sleep 5
+          done
+
+          echo "Deployment timed out or failed verification after multiple attempts."
+          exit 1
