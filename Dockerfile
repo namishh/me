@@ -20,17 +20,16 @@ RUN mkdir -p src && \
 # Now copy the actual source and build (using cached dependencies)
 COPY src ./src
 COPY static ./static    
+RUN rm -rf target/release && cargo build --release && \
+    ls -la target/release/
 
 COPY package.json package-lock.json ./
 COPY templates ./templates
 COPY content ./content
 
 RUN npm ci && \
-    npx @tailwindcss/cli -i ./static/input.css -o ./static/style.css && \
+    npx tailwindcss -i ./static/input.css -o ./static/style.css && \
     rm -rf node_modules
-
-RUN rm -rf target/release && cargo build --release && \
-    ls -la target/release/
 
 FROM debian:bookworm-slim AS runtime
 
