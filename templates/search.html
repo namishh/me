@@ -1,5 +1,8 @@
 {% extends "base.html" %}
-
+{% block head %}
+    {{ super() }}
+    <script src="/static/gol.js" defer></script>
+{% endblock head %}
 {% block title %}
 {% if query %}search - {{ query }}{% else %}search{% endif %}
 {% endblock title %}

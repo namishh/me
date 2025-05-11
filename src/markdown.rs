@@ -115,6 +115,7 @@ fn parse_highlighting_info(info_string: &str) -> (HashSet<usize>, HashSet<usize>
 pub fn markdown_to_html(content: &str, highlighter: &Mutex<Highlighter>) -> (String, Vec<(u8, String, String)>) {
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
+    options.insert(Options::ENABLE_MATH);
     let parser = Parser::new_ext(content, options);
 
     let mut in_code_block = false;
@@ -144,6 +145,20 @@ pub fn markdown_to_html(content: &str, highlighter: &Mutex<Highlighter>) -> (Str
             Event::Text(text) if in_code_block => {
                 code_content.push_str(&text);
             }
+            Event::DisplayMath(text) => {
+                let math_html = format!(
+                    r#"<div class="math math-display">\[{}\]</div>"#,
+                    htmlescape::encode_minimal(&text)
+                );
+                events.push(Event::Html(math_html.into()));
+            },
+            Event::InlineMath(text) => {
+                let math_html = format!(
+                    r#"<span class="math math-inline">\({}\)</span>"#,
+                    htmlescape::encode_minimal(&text)
+                );
+                events.push(Event::Html(math_html.into()));
+            },
             Event::End(TagEnd::CodeBlock) if in_code_block => {
                 in_code_block = false;
                 let highlighted_html = if let Some(lang_str) = current_language.as_ref() {

@@ -343,26 +343,5 @@ where `dh` and `dv` are the horizontal and vertical distances from the line, and
 
 ![https://u.cubeupload.com/namishhhh/8c6ScreenRecording20250.gif](https://u.cubeupload.com/namishhhh/8c6ScreenRecording20250.gif)
 
-## Raymarched City
 
-Here is the final and the most complex shader I will attempt in this short little journey. The idea is to recreate the [Desecent 3D shader](https://www.shadertoy.com/view/wdfGW4). 
-
-<br>
-
-The shader employs a technique called raymarching, which is a method for rendering 3D scenes by casting rays from the camera into the scene and determining what they hit. To determine an intersection, we use a signed distance function (SDF), which determines how far a point is from the nearest surface. If the distance is arbitrarily small, we assume the ray has hit the surface.
-
-<br>
-
-Here is a very simple demonstration of a raymarched sphere. The SDF for the sphere is simply the distance of a point from the center of the sphere, minus the radius of the sphere.
-
-```glsl title="fragment.glsl"
-float sphereSDF(vec3 p, float r) {
-    return length(p) - r;
-}
-```
-
-Then we set up the origin and the direction of the ray. Consider the origin as just the camera position, and the direction as where it is looking. We normalize the direction to get a unit vector. Then is a for loop, we march the ray and check if sphereSDF is less 0.001. If it has hit, we return red, else black. If the ray has gone too far, we break out of the loop and return black as well.
-
-![well](https://u.cubeupload.com/namishhhh/Screenshot2025042900.png)
-
-### The Street
+**to be continued...**

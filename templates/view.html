@@ -2,6 +2,9 @@
 {% block title %}{{ title }}{% endblock title %}
 {% block head %}
     {{ super() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
 {% endblock head %}
 {% block meta %}
     <meta property="og:title" content="{{title}} | nam" />
@@ -152,6 +155,19 @@
         }
 
         window.addEventListener('scroll', updateActiveTimelineItem);
-        updateActiveTimelineItem(); 
+        updateActiveTimelineItem();
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\\(", right: "\\)", display: false},
+                {left: "\\[", right: "\\]", display: true}
+            ],
+            throwOnError: false
+            });
+        });
+
     </script>
 {% endblock content %}

@@ -1,4 +1,4 @@
-use actix_web::{web, HttpResponse, Result, Responder};
+use actix_web::{web, HttpRequest, HttpResponse, Responder, Result};
 use crate::state::AppState;
 use crate::file_tree::get_file_tree;
 use crate::markdown::{markdown_to_html, extract_frontmatter};
@@ -17,10 +17,12 @@ use crate::projects::get_projects;
 pub async fn index(
     app_state: web::Data<AppState>,
     _: web::Query<HashMap<String, String>>,
+    req: HttpRequest,  
 ) -> Result<HttpResponse, actix_web::Error> {
     let file_tree = get_file_tree(&app_state.file_tree);
     let mut context = Context::new();
     context.insert("file_tree", &file_tree);
+    context.insert("path", &req.path());
     let html = app_state.tera
         .render("index.html", &context)
         .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
@@ -30,11 +32,13 @@ pub async fn index(
 pub async fn projects(
     app_state: web::Data<AppState>,
     _: web::Query<HashMap<String, String>>,
+    req: HttpRequest,  
 ) -> Result<HttpResponse, actix_web::Error> {
     let file_tree = get_file_tree(&app_state.file_tree);
     let mut context = Context::new();
     context.insert("file_tree", &file_tree);
     context.insert("projects", &get_projects());
+    context.insert("path", &req.path());
     let html = app_state.tera
         .render("projects.html", &context)
         .map_err(|_| actix_web::error::ErrorInternalServerError("Template error"))?;
@@ -55,11 +59,13 @@ pub struct SearchQuery {
 pub async fn search_page(
     app_state: web::Data<AppState>,
     query: web::Query<SearchQuery>,
+    request : HttpRequest,
 ) -> Result<HttpResponse, actix_web::Error> {
     let file_tree = get_file_tree(&app_state.file_tree);
     let mut context = Context::new();
     
     context.insert("file_tree", &file_tree);
+    context.insert("path", &request.path());
     
     if !query.q.is_empty() {
         let results = search_content(&query.q);
@@ -83,6 +89,7 @@ pub async fn search_page(
 pub async fn view_markdown(
     app_state: web::Data<AppState>,
     path: web::Path<(String,)>,
+    req : HttpRequest
 ) -> Result<HttpResponse, actix_web::Error> {
     let path_param = &path.0;
     let base_path = PathBuf::from("content");
@@ -166,6 +173,7 @@ pub async fn view_markdown(
     context.insert("file_tree", &file_tree);
     context.insert("content", &content_html);
     context.insert("file_path", &path_param);
+    context.insert("path", &req.path());
 
     let html = app_state.tera
         .render("view.html", &context)
