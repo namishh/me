@@ -10,7 +10,7 @@ use image::load_from_memory;
 
 use crate::state::AppState;
 use crate::file_tree::build_file_tree;
-use crate::handlers::{index, projects, search_page, view_markdown, resume, generate_og_image, generate_web_og, generate_tweet_image, search};
+use crate::handlers::{index, projects, search_page, view_markdown, resume, generate_og_image, generate_web_og, generate_tweet_image, search, health_check};
 use crate::templates::init_tera;
 use crate::rss::rss_feed;
 use crate::search::initialize_search_index;
@@ -87,6 +87,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/tweet/{path:.*}").route(web::get().to(generate_tweet_image)))
             .service(web::resource("/rss.xml").route(web::get().to(rss_feed))) 
             .service(web::resource("/api/search").route(web::get().to(search))) 
+            .service(web::resource("/health").route(web::get().to(health_check)))
             .service(web::resource("/{path:.*}").route(web::get().to(view_markdown)))
     })
     .bind(address)?
