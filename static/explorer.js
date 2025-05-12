@@ -6,16 +6,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const directory = folderLabel.closest('.directory');
             if (directory) {
                 const folderContents = directory.querySelector('.folder-contents');
-                const toggleIcon = directory.querySelector('.toggle-icon');
                 
                 if (folderContents.classList.contains('hidden')) {
                     folderContents.classList.remove('hidden');
                     folderContents.classList.add('block');
-                    toggleIcon.classList.add('rotate-90');
                 } else {
                     folderContents.classList.remove('block');
                     folderContents.classList.add('hidden');
-                    toggleIcon.classList.remove('rotate-90');
                 }
             }
         }
@@ -90,16 +87,10 @@ document.addEventListener('DOMContentLoaded', function () {
             let parentDirectory = activeFileLink.closest('.directory');
             while (parentDirectory) {
                 const folderContents = parentDirectory.querySelector('.folder-contents');
-                const toggleIcon = parentDirectory.querySelector('.toggle-icon').querySelector('.ph-caret-right');
                 
                 if (folderContents) {
                     folderContents.classList.remove('hidden');
                     folderContents.classList.add('block');
-                }
-                
-                if (toggleIcon) {
-                    toggleIcon.classList.add('rotate-90');
-                    toggleIcon.classList.remove('rotate-0'); 
                 }
                 
                 parentDirectory = parentDirectory.parentElement.closest('.directory');
