@@ -1,6 +1,6 @@
 ---
 title: Fabric From First Principles
-date: 10 May 2025
+date: 12 May 2025
 draft: true
 ---
 
