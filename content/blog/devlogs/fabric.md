@@ -175,3 +175,26 @@ $$ cos(\theta) = \frac{n_1 \cdot n_2}{|n_1||n_2|} $$
 where $n_1 = (x_2 - x_1) \times (x_3 - x_1)$ and $n_2 = (x_4 - x_1) \times (x_3 - x_1)$ are the normal vectors of the two triangles.
 
 The force can, like always be derived as the negative gradient of the potential energy.
+
+### Damping
+
+In a real piece of cloth, the energy is dissipated through various mechanisms, leading to damping. The simplest model is velocity-proportional damping
+
+$$ F_{damping} = -c v $$
+
+A more accurate model applies damping to the relative velocity of the particles connected by a spring:
+
+$$ F_{damping,i} = -c[(v_j - v_i) \cdot e_{ij}]e_{ij} $$
+
+Where $c$ is the damping coefficient, $v_i$ and $v_j$ are the velocities of the two particles connected by the spring and $e_{ij}$ is the unit vector in the direction of the spring. The dot product $(v_j - v_i) \cdot e_{ij}$ gives the relative velocity along the spring direction.
+
+<br>
+
+Now after all of these calculations, we can finally write the force on each particle as:
+
+$$ F_i = F_{spring,i} + F_{gravity,i} + F_{spring-damping,i} + F_{external_i} $$
+
+where $F_{spring}$ is the force due to the springs, $F_{gravity}$ is the force due to gravity, $F_{damping}$ is the force due to damping and $F_{external}$ is the force I will apply to the cloth, such as wind or cursor movement.
+
+
+**to be continued... time step, time integration, constraints, collisions**
