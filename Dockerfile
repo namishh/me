@@ -3,31 +3,38 @@ FROM rust:1.85-slim-bookworm AS builder
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
-    libssl-dev \
+    libssl3 \
     nodejs \
     npm \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
+ENV CARGO_HOME=/usr/local/cargo
+
 # Create a caching layer for dependencies
 COPY Cargo.toml Cargo.lock ./
-RUN mkdir -p src && \
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    mkdir -p src && \
     echo "fn main() {println!(\"DEPENDENCY_CACHE_ONLY\")}" > src/main.rs && \
-    cargo build --release && \
-    rm -rf target/release/*/
+    cargo build --release
 
 # Now copy the actual source and build (using cached dependencies)
 COPY src ./src
 COPY static ./static    
-RUN rm -rf target/release && cargo build --release && \
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    rm -rf target/release && \
+    cargo build --release && \
     ls -la target/release/
 
 COPY package.json package-lock.json ./
 COPY templates ./templates
 COPY content ./content
 
-RUN npm ci && \
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --no-audit --no-fund && \
     npx tailwindcss -i ./static/input.css -o ./static/style.css && \
     rm -rf node_modules
 
