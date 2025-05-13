@@ -8,19 +8,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     npm \
     && rm -rf /var/lib/apt/lists/*
 
-RUN cargo install sccache
-ENV RUSTC_WRAPPER /usr/local/cargo/bin/sccache
-ENV SCCACHE_CACHE_SIZE 90G
-ENV SCCACHE_DIR /mnt/dispatcher-cache
-
 WORKDIR /app
 
+# Create a caching layer for dependencies
 COPY Cargo.toml Cargo.lock ./
+RUN mkdir -p src && \
+    echo "fn main() {println!(\"DEPENDENCY_CACHE_ONLY\")}" > src/main.rs && \
+    cargo build --release && \
+    rm -rf target/release/*/
+
+# Now copy the actual source and build (using cached dependencies)
 COPY src ./src
 COPY static ./static    
-RUN --mount=type=cache,target=/sccache \
-    cargo build --release && \
-    sccache --show-stats
+RUN rm -rf target/release && cargo build --release && \
+    ls -la target/release/
 
 COPY package.json package-lock.json ./
 COPY templates ./templates
