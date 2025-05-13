@@ -344,4 +344,4 @@ where `dh` and `dv` are the horizontal and vertical distances from the line, and
 ![https://u.cubeupload.com/namishhhh/8c6ScreenRecording20250.gif](https://u.cubeupload.com/namishhhh/8c6ScreenRecording20250.gif)
 
 
-**to be continued...**
+**to be continued with raymarching**
