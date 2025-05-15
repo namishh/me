@@ -1,0 +1,9 @@
+services:
+  web:
+    container_name: namish-personal-website
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4321:8080"
+    restart: unless-stopped
