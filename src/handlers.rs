@@ -109,6 +109,7 @@ pub async fn view_markdown(
             } else {
                 let mut context = Context::new();
                 context.insert("file_tree", &file_tree);
+                context.insert("path", &req.path());
                 let html = app_state.tera
                     .render("404.html", &context)
                     .map_err(|e| {
@@ -119,6 +120,7 @@ pub async fn view_markdown(
             }
         } else {
             let mut context = Context::new();
+            context.insert("path", &req.path());
             context.insert("file_tree", &file_tree);
             let html = app_state.tera
                 .render("404.html", &context)
