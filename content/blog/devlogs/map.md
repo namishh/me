@@ -1,0 +1,127 @@
+---
+title: Fantasy Maps
+date: 10 June 2025
+draft: true
+---
+
+## Introduction
+
+> not a tutorial, just a devlog
+
+In my last [devlog](/blog/devlogs/planet), I tried to model a 3d planet with procedural generation. This time, I want to create a fantasy map, so 2D, still using our handy voronoi graphs, but using wave function collapse instead of perlin noise. I will be using the zig programming language and ofc, raylib for rendering.
+
+## Voronoi, yet again
+
+![voronoi](https://www.kdnuggets.com/wp-content/uploads/arya_quick_overview_voronoi_diagrams_5.jpg)
+
+Now, in case, you have not read my previous devlog, voronoi is simply a way to divide a space into regions based on distance to a set of points. We choose a set of points, and then for each point in the space, we find the closest point from the set. This way, we can create regions that are defined by the distance to the points.
+
+### Simple beginnings
+
+The first version of voronoi, was the most basic one, where I simply chose 150 random points, and then for each frame, I would iterate over each pixel in the screen, and find the closest point from the set. 
+
+<br>
+
+And, I don't think I need to justify why this is not a good idea, but I will anyways. First of all, I just want a static map, so it really does not make sense to loop over each pixel every frame. Second of all, this is really slow, and it took `12.74` seconds to generate a 1280x720 map with 15 points, and it lagged so much, I could not even take a screenshot. And in the real simulation, I would be needing a WHOLE lot more points, so this is not going to work. Time for me to find out a better way.
+
+### Using a texture
+
+![texture](https://u.cubeupload.com/namishhhh/Screenshot2025060900.png)
+
+Raylib, lets us define textures, which are just array of pixels. You can use beginTextureMode and endTextureMode to draw to a texture, and then use that texture as a background. This is optimal for our use case, because we just simply want to draw the map once. This is still great, and it allowed me to atleast take a screenshot, but it still does take `12` seconds to generate a 150 point map, which is, in simple words, trash. So, I need to find a way to make this faster. 
+
+![img](https://u.cubeupload.com/namishhhh/Screenshot2025060822.png)
+
+The problem.... is simple _to find_, really. For the black pixel on the image, we need to find the closest point from the set of points. Looking at the given figure, we know that maybe violet and the blue are the closest ones, but we for sure know that red is not the closest one, in fact, it is the farthest one. So, we need to find a way to not check every point, but only the ones that are close enough to the pixel.
+
+Thankfully, there already exists a data structure specifically for finding nearest neighbours, and it is called a **kd-tree**.
+
+### KD-Tree
+
+> warning: pretty boring theoretical part which i wrote with absolute boredom, you can skip this if you want to get to the wave function collapse part
+> 
+> tldr: got ~2750x faster with kd-tree
+
+It is a kind of a binary tree, which recursively divides a k-dimensional space to allow for effecient querying. So, for example, in a 2D, space, we can first divide the space or the "dataset" vertically (x axis) and then horizontally (y axis) and so on. This continues until we have a tree, where each node represent a region of space.
+
+<br>
+
+In our case, we have 2 dimensions, so each node will have two properties, x and y. So in a way, it acts like a alternating binary tree, first we divide by x, then by y, then by x again, and so on.
+
+![image](https://u.cubeupload.com/namishhhh/Screenshot2025060901.png)
+
+The above diagram, should clear up, how the 2d kd-tree works. But if you are still confused, essentially, in the first layer below the root node, we divided the space by x, i.e the left child has a x value, less than the x value of root node, and the right child has a x value greater than the root node. Then, in the next layer, we divide the space by y, i.e the left child has a y value less than the y value of the parent node, and the right child has a y value greater than the parent node.
+
+![image](https://u.cubeupload.com/namishhhh/Screenshot2025060902.png)
+
+Now to search for the closest point to (7,11). We use the depth of the tree to determine which axis to compare. If we are at an even depth, we compare the x value, and if we are at an odd depth, we compare the y value.
+
+We also need to keep track of the best point we’ve found so far, and the best distance to the point we are searching for. At each step, we calculate the distance from the current node to our target point, and if it’s smaller than the best distance so far, we update both.
+
+<br>
+
+We start at the root, which is (3,10) at depth 0. Since the depth is even, we compare x values:
+7 (target x) > 3 → we go right to (5,9).
+Before that, we calculate the distance from (3,10) to (7,11):
+
+$$ d = (7-3)^2 + (11-10)^2 = 17 $$
+
+So (3,10) becomes our first best point, with distance² = 17.
+
+At (5,9) (depth 1, odd), we now compare y values:
+11 > 9 → go right to (3,15).
+Check distance from (5,9) to (7,11):
+
+$$ d = (7-5)^2 + (11-9)^2 = 8 $$
+
+So we update our best point to (5,9) with distance² = 8.
+
+Now at (3,15) (depth 2, even), we compare x values again:
+7 > 3 → go right, but there's no child. We still compare the distance from (3,15) to (7,11):
+
+$$ d = (7-3)^2 + (11-15)^2 = 25 $$
+
+This is worse than our current best, so we backtrack to (5,9) and check the left child, which is null, so we backtrack.
+
+And now we perform it recursively, until we find the best point, which in this case is (6,10) with $distance^2 = 2$.
+
+
+Here is the code for the nearst neighbour search in a kd-tree:
+```zig
+pub fn findNearest(self: *const KdTree, target: rl.Vector2, best_dist_sq: *f32, best_index: *usize) void {
+    const dx = target.x - self.point.x;
+    const dy = target.y - self.point.y;
+    const dist_sq = dx * dx + dy * dy;
+
+    if (dist_sq < best_dist_sq.*) {
+        best_dist_sq.* = dist_sq;
+        best_index.* = self.color_index;
+    }
+
+    const axis = self.depth % 2;
+    const target_coord = if (axis == 0) target.x else target.y;
+    const node_coord = if (axis == 0) self.point.x else self.point.y;
+
+    const primary = if (target_coord < node_coord) self.left else self.right;
+    const secondary = if (target_coord < node_coord) self.right else self.left;
+
+    if (primary) |p| {
+        p.findNearest(target, best_dist_sq, best_index);
+    }
+
+    const diff = target_coord - node_coord;
+    if (secondary != null and diff * diff < best_dist_sq.*) {
+        secondary.?.findNearest(target, best_dist_sq, best_index);
+    }
+}
+```
+
+> note: we do not use the `sqrt` function, because we are comparing squared distances, so we can avoid the expensive square root operation.
+
+<br>
+
+With these enhancements, I was able to generate a 100,000 point map in just `2.9` seconds, which is a 2750x speedup. This is a massive improvement, and I am really happy and content with this result.
+
+![img](https://u.cubeupload.com/namishhhh/78aScreenshot2025060902.png)
+
+We now have some "land", and now it is time to decorate it with wave function collapse.
