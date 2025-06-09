@@ -116,12 +116,42 @@ pub fn findNearest(self: *const KdTree, target: rl.Vector2, best_dist_sq: *f32, 
 }
 ```
 
-> note: we do not use the `sqrt` function, because we are comparing squared distances, so we can avoid the expensive square root operation.
-
-<br>
-
 With these enhancements, I was able to generate a 100,000 point map in just `2.9` seconds, which is a 2750x speedup. This is a massive improvement, and I am really happy and content with this result.
 
 ![img](https://u.cubeupload.com/namishhhh/78aScreenshot2025060902.png)
 
 We now have some "land", and now it is time to decorate it with wave function collapse.
+
+## Wave Function Collapse
+
+![wfc](https://robertheaton.com/images/wfc-examples.png)
+
+<div align="center">
+
+[image from robert's great blog on wave function collapse](https://robertheaton.com/2018/12/17/wavefunction-collapse-algorithm/)
+
+</div>
+
+<br>
+
+Wave function collapse, at first, seemed like a real complex algorithm, with _"superpositions"_, _"entropy"_ and... _somehow quantum mechanics_? In reality, it really is not that complex, and the best way to understand it would be to think of a sudoku puzzle.
+
+![sudoku](https://u.cubeupload.com/namishhhh/Screenshot2025060914.png)
+
+A sudoku, as we all know, is a 9x9 grid, where we need to fill in the numbers from 1 to 9, such that each row, column and 3x3 subgrid contains all the numbers exactly once.
+
+Now, in an empty sudoku, each cell can potentially hold any number from 1 to 9. This is similar to the "superposition" in wave function collapse, where each cell can be in multiple states at once.
+
+But we do know, that sudoku puzzles are not blank, we already have some numbers filled in. These numbers act as constraints, reducing the probabilities for the other cells. For example, if a cell has 5, it cannot have any other number, and now that entire row, column and subgrid cannot have another 5 either. We have "collapsed" the probability of that cell to just one state, which is the number 5. The process of updating the probabilities of the other cells, is called "propagation".
+
+![image](https://u.cubeupload.com/namishhhh/dddScreenshot2025060914.png)
+
+The above image shows how the probabilites change if we add a single number to the sudoku. Now if we add a couple more starting numbers, the probabilities vary even more, with some cells having 3 potential numbers and some still having 9 potential numbers.
+
+<br>
+
+Now, to start solving the sudoku, we need to select the cell with the lowest _entropy_, which here means, the cell with least number of potential numbers, collapse it to a single possibility and propagate the information to affected cells. We now repeat this process until all of the cells are collapsed to a single possibility and the problem is solved!
+
+Now that we understand wave function collapse, somewhat, we can apply it to our map generation.
+
+### Land and Water
