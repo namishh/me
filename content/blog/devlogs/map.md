@@ -118,7 +118,7 @@ With these enhancements, I was able to generate a 100,000 point map in just `2.9
 
 We now have some "land", but there is one more thing we need to do before we can start using wfc, and that is to also keep track of the neighbours of each point. This is because, in wave function collapse, we need to know which points are adjacent to each other, so that we can propagate the information correctly. I would also like to store the edges, as I think they will be useful later for river generation.
 
-### Edges and Neighbours 
+### Neighbours 
 
 ![edges](https://u.cubeupload.com/namishhhh/Screenshot2025061219.png)
 
@@ -131,12 +131,6 @@ However, rasterized sampling can miss extremely thin adjacency or can be expensi
 I tried with only using delaunay triangulation, but for some reason, it was leaving a lot of faces out, so I decided to combine both methods, and merge the results. Lot slower, but does give better results.
 
 ![img](https://u.cubeupload.com/namishhhh/Screenshot2025061301.png)
-
-Detecting edges, works in somewhat similar way. We sample the screen into a grid and perform nearest neighbour queries for each sample.
-
-The algorithm might treat the whole window as an initial tile and obtain the nearest site at each corner If all corners share the same site index, the tile contains no border. If two or more corners have different nearest-site indices, an edge or border passes through that tile. The tile is then subdivided, and its sub-tiles are sampled recursively, pinpointing the edge line.
-
-<br>
 
 This works, but the code for it contains a for loop inside a for loop inside a for loop, which is resulting in pretty slow results. I am aiming to have 10,000 tiles in the final version, and this is take `69.8` seconds to generate a map with only 3,000 tiles. So, I need to find a way to make this faster. I need a way that actually just calculates the edges and neighbours while generating the voronoi diagram, instead of doing it after the voronoi diagram is generated. And this is where I discovered Fortune's Sweep Algorithm.
 

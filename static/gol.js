@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
         position: 'absolute',
         top: '20px',
         right: '20px',
-        zIndex: '100'
+        zIndex: '100',
+        opacity: '0.75',
     });
     document.body.appendChild(canvas);
 
