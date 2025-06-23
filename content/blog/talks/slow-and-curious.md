@@ -4,7 +4,7 @@ date: 23 June 2025
 draft: false
 ---
 
-![images](/static/images/jee.png)
+![images](/static/images/frie.png)
 
 I am almost 18 now, over with school. I had a lot of different directions to venture into, but I have already decided to shoot myself in the foot by choosing computer science. Now, I do really like the field, but the community and the culture around it is something that I have a lot of issues with.
 

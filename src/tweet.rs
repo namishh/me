@@ -5,6 +5,7 @@ use serde_json::Value;
 use std::{f32::consts::PI, time::Duration};
 use ab_glyph::{Font, FontRef, Glyph, Point, PxScale, PxScaleFont, ScaleFont};
 use sha2::Digest;
+use html_escape::decode_html_entities;
 
 // Structure to hold tweet data
 struct TweetData {
@@ -18,11 +19,17 @@ struct TweetData {
     media_url: Option<String>,
 }
 
+fn unescape_newlines(text: &str) -> String {
+    text.replace("\\n", "\n")
+        .replace("\\r\\n", "\n")
+        .replace("\\r", "\n")
+}
+
 async fn parse_tweet_data(json: Value) -> Option<TweetData> {
     let data = json.get("data")?;
     let user = data.get("user")?;
     
-    let tweet_text = data.get("text")?.as_str()?.to_string();
+    let tweet_text = unescape_newlines(&decode_html_entities(data.get("text")?.as_str()?));
     let created_at_str = data.get("created_at")?.as_str()?;
     let created_at = DateTime::parse_from_rfc3339(created_at_str)
         .ok()?
@@ -212,44 +219,55 @@ fn draw_wrapped_text<F: Font>(
 ) -> i32 {
     let mut current_y = y;
     let space_width = font.h_advance(font.glyph_id(' '));
+    let line_height = (font.height() * 1.5) as i32;
     
-    let words: Vec<&str> = text.split_whitespace().collect();
-    let mut current_line = String::new();
-    let mut current_width = 0.0;
+    let lines: Vec<&str> = text.split('\n').collect();
     
-    for word in words {
-        let mut word_width = 0.0;
-        let mut prev_glyph_id = None;
+    for line in lines {
+        if line.trim().is_empty() {
+            current_y += line_height;
+            continue;
+        }
         
-        for c in word.chars() {
-            let glyph_id = font.glyph_id(c);
+        let words: Vec<&str> = line.split_whitespace().collect();
+        let mut current_line = String::new();
+        let mut current_width = 0.0;
+        
+        for word in words {
+            let mut word_width = 0.0;
+            let mut prev_glyph_id = None;
             
-            if let Some(prev_id) = prev_glyph_id {
-                word_width += font.kern(prev_id, glyph_id);
+            for c in word.chars() {
+                let glyph_id = font.glyph_id(c);
+                
+                if let Some(prev_id) = prev_glyph_id {
+                    word_width += font.kern(prev_id, glyph_id);
+                }
+                
+                word_width += font.h_advance(glyph_id);
+                prev_glyph_id = Some(glyph_id);
             }
             
-            word_width += font.h_advance(glyph_id);
-            prev_glyph_id = Some(glyph_id);
+            if current_width > 0.0 && current_width + space_width + word_width > max_width as f32 {
+                draw_text(image, &current_line, x, current_y, font, color);
+                current_y += line_height;
+                current_line.clear();
+                current_width = 0.0;
+            }
+            
+            if !current_line.is_empty() {
+                current_line.push(' ');
+                current_width += space_width;
+            }
+            current_line.push_str(word);
+            current_width += word_width;
         }
         
-        if current_width > 0.0 && current_width + space_width + word_width > max_width as f32 {
-            draw_text(image, &current_line, x, current_y, font, color);
-            current_y += (font.height() * 1.5) as i32; 
-            current_line.clear();
-            current_width = 0.0;
-        }
-        
+        // Draw final line if not empty
         if !current_line.is_empty() {
-            current_line.push(' ');
-            current_width += space_width;
+            draw_text(image, &current_line, x, current_y, font, color);
+            current_y += line_height;
         }
-        current_line.push_str(word);
-        current_width += word_width;
-    }
-    
-    if !current_line.is_empty() {
-        draw_text(image, &current_line, x, current_y, font, color);
-        current_y += (font.height() * 1.5) as i32;
     }
     
     current_y
@@ -284,38 +302,51 @@ fn calculate_tweet_height<'a>(
     let profile_size = 60;
     let padding = 10;
     let header_height = profile_size + padding * 2;
+    let line_height = (text_scaled_font.height() * 1.5) as i32;
     
     let text_height = {
         let space_width = text_scaled_font.h_advance(text_scaled_font.glyph_id(' '));
-        let words: Vec<&str> = tweet_data.tweet_text.split_whitespace().collect();
-        let mut current_width = 0.0;
-        let mut line_count = 1;
+        let lines: Vec<&str> = tweet_data.tweet_text.split('\n').collect();
+        let mut total_lines = 0;
         
-        for word in words {
-            let mut word_width = 0.0;
-            let mut prev_glyph_id = None;
-            
-            for c in word.chars() {
-                let glyph_id = text_scaled_font.glyph_id(c);
-                if let Some(prev_id) = prev_glyph_id {
-                    word_width += text_scaled_font.kern(prev_id, glyph_id);
-                }
-                word_width += text_scaled_font.h_advance(glyph_id);
-                prev_glyph_id = Some(glyph_id);
+        for line in lines {
+            if line.trim().is_empty() {
+                total_lines += 1;
+                continue;
             }
             
-            if current_width > 0.0 && current_width + space_width + word_width > content_width as f32 {
-                line_count += 1;
-                current_width = word_width;
-            } else {
-                if !current_width.eq(&0.0) {
-                    current_width += space_width;
+            let words: Vec<&str> = line.split_whitespace().collect();
+            let mut current_width = 0.0;
+            let mut line_count = 1;
+            
+            for word in words {
+                let mut word_width = 0.0;
+                let mut prev_glyph_id = None;
+                
+                for c in word.chars() {
+                    let glyph_id = text_scaled_font.glyph_id(c);
+                    if let Some(prev_id) = prev_glyph_id {
+                        word_width += text_scaled_font.kern(prev_id, glyph_id);
+                    }
+                    word_width += text_scaled_font.h_advance(glyph_id);
+                    prev_glyph_id = Some(glyph_id);
                 }
-                current_width += word_width;
+                
+                if current_width > 0.0 && current_width + space_width + word_width > content_width as f32 {
+                    line_count += 1;
+                    current_width = word_width;
+                } else {
+                    if current_width > 0.0 {
+                        current_width += space_width;
+                    }
+                    current_width += word_width;
+                }
             }
+            
+            total_lines += line_count;
         }
         
-        (line_count as f32 * text_scaled_font.height() * 1.5) as i32
+        total_lines * line_height
     };
     
     let media_height = if let Some(media) = media_image {
