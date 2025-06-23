@@ -113,7 +113,7 @@ async fn load_profile_image(url: &str, username: &str) -> Option<DynamicImage> {
         }
     }
 
-    let fallback_url = format!("https://avatar.vercel.sh/{}", username);
+    let fallback_url = format!("https://wisp.rex.wf/x/{}", username);
     let fallback_response = client.get(&fallback_url).send().await.ok()?;
 
     if !fallback_response.status().is_success() {
