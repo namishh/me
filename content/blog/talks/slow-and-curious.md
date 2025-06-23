@@ -10,29 +10,28 @@ I am almost 18 now, over with school. I had a lot of different directions to ven
 
 <br>
 
-I think it is important for the reader to take a peek into my mindset beforehand. I have been programmign from long ago, it started from my 2gb ram desktop in 2018, and then I got a blazingly fast 4gb ram laptop in 2020, which I still use to this date (as of writing the blog).
+I think it is important for the reader to take a peek into my mindset beforehand. I have been programming for some time, it started from my 2gb ram desktop in 2018, and then I got a blazingly fast 4gb ram laptop in 2020, which I still use to this date (as of writing the blog).
 
-The only thing still driving me to program is the literal awe I get and I still get amazed that me typing something can result in games, websites, whatever I want
+The only thing still driving me to program is the literal awe I still get that me typing something can result in games, websites, whatever I want.
 I have gone through multiple phases in my development journey, doing some parts of all, web development, an unnecessarily long linux and neovim ricing phase, discord bots, low level (though I'm not good) and game development, which I find the most interesting.
 
 <Br>
-
 
 I program because I truly love the process, when I'm tired of studying and assignments, I can just sit back and forget about all the other problems because there is this feature I want to implement or a bug that needs to be fixed.
 
 [![/tweet](/tweet/1936687379957616727)](https://x.com/Vantasync369/status/1936687379957616727)
 
-So when I take a look at the process in my country, where CS grads are being manufactured left and right, it really kind of just makes me disinterested in CS all of a sudden. People treat it like a hustle, a grind that needs to be done for the sake of it. Hackathons, internships, research all these things have just become a means to pad out resumes and have undermined the real purpose of these things
+So when I take a look at the process in my country, where CS grads are being manufactured left and right, it really kind of just makes me disinterested in CS all of a sudden. People treat it like a hustle, a grind that needs to be done for the sake of it. Hackathons, internships, research all these things have just become a means to pad out resumes and have undermined the real purpose of these things.
 
 Maybe I just do not want to accept that this is the real world and I wanna stay in my own bubble, or strangely enough, maybe I am the one in the right.
 
 ### The Myth of HyperOptimization
 
-The most general mass of India is just scared and worried. The amount of population that there is and is looking like it will only grow and grow, we are just trying to get the edge over the other person.
+Most of the general mass of India is just scared and worried. The amount of population that there is and is looking like it will only grow and grow, we are just trying to get the edge over the other person.
 
 <br>
 
-At a more social level, we are just told to stick and follow the structure. First it is tuition, then it is coaching. I believe that in this frenzy to be on par with others, we have just subdued the natural tendency to explore things by ourselves.
+At a more social level, we are just told to stick and follow "the structure". First it is tuition, then it is coaching. I believe that in this frenzy to be on par with others, we have just subdued the natural tendency to explore things by ourselves.
 
 <br>
 
@@ -44,15 +43,15 @@ This tendency to explore, is missing in the general mass of btech students. This
 
 [![/tweet](/tweet/1927750825415164228)](https://x.com/namishh__/status/1927750825415164228)
 
-Even bigger problem than these course sellers is the fact that now literal insitutes exist to teach you to how to get a CS job. To teach you javascript, to teach you data structures and reward hacking the programming culture.
+Even bigger problem than these course sellers is the fact that now literal institutes exist to teach you to how to get a CS job. To teach you javascript, to teach you data structures and reward hacking the programming culture.
 
 <br>
 
-They treat events like hackathons, GSOC, even research internships as a way to promote themselves to the non-techy people and undermine the real purpose of these events in the first place.
+They treat events like hackathons, GSOC, even research internships as a way to promote themselves to the non-techy people and again undermine the real purpose of these events in the first place.
 
 <br>
 
-To add even one more layer to the optimisations, people are now reward hacking their way into a big twitter account and is the main reason why I am not active on the Indian tech twitter scene. People are just engagment baiting all the time or just posting slop, and so much to the point it is not funny anymore.
+To add even one more layer to the optimisations, people are now reward hacking their way into a big twitter account and it is the main reason why I am not active much active on the Indian tech twitter simcluster. People are just engagment baiting all the time or just posting mindless slop, and so much to the point it is not funny anymore.
 
 Engagement baiting only leads you to a temporary audience, and to keep those temporary people, you will have to resort to more and more baits. I have a much smaller audience, but I have a better quality of audience.
 
@@ -62,7 +61,7 @@ This in my opinion is the real reason why mediocrity is rising too much. the hyp
 
 <br>
 
-The hyperoptimised schools and courses almost makes you guarantee a job, just like coachings make you believe that you too, like everyone else can crack JEE.
+The hyperoptimised schools and courses almost make you feel you are guaranteed to have a job, just like coachings make you believe that you too, like everyone else can crack JEE.
 They are only to profit off people. Question them and they will point you towards the 0.01% of the batch that actually made it somewhere, not the 99.99% who think "hyperoptimisation" is not at fault because the 0.01% made it.
 
 
@@ -84,7 +83,7 @@ To me, programming still is, and will remain in these 4 years in college, a hobb
 
 <br>
 
-I am not necessarily saying that people who work fast, will no succeed. My point is that most of them, are going fast but in circles, not forward. 
+I am not necessarily saying that people who work fast, will not succeed. My point is that most of them, are going fast but in circles, not forward. 
 
 <br>
 
