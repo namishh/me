@@ -67,6 +67,8 @@ They are only to profit off people. Question them and they will point you toward
 
 ### My Programming Nirvana
 
+![frieren](/static/images/frieren_journey.png)
+
 I am slow. I am curious. A somewhat different approach to programming
 
 <br>
