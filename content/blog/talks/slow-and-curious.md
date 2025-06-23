@@ -51,13 +51,13 @@ They treat events like hackathons, GSOC, even research internships as a way to p
 
 <br>
 
-To add even one more layer to the optimisations, people are now reward hacking their way into a big twitter account and it is the main reason why I am not active much active on the Indian tech twitter simcluster. People are just engagment baiting all the time or just posting mindless slop, and so much to the point it is not funny anymore.
+To add even one more layer to the optimisations, people are now reward hacking their way into a big twitter account and it is the main reason why I am not much active on the Indian tech twitter simcluster. People are just engagment baiting all the time or just posting mindless slop, and so much to the point it is not funny anymore.
 
 Engagement baiting only leads you to a temporary audience, and to keep those temporary people, you will have to resort to more and more baits. I have a much smaller audience, but I have a better quality of audience.
 
 <br>
 
-This in my opinion is the real reason why mediocrity is rising too much. the hyperoptimised path leaves no room for wandering off. And this, to me, is the real reason I think mediocrity is growing.
+This in my opinion is the real reason why mediocrity is rising too much. the hyperoptimised path leaves no room for wandering off.
 
 <br>
 
