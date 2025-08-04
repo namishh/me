@@ -5,9 +5,13 @@ on:
     branches: ["master"]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: com
 
 jobs:
   build-and-push:
@@ -59,12 +63,12 @@ jobs:
 
       - name: Wait for deployment
         run: |
-          echo "Waiting up to 5 minutes (initial 45s + 51 attempts * 5s) for deployment..."
-          sleep 45 # initial wait for docker swarm to update
+          echo "Waiting up to 5 minutes (initial 20s + 51 attempts * 5s) for deployment..."
+          sleep 20 # initial wait for docker to update
 
           for i in {1..51}; do
             echo "Checking deployment status... (attempt $i/51)"
-            response=$(curl --fail -s --max-time 5 https://namishh.me/health || echo "error")
+            response=$(curl --fail -s --max-time 5 https://namishh.com/health || echo "error")
 
             if [[ "$response" != "error" ]]; then
               commit=$(echo "$response" | jq -r '.commit' 2>/dev/null || echo "")
