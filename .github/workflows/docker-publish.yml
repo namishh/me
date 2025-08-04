@@ -11,7 +11,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: com
+  IMAGE_NAME: namishh/com
 
 jobs:
   build-and-push:
