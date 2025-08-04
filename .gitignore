@@ -3,3 +3,4 @@ node_modules
 static/style.css
 static/_cache
 .vscode
+.DS_Store
