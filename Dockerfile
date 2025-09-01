@@ -40,9 +40,6 @@ RUN --mount=type=cache,target=/root/.npm \
 
 FROM debian:bookworm-slim AS runtime
 
-ARG GIT_COMMIT
-ENV GIT_COMMIT=${GIT_COMMIT}
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     libssl-dev \
@@ -55,11 +52,12 @@ COPY --from=builder /app/static /app/static
 COPY --from=builder /app/content /app/content
 COPY --from=builder /app/templates /app/templates
 
-EXPOSE 8080
-
-ENV ENVIRONMENT=PRODUCTION
-
 RUN useradd -m appuser
 USER appuser
+ENV ENVIRONMENT=PRODUCTION
 
+ARG GIT_COMMIT
+ENV GIT_COMMIT=${GIT_COMMIT}
+
+EXPOSE 8080
 CMD ["/app/personal"]
