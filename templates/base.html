@@ -1,175 +1,232 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="light">
-
-<head>
-    {% block head %}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="utf-8">
-    <script>
-        (function () {
-            let theme = localStorage.getItem('theme');
-            if (!theme) {
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                theme = prefersDark ? 'dark' : 'light';
-            }
-            document.documentElement.setAttribute('data-theme', theme);
-        })();
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css">
-    <link rel="icon" type="image/png" href="https://github.com/namishh.png" />
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css" />
-    <script src="/static/explorer.js" defer></script>
-    {% block meta %}{% endblock meta %}
-    <title>{% block title %}{% endblock title %} | namishh</title>
-    <style type="text/css">
-        .sidebar {
-            scrollbar-width: none;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .sidebar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .search-scroll {
-            scrollbar-width: none;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .search-scroll::-webkit-scrollbar {
-            display: none;
-        }
-
-        ::-webkit-scrollbar,
-        *::-webkit-scrollbar {
-            width: 12px;
-            height: 12px;
-        }
-
-        ::-webkit-scrollbar-track,
-        *::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        html[data-theme="dark"] ::-webkit-scrollbar-thumb,
-        html[data-theme="dark"] *::-webkit-scrollbar-thumb {
-            background: #222222;
-            border-radius: 0px;
-        }
-
-        html[data-theme="light"] ::-webkit-scrollbar-thumb,
-        html[data-theme="light"] *::-webkit-scrollbar-thumb {
-            background: #cccccc;
-            border-radius: 0px;
-        }
-
-
-
-
-        @media (max-width: 1024px) {
+    <head>
+        {% block head %}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charset="utf-8" />
+        <script>
+            (function () {
+                let theme = localStorage.getItem("theme");
+                if (!theme) {
+                    const prefersDark = window.matchMedia(
+                        "(prefers-color-scheme: dark)",
+                    ).matches;
+                    theme = prefersDark ? "dark" : "light";
+                }
+                document.documentElement.setAttribute("data-theme", theme);
+            })();
+        </script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="/static/style.css" />
+        <link
+            rel="icon"
+            type="image/png"
+            href="https://github.com/namishh.png"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"
+        />
+        <script src="/static/explorer.js" defer></script>
+        {% block meta %}{% endblock meta %}
+        <title>{% block title %}{% endblock title %} | namishh</title>
+        <style type="text/css">
             .sidebar {
-                position: fixed;
-                top: 0;
-                left: -288px;
-                z-index: 50;
-                height: 100vh;
-                transform: translateX(0);
+                scrollbar-width: none;
                 transition: transform 0.3s ease-in-out;
             }
 
-            .sidebar.open {
-                transform: translateX(288px);
-            }
-
-            .sidebar-overlay {
+            .sidebar::-webkit-scrollbar {
                 display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 40;
             }
 
-            .sidebar-overlay.open {
-                display: block;
+            .search-scroll {
+                scrollbar-width: none;
+                transition: transform 0.3s ease-in-out;
             }
 
-            #buttons {
-            display: none;
+            .search-scroll::-webkit-scrollbar {
+                display: none;
             }
-        }
 
-    </style>
-    {% endblock head %}
-</head>
+            ::-webkit-scrollbar,
+            *::-webkit-scrollbar {
+                width: 12px;
+                height: 12px;
+            }
 
-<body
-    class="dark:bg-neutral-950 font-normal overflow-x-hidden dark:text-neutral-200 bg-neutral-100 flex w-screen min-h-screen justify-center text-neutral-900">
-    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+            ::-webkit-scrollbar-track,
+            *::-webkit-scrollbar-track {
+                background: transparent;
+            }
 
-    <div id="sidebar"
-        class="sidebar h-screen w-72 overflow-y-auto top-0 left-0 fixed bg-neutral-200 dark:bg-neutral-900 p-2 border-r border-neutral-400 dark:border-neutral-700">
-        <div class="mobile-top-section lg:hidden flex justify-between items-center mb-4">
+            html[data-theme="dark"] ::-webkit-scrollbar-thumb,
+            html[data-theme="dark"] *::-webkit-scrollbar-thumb {
+                background: #222222;
+                border-radius: 0px;
+            }
+
+            html[data-theme="light"] ::-webkit-scrollbar-thumb,
+            html[data-theme="light"] *::-webkit-scrollbar-thumb {
+                background: #cccccc;
+                border-radius: 0px;
+            }
+
+            @media (max-width: 1024px) {
+                .sidebar {
+                    position: fixed;
+                    top: 0;
+                    left: -288px;
+                    z-index: 50;
+                    height: 100vh;
+                    transform: translateX(0);
+                    transition: transform 0.3s ease-in-out;
+                }
+
+                .sidebar.open {
+                    transform: translateX(288px);
+                }
+
+                .sidebar-overlay {
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 40;
+                }
+
+                .sidebar-overlay.open {
+                    display: block;
+                }
+
+                #buttons {
+                    display: none;
+                }
+            }
+        </style>
+        {% endblock head %}
+    </head>
+
+    <body
+        class="dark:bg-neutral-950 font-normal overflow-x-hidden dark:text-neutral-200 bg-neutral-100 flex w-screen min-h-screen justify-center text-neutral-900"
+    >
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <div
+            id="sidebar"
+            class="sidebar h-screen w-72 overflow-y-auto top-0 left-0 fixed bg-neutral-200 dark:bg-neutral-900 p-2 border-r border-neutral-400 dark:border-neutral-700"
+        >
+            <div
+                class="mobile-top-section lg:hidden flex justify-between items-center mb-4"
+            ></div>
+            <div class="file-explorer mt-2">
+                <div
+                    class="flex mobile-top-section lg:hidden justify-between px-4 items-center gap-4"
+                >
+                    <a href="/stuff" class="text-n mb-1">projects</a>
+                    <div class="flex items-center gap-4">
+                        <a href="/search">
+                            <i
+                                class="search-toggle ph ph-magnifying-glass cursor-pointer"
+                            ></i
+                        ></a>
+                        <i
+                            id="mobile-theme-toggle"
+                            class="ph-fill cursor-pointer ph-sun"
+                        ></i>
+                    </div>
+                </div>
+                <ul class="file-tree overflow-y-auto text-n">
+                    {% for node in file_tree %} {% include "file_node.html" %}
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-        <div class="file-explorer mt-2">
-            <div class="flex mobile-top-section lg:hidden justify-between px-4 items-center gap-4">
-                <a href="/stuff" class="text-n mb-1">projects</a>
+
+        <div
+            class="md:w-2/3 min-h-screen flex flex-col w-full lg:w-[47%] px-4 py-8"
+        >
+            <div class="navbar mb-4 items-center flex w-full justify-between">
                 <div class="flex items-center gap-4">
-                    <a href="/search"> <i class="search-toggle ph ph-magnifying-glass cursor-pointer"></i></a>
-                    <i id="mobile-theme-toggle" class="ph-fill cursor-pointer ph-sun"></i>
+                    <img
+                        src="https://github.com/namishh.png"
+                        alt=""
+                        class="h-10 w-10"
+                    />
+                    <a href="/" class="font-bold text-xl">namishh</a>
+                </div>
+                <div class="lg:flex items-center gap-4">
+                    <a class="hidden lg:block" href="/stuff">projects</a>
+                    <i
+                        id="theme-toggle"
+                        class="ph-fill hidden lg:block cursor-pointer text-xl ph-sun"
+                    ></i>
+                    <a href="/search">
+                        <i
+                            class="search-toggle ph ph-magnifying-glass hidden lg:block cursor-pointer text-2xl"
+                        ></i
+                    ></a>
+                    <i
+                        id="mobile-menu-toggle"
+                        class="ph cursor-pointer text-2xl ph-list lg:hidden mr-4"
+                    ></i>
                 </div>
             </div>
-            <ul class="file-tree overflow-y-auto text-n">
-                {% for node in file_tree %}
-                {% include "file_node.html" %}
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
 
-    <div class="md:w-2/3 min-h-screen flex flex-col w-full lg:w-[47%] px-4 py-8">
-        <div class="navbar mb-4 items-center flex w-full justify-between">
-            <div class="flex items-center gap-4">
-                <img src="https://github.com/namishh.png" alt="" class="h-10 w-10">
-                <a href="/" class="font-bold text-xl">namishh</a>
+            {% if not path is starting_with("/blog") and not path is
+            starting_with("/journal") and not path is starting_with("/poems")
+            and not path is starting_with("/notes") %}
+            <div
+                class="flex buttons gap-4 flex-wrap justify-end"
+                style="
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 99;
+                    padding-top: 170px;
+                    text-align: right;
+                    width: 250px;
+                "
+            >
+                <a href="/"
+                    ><img src="/static/images/button_nam.png" alt="nam"
+                /></a>
+                <a href="https://neovim.io" target="_blank"
+                    ><img src="/static/images/button_neovim.png" alt="nvim"
+                /></a>
             </div>
-            <div class="lg:flex items-center gap-4">
-                <a class="hidden lg:block" href="/stuff">projects</a>
-                <i id="theme-toggle" class="ph-fill hidden lg:block cursor-pointer text-xl ph-sun"></i>
-                <a href="/search"> <i
-                        class="search-toggle ph ph-magnifying-glass hidden lg:block cursor-pointer text-2xl"></i></a>
-                <i id="mobile-menu-toggle" class="ph cursor-pointer text-2xl ph-list lg:hidden mr-4"></i>
+
+            {% endif %}
+
+            <div id="content" class="grow">
+                {% block content %}{% endblock content %}
+            </div>
+
+            <div
+                class="footer mt-6 text-neutral-600 text-sm dark:text-neutral-400 flex justify-between"
+            >
+                <p>made out of ❤️ and boredom</p>
+                <p>
+                    built with
+                    <a href="https://actix.rs" target="_blank" class="link"
+                        >actix</a
+                    >
+                </p>
             </div>
         </div>
-
-        {% if not path is starting_with("/blog") and not path is starting_with("/journal") and not path is
-        starting_with("/poems") and not path is starting_with("/notes") %}
-        <div id="buttons" class="flex gap-4 flex-wrap justify-end"
-
-            style="position: absolute; top: 20px; right: 20px; z-index: 99; padding-top: 170px; text-align: right; width: 250px;">
-            <a href="/"><img src="/static/images/button_nam.png" alt="nam"></a>
-            <a href="https://neovim.io" target="_blank"><img src="/static/images/button_neovim.png" alt="nvim"></a>
-        </div>
-
-        {% endif %}
-
-        <div id="content" class="grow">{% block content %}{% endblock content %}</div>
-
-        <div class="footer mt-6 text-neutral-600 text-sm dark:text-neutral-400 flex justify-between">
-            <p>made out of ❤️ and boredom </p>
-            <p>built with <a href="https://actix.rs" target="_blank" class="link">actix</a></p>
-        </div>
-    </div>
-</body>
-
+    </body>
 </html>
