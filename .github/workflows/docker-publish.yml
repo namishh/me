@@ -63,8 +63,8 @@ jobs:
 
       - name: Wait for deployment
         run: |
-          echo "Waiting up to 5 minutes (initial 45s + 51 attempts * 5s) for deployment..."
-          sleep 45 # initial wait for docker to update
+          echo "Waiting up to 5.5 minutes (initial 75s + 51 attempts * 5s) for deployment..."
+          sleep 75 # initial wait for docker to update
 
           for i in {1..51}; do
             echo "Checking deployment status... (attempt $i/51)"
