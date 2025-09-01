@@ -7,8 +7,8 @@ category: poetry
 ---
 
 I remember the train, but <br>
-I have long forgotten the <br>
-Station it traveled to. <br>
+I have long forgotten the station <br>
+It used to travel to. <br>
 What stayed with me <br>
 Were the faces in the aisle <br>
 Once strangers, turned friends <br>
